@@ -1,0 +1,203 @@
+@import "tailwindcss";
+
+/* ── Design tokens ─────────────────────────────────────────── */
+:root {
+  --prussian: #000231;
+  --prussian-2: #011435;
+  --navy: #00006a;
+  --amber: #e5a90a;
+  --black: #000000;
+  --lemon: #fef112;
+  --pale-amber: #e6df63;
+  --text: #f2f0e6;
+  --text-muted: #c9c6cf;
+  --text-muted-2: #bfbdc8;
+  --text-dark-muted: #2e2e34;
+
+  --editor-surface: #f4f2ec;
+  --editor-border: #d9d6cc;
+
+  --radius-panel: 36px;
+  --radius-card: 28px;
+  --radius-pill: 32px;
+}
+
+@theme inline {
+  --color-prussian: var(--prussian);
+  --color-prussian-2: var(--prussian-2);
+  --color-navy: var(--navy);
+  --color-amber: var(--amber);
+  --color-lemon: var(--lemon);
+  --color-pale-amber: var(--pale-amber);
+  --color-ink: var(--text);
+  --color-muted: var(--text-muted);
+  --color-muted-2: var(--text-muted-2);
+  --color-dark-muted: var(--text-dark-muted);
+  --color-editor: var(--editor-surface);
+  --color-editor-border: var(--editor-border);
+
+  --font-display: var(--font-big-shoulders), "Arial Narrow", sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--prussian);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Glass ─────────────────────────────────────────────────── */
+@layer components {
+  .glass-dark {
+    background: rgba(1, 20, 53, 0.62);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    color: var(--text);
+  }
+  .glass-light {
+    background: rgba(254, 241, 18, 0.84);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    color: #000;
+  }
+  .glass-inset {
+    background: rgba(0, 2, 49, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .display {
+    font-family: var(--font-display);
+    line-height: 0.92;
+  }
+
+  .placeholder-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8px;
+    border: 1px dashed currentColor;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* Pills & buttons: touch targets ≥ 44 px */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 20px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+}
+
+/* ── Focus rings: amber on dark, prussian on lemon ─────────── */
+:focus-visible {
+  outline: 3px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.on-light :focus-visible,
+.glass-light :focus-visible,
+.editor :focus-visible {
+  outline-color: var(--prussian);
+}
+
+/* ── Background orbs ───────────────────────────────────────── */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ── Fallback when backdrop-filter is unsupported ──────────── */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-dark {
+    background: rgba(1, 20, 53, 0.94);
+  }
+  .glass-light {
+    background: rgba(254, 241, 18, 0.97);
+  }
+}
+
+/* ── Reduced motion ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Visually hidden, still read by screen readers */
+.sr-only-focusable:not(:focus):not(:focus-within) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Range input used by the before/after slider */
+.ba-range {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+.ba-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 52px;
+  height: 100%;
+  cursor: ew-resize;
+}
+.ba-range::-moz-range-thumb {
+  width: 52px;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  cursor: ew-resize;
+}

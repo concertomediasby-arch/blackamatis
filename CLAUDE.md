@@ -1,0 +1,258 @@
+# CLAUDE.md — Black Amatis · EMMA 2026 Portfolio
+
+## Project
+
+Web portfolio for **Black Amatis**, a Honda Odyssey car-audio build in a **two-face** style, competing in **EMMA (European Mobile Media Association) 2026**. The site has two faces of its own:
+
+1. **Public site (UI)**: for spectators and EMMA judges. Read-only, fast, mobile-friendly; reached by a QR code at the car.
+2. **Editor (CMS)**: for the owner and team, behind login. Everything on the public site is edited here.
+
+The approved prototype (design canvas) is the visual reference:
+https://claude.ai/artifact/QPLWhofacbUMACm7aXsG7m
+
+### Working rules
+- Talk to the user in **Indonesian**. All site copy is in **English**.
+- **Never invent product specs, scores, dates or names.** Unknown values stay as visible placeholders like `[BRAND / MODEL]`, `[__ mm²]`, `[OWNER NAME]` until the editor fills them.
+- EMMA rule numbers in this file come from the *EMMA Install Judge Book 2026* and *EMMA Rulebook 2026*. Do not change them without a newer rulebook.
+- No "Face 01 / Face 02" labels anywhere in the UI; the two faces are shown through colour only.
+- No logo mark: the brand is the wordmark **BLACK AMATIS** alone.
+- Small, reviewable commits. Run lint, typecheck and tests before each commit.
+
+## Stack
+
+- **Next.js 15** (App Router) + **TypeScript** (strict)
+- **Tailwind CSS v4** for styling, with design tokens below as CSS variables
+- **Supabase**: Postgres (content), Auth (editor login), Storage (photos, PDFs)
+- **Zod** for form/data validation, **React Hook Form** in the editor
+- `next/font` for Google Fonts, `next/image` for all photos
+- `qrcode` package to generate the QR for the print display
+- Deploy on **Vercel**
+
+```bash
+npm install
+npm run dev        # http://localhost:3000
+npm run lint
+npm run typecheck  # tsc --noEmit
+npm run test       # vitest
+npm run build
+```
+
+Env vars (`.env.local`, never commit):
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=   # server only
+NEXT_PUBLIC_SITE_URL=        # used for the QR code
+```
+
+## Folder structure
+
+```
+app/
+  (public)/
+    page.tsx                 # Home
+    history/page.tsx
+    theme/page.tsx
+    installation/page.tsx
+    bonus/page.tsx
+    judge/page.tsx           # Judge Mode
+    layout.tsx               # glass header + footer + background orbs
+  editor/
+    login/page.tsx
+    layout.tsx               # sidebar shell, auth guard
+    page.tsx                 # Overview
+    vehicle/page.tsx         # Vehicle & Story
+    components/page.tsx
+    photos/page.tsx          # Photo Log
+    bonus/page.tsx
+  print/qr/page.tsx          # A4 QR display, print-ready
+components/
+  ui/                        # GlassPanel, Pill, SegmentedTabs, Placeholder, ...
+  public/                    # Hero, SystemDiagram, WiringDiagram, SpecPopover, BeforeAfter, ...
+  editor/                    # Field, UploadZone, ComponentList, ...
+lib/
+  emma/                      # matrix.ts, criteria.ts, fuses.ts, bonus.ts (rule data + helpers)
+  supabase/                  # client.ts, server.ts, queries.ts
+  types.ts
+supabase/migrations/
+```
+
+## Design tokens
+
+### Colours (two palettes = two faces)
+| Token | Hex | Use |
+|---|---|---|
+| `--prussian` | `#000231` | Dark face background, primary buttons in editor |
+| `--prussian-2` | `#011435` | Dark panels |
+| `--navy` | `#00006A` | Accent on light surfaces, background glow |
+| `--amber` | `#E5A90A` | Accent on dark (eyebrows, arrows, links, CTA) |
+| `--black` | `#000000` | Light-face text, light-face CTA |
+| `--lemon` | `#FEF112` | Light face background, light glass |
+| `--pale-amber` | `#E6DF63` | Secondary light accent |
+| `--text` | `#F2F0E6` | Body text on dark |
+| `--text-muted` | `#C9C6CF` / `#BFBDC8` | Secondary text on dark |
+| `--text-dark-muted` | `#2E2E34` | Secondary text on lemon |
+
+Contrast: body text ≥ 4.5:1 on every glass panel. Muted grey on dark must stay at `#BFBDC8` or lighter.
+
+### Type
+- Display: **Big Shoulders Display** 700/800/900 (headings, big numbers, wordmark)
+- Body: **Inter** 400/500/600/700
+- Labels / eyebrows / data: **JetBrains Mono** 400/500, uppercase, letter-spacing 0.12–0.16em
+
+### Glassmorphism
+```css
+.glass-dark  { background: rgba(1,20,53,.62); backdrop-filter: blur(24px) saturate(140%);
+               border: 1px solid rgba(255,255,255,.14);
+               box-shadow: 0 20px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.1); }
+.glass-light { background: rgba(254,241,18,.84); backdrop-filter: blur(24px) saturate(140%);
+               border: 1px solid rgba(255,255,255,.6);
+               box-shadow: 0 20px 60px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.8); color: #000; }
+```
+- Page background: `--prussian` with large blurred orbs (amber ~0.3 opacity, navy ~0.9, lemon ~0.16, `filter: blur(120–150px)`).
+- Radii: panels 32–36px, cards 24–28px, header/footer pill 32px, buttons 999px.
+- Alternate dark glass and lemon glass between sections, so the two faces read down the page.
+- Provide a `@supports not (backdrop-filter: blur(1px))` fallback with more opaque panels.
+- Respect `prefers-reduced-motion`.
+
+### Editor look
+Calm and functional, not glass: surface `#F4F2EC`, cards white with `#D9D6CC` borders, sidebar `--prussian`, active item lemon with prussian text, primary button prussian with lemon text.
+
+## Public pages
+
+Shared: floating glass header (wordmark, nav: History · Theme · Installation · Bonus Point · Judge Mode, `EMMA 2026 · [CATEGORY]` pill), glass footer with prev/next links. Fluid layout, max-width ~1280–1360px, works at 360px wide.
+
+### Home `/`
+- **Hero** (inspired by a product-landing layout): huge word **AMATIS** behind a cut-out car photo (transparent PNG; silhouette until uploaded), splatter dots around the car. Left glass card: tag line + "ONE CAR. TWO FACES." + short copy. Right glass card: **Choose face** (two round swatches) + **Category** chips E/S/M/X. Bottom row: social icons, "Scroll to explore", CTA "View installation ↗". Top: glass nav pill + "Contact".
+- **Face toggle** switches the whole hero: dark face = prussian bg, amber word, light text; light face = lemon bg, black word, black text. Glow orbs and glass tints switch too. Animate background/colour 0.5s.
+- Vehicle data strip (Car, Year, EMMA category, Owner, Installer), project statement, four page cards, **Team & partners** (4 people + 6 partner logos), footer with `id="contact"`.
+
+### History `/history`
+- **Before/after slider** with tabs Exterior / Dashboard / Trunk. Accessible: real `<input type="range">` plus keyboard support.
+- Build timeline (from DB), competition history table (event, city, category, install points, result).
+
+### Theme `/theme`
+- Two-face split hero (dark glass + lemon glass cards) with the dark/light side descriptions.
+- "The theme in every zone": Exterior / Interior / Trunk cards mapped to judge criteria *Overall design*, *Design of interior*, *Design of trunk*.
+- Sketches & moodboard grid.
+- No palette/material section (removed on purpose).
+
+### Installation `/installation`
+In this order:
+1. **System diagram — Signal flow**: Head Unit → DSP → Amplifier A / Amplifier B → Tweeter, Midrange, Midbass (from Amp A) and Subwoofer (from Amp B). Default front stage is 3-way; it must be data-driven.
+2. **Wiring diagram — Power & fuses**: Main Battery → Main Fuse (≤ 40 cm from + post) → Distribution → Amp A, Amp B, DSP, Head Unit; dashed line to Chassis Ground. Cable size labels on links, `[__ mm²] · [__ A]` on each output.
+3. **Tuning notes**: target curve chart (20 Hz–20 kHz), crossover table (driver, HPF, LPF, slope), cards for time alignment, EQ, listening position, measurement tool.
+4. **Photo log — "Behind the panels"** (lemon glass): area tabs Engine Bay, Doors, Dashboard, Trunk, Under Floor; each photo has a code (`EB-01`), caption and a "✓ proves: <criterion>" pill.
+5. **Craftsmanship close-up**: tabs Wiring, Head Unit, Amplifiers, Speakers, Other Components; 3 close-ups + "What to look at" checklist; note "M: 2 pts · X: 10 pts per category".
+
+Diagrams: render as SVG (lines/arrows) with HTML buttons for products positioned over it; horizontal scroll inside a rounded container on small screens.
+
+**Spec popover** (not a modal): clicking a product opens a small glass panel **next to that card** inside the diagram (right side if it fits, else left), with photo thumb, role, title, brand/model, spec rows, an EMMA note and "Download spec sheet (PDF)". Active card gets an amber ring. Close via the same card, the × button, Esc, or clicking another product. Focus moves into the popover and back on close; `aria-expanded` on the card.
+
+Spec fields by type:
+- Head unit: Type, Outputs, Digital output, Screen/control, Power fuse, Mounting location
+- DSP: Inputs, Outputs, Sample rate, Control, Power fuse, Mounting location
+- Amplifier: Channels, RMS @ 4Ω, RMS @ 2Ω, Class, Power cable, Fuse, Mounting location
+- Speaker/sub: Size, Impedance, RMS power, Sensitivity, Frequency response, Mounting location, Driven by
+- Battery: Type, Capacity (Ah), CCA, Location, Positive cable
+- Main fuse: Fuse type, Rating, Distance to + post, Cable size, Cover
+- Distribution: Inputs, Outputs, Fuse ratings, Cable sizes, Location
+
+### Bonus Point `/bonus`
+- Four eligible elements: A Highlight components, B Attract spectators (no noise), C Normal everyday use, D Creative presentation.
+- Request cards (photo, title, element, description) + **estimate calculator**: per request idea (+1) and execution None / Average +1 / Good +2; toggle Limited (≤ 20 requests, cap 15 pts) / Unlimited (≤ 50 requests, cap 100 pts). Label it as a personal estimate.
+
+### Judge Mode `/judge`
+- Category selector E / S / M / X / X Unl → max points and judged criteria from the matrix.
+- "Evidence ready" progress bar (points with ticked evidence ÷ max). Ticks are stored per editor in the DB; on the public page they are read-only.
+- Key-rule cards: 40 cm main fuse, 7 min explanation (15 min X Unl), 3 min to show all fuses, 3 pts max per bonus request.
+- Criteria grouped (Presentation & Documentation, Electrical & Safety, Mounting & Function, Design & Craftsmanship); each row: tick, name, what judges check, evidence + link ("View in Installation · Photo log"), and a **MAX PTS** label above the number. Group header shows "NN PTS MAX".
+- Button "Download evidence pack (PDF)": generate server-side from the DB.
+
+### Print QR display `/print/qr`
+A4 portrait (210×297 mm), lemon background, "SCAN TO SEE WHAT'S INSIDE.", large real QR to `NEXT_PUBLIC_SITE_URL`, a list of what's on the site, "Questions about the build? Ask us — the team is right here.", prussian footer band with URL, Instagram, installer. Use `@page { size: A4; margin: 0 }` and print colours.
+
+## EMMA rule data (`lib/emma/`)
+
+Installation matrix (max points per class; `—` = not judged):
+
+| Criterion | E | S | M | X | X Unl |
+|---|---|---|---|---|---|
+| Presentation to the public | 10 | 10 | 10 | 10 | 10 |
+| Bonus presentation to the public | — | — | 5 | 5 | 5 |
+| Cleanliness | 6 | 6 | 6 | 6 | 6 |
+| System / wiring diagram | 4 | 4 | — | — | — |
+| System documentation | — | — | 10 | 10 | 10 |
+| Explanation of system to the judges | — | — | 5 | 10 | 10 |
+| Main fuse(s) present | 10 | 10 | 10 | 10 | 10 |
+| All wires to components fused | — | 15 | 15 | 15 | 15 |
+| Fuse value appropriate | — | 20 | 20 | 20 | 20 |
+| Interior wires invisible | — | 5 | 5 | 5 | 5 |
+| Wires properly terminated | — | — | 5 | 5 | 5 |
+| Wire terminations protected | — | — | 10 | 10 | 10 |
+| Wires protected from damage | — | — | 5 | 5 | 5 |
+| All components securely mounted | 24 | 24 | 24 | 24 | 24 |
+| Protection of speakers | 5 | 5 | 5 | 5 | — |
+| Normal use of the vehicle | — | 6 | 6 | 6 | — |
+| First optic impression | 10 | 10 | 10 | 10 | 10 |
+| Craftsmanship | — | — | 10 | 50 | 50 |
+| Design of interior | — | — | — | 5 | 10 |
+| Design of trunk | — | — | — | 5 | 10 |
+| Overall design of vehicle | — | — | — | — | 10 |
+| Bonus points | — | — | — | 15 | 100 |
+| **Total** | **69** | **115** | **161** | **231** | **325** |
+
+Classes: E = Entry, S = Skilled, M = Master, X = Expert, X Unl = Expert Unlimited. **Write a unit test that the column sums equal the totals.**
+
+Fuse table (VW75212, rating by smallest cable in the circuit):
+0.5 mm²/20 AWG → 10 A · 1.0/17 → 15 A · 1.5/15 → 20 A · 2.5/13 → 20 A · 4.0/11 → 30 A · 6.0/9 → 50 A · 10/7 → 60 A · 16/5 → 100 A · 25/4 → 125 A · 35/2 → 175 A · 50/0 → 250 A · 70/2-0 → 300 A.
+
+Other rules used in the UI: main fuse ≤ 40 cm from each positive battery post; all component fuses shown within 3 minutes total; explanation max 7 min (15 min X Unl), no videos, −1 pt per 30 s over; bonus max 3 pts per request (1 idea, +1 average or +2 good execution), Limited max 20 requests / 15 pts, Unlimited max 50 requests / 100 pts; sound improvements are not bonus.
+
+## Data model (Supabase)
+
+```
+vehicle(id, name, model, year, category, class, event, dark_side_name, light_side_name,
+        statement, owner, installer, designer, tuner, instagram, website, updated_at)
+milestones(id, when_label, title, body, photo_path, sort)
+competitions(id, event, city, category, install_points, result, date)
+components(id, key, title, role, type, brand, model, specs jsonb, photo_path, pdf_path,
+           in_system boolean, in_wiring boolean, sort)
+wiring_links(id, from_key, to_key, cable_mm2, fuse_a)
+tuning(id, driver, hpf_hz, lpf_hz, slope_db, time_align_ms, eq_bands)
+photos(id, area, code, caption, proves_criterion, path, sort)
+craft_photos(id, category, caption, path, sort)
+bonus_requests(id, no, title, element, description, photo_path, idea boolean, execution int)
+judge_evidence(criterion_key, ready boolean, note, updated_by, updated_at)
+team(id, role, name, line, photo_path, sort)
+partners(id, name, logo_path, url, sort)
+before_after(id, view, before_path, after_path)
+```
+- RLS: public `select` on all content tables; `insert/update/delete` only for authenticated editors (table `editors(user_id, role)` with `owner | editor`). Only `owner` can publish.
+- Storage buckets: `photos` (public read), `pdfs` (public read). Resize uploads to max 2400 px, WebP.
+- Draft/publish: content tables carry `status ('draft'|'published')`; public pages read only `published`. Revalidate public pages on publish (`revalidatePath`).
+
+## Editor (CMS) `/editor`
+
+Sidebar: Overview · Vehicle & Story · Components · Photo Log · Bonus Requests. Top bar: status ("Draft · unpublished changes"), **View public site**, **Save draft**, **Publish**.
+- **Overview**: a card per public page (status, last edited by/when, Edit, Preview) + pre-event checklist + link to Judge Mode.
+- **Vehicle & Story**: vehicle fields, category/class selects, dark/light side names, statement (≤ 80 words, counter), team & links, timeline list with add/edit/reorder.
+- **Components**: list on the left (select, add, reorder), form on the right: brand, model, type-specific spec fields, photo upload (transparent PNG), PDF upload, "Show in System / Wiring diagram" checkboxes; wiring link editor for cable size and fuse per link with an inline warning when the fuse exceeds the VW75212 table for that cable.
+- **Photo Log**: area tabs, slots with upload, caption, "Proves" select (criteria list), add slot, drag to reorder.
+- **Bonus Requests**: table + edit drawer; warn when over the Limited/Unlimited request cap.
+- Every form: labels, inline Zod errors, autosave draft every 10 s, unsaved-changes guard.
+
+## Accessibility & quality
+- Real `<button>`, `<a>`, `<label>`; tab order follows the page; visible focus ring (amber on dark, prussian on lemon).
+- Touch targets ≥ 44 px. `aria-pressed` on toggles, `aria-expanded` on product cards, `role="dialog"` on the spec popover.
+- Diagrams also exist as a text list for screen readers.
+- Lighthouse ≥ 90 on Performance, Accessibility, Best Practices, SEO for the public pages.
+- Open Graph image and metadata per page.
+
+## Build order
+1. Scaffold Next.js + Tailwind + tokens + fonts; glass primitives; public layout (header, footer, orbs).
+2. `lib/emma` data + tests (matrix sums, fuse lookup, bonus calculator).
+3. Public pages with static placeholder data: Home → Installation (diagrams + popover) → Judge → History → Theme → Bonus.
+4. Supabase schema, RLS, storage; swap static data for queries.
+5. Editor: auth, shell, then Vehicle → Components → Photo Log → Bonus → Overview; draft/publish.
+6. Print QR page, evidence-pack PDF, OG images, Lighthouse pass, deploy.
