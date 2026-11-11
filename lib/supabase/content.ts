@@ -38,6 +38,24 @@ function withoutNulls<T extends object>(row: T): Partial<T> {
 }
 
 /**
+ * Text columns that are null in the database become "" (the template is a
+ * placeholder row of the same table), so pages can always call string methods.
+ */
+export function fillTextNulls<T extends object>(rows: T[], template: object | undefined): T[] {
+  if (!template) return rows;
+  const textKeys = Object.entries(template)
+    .filter(([, v]) => typeof v === "string")
+    .map(([k]) => k);
+  return rows.map((r) => {
+    const rec = r as Record<string, unknown>;
+    const fix = textKeys.filter((k) => rec[k] === null);
+    return fix.length ? ({ ...r, ...Object.fromEntries(fix.map((k) => [k, ""])) } as T) : r;
+  });
+}
+
+const templateOf = (key: string) => ((PLACEHOLDER as unknown as Record<string, unknown>)[key] as object[] | undefined)?.[0];
+
+/**
  * Published content for public pages (anon key + RLS). A table with no published
  * rows falls back to the placeholder content; a network or permission error throws.
  */
@@ -55,7 +73,7 @@ export async function fetchPublishedContent(db: SupabaseClient): Promise<SiteCon
       if (order) q = q.order(order, { ascending: true });
       const { data, error } = await q;
       if (error) throw new ContentError(`${table}: ${error.message}`);
-      if (data && data.length > 0) (out as Record<string, unknown>)[key] = data;
+      if (data && data.length > 0) (out as Record<string, unknown>)[key] = fillTextNulls(data as object[], templateOf(key));
     }),
   );
 
@@ -76,7 +94,7 @@ export async function fetchEditorContent(db: SupabaseClient): Promise<SiteConten
       if (order) q = q.order(order, { ascending: true });
       const { data, error } = await q;
       if (error) throw new ContentError(`${table}: ${error.message}`);
-      if (data && data.length) (out as Record<string, unknown>)[key] = data;
+      if (data && data.length) (out as Record<string, unknown>)[key] = fillTextNulls(data as object[], templateOf(key));
     }),
   );
   return out;
