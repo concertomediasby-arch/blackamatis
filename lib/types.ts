@@ -28,6 +28,9 @@ export type Vehicle = {
   car_photo_path: string | null;
   /** Hero car position and size per screen size (see lib/photo.ts). */
   car_photo_layout: CarPhotoLayout | null;
+  /** Uploaded system diagram for the Installation page, and its text description. */
+  system_diagram_path: string | null;
+  system_diagram_alt: string;
   /** Tuning notes shown on the Installation page. */
   tuning_eq: string;
   tuning_listening: string;

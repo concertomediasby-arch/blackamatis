@@ -151,7 +151,7 @@ Shared: floating glass header (wordmark, nav: History · Theme · Installation �
 
 ### Installation `/installation`
 In this order:
-1. **System diagram — Signal flow**: Head Unit → DSP → Amplifier A / Amplifier B → Tweeter, Midrange, Midbass (from Amp A) and Subwoofer (from Amp B). Default front stage is 3-way; it must be data-driven.
+1. **System diagram — Signal flow**: if the team uploaded their own diagram image (editor › Components › *System diagram image*, `vehicle.system_diagram_path` + `system_diagram_alt`), it is shown first with *Open full size*; the interactive diagram below stays as a second tab (*Specs per product*). The interactive diagram: Head Unit → DSP → Amplifier A / Amplifier B → Tweeter, Midrange, Midbass (from Amp A) and Subwoofer (from Amp B). Default front stage is 3-way; it must be data-driven.
 2. **Wiring diagram — Power & fuses**: Main Battery → Main Fuse (≤ 40 cm from + post) → Distribution → Amp A, Amp B, DSP, Head Unit; dashed line to Chassis Ground. Cable size labels on links, `[__ mm²] · [__ A]` on each output.
 3. **Photo log — "Behind the panels"** (lemon glass): area tabs Engine Bay, Doors, Dashboard, Trunk, Under Floor; each photo has a code (`EB-01`), caption and a "✓ proves: <criterion>" pill.
 4. **Craftsmanship close-up**: tabs Wiring, Head Unit, Amplifiers, Speakers, Other Components; 3 close-ups + "What to look at" checklist; note "M: 2 pts · X: 10 pts per category".

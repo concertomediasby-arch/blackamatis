@@ -170,6 +170,8 @@ export const PLACEHOLDER: SiteContent = {
     website: "",
     car_photo_path: null,
     car_photo_layout: null,
+    system_diagram_path: null,
+    system_diagram_alt: "",
     tuning_eq: "[EQ approach: number of bands, per-channel or global, main corrections.]",
     tuning_listening: "[Driver seat / centre / both: what the system is tuned for.]",
     tuning_measurement: "[Microphone and software used.]",

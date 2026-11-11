@@ -3,6 +3,8 @@
 import { ContentFallback, useSiteContent } from "@/components/public/ContentProvider";
 import { Craftsmanship } from "@/components/public/Craftsmanship";
 import { Diagram, type DiagramNode } from "@/components/public/Diagram";
+import { SignalFlowPanel } from "@/components/public/SignalFlowPanel";
+import { storageUrl } from "@/lib/supabase/env";
 import { PhotoLog } from "@/components/public/PhotoLog";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { checkFuse } from "@/lib/emma/fuses";
@@ -79,19 +81,18 @@ export function InstallationView() {
 
       <section aria-labelledby="system-diagram" className="mx-auto max-w-[1360px] px-3 pb-16 sm:px-6 lg:px-10">
         <GlassPanel className="relative flex flex-col gap-7 rounded-[36px] p-5 sm:p-12">
-          <EditPencil href="/editor/components/" label="Components and system diagram" className="right-5 top-5" />
-          <div className="flex flex-wrap items-end justify-between gap-5">
-            <SectionHead eyebrow="System diagram" title="Signal flow" id="system-diagram">
-              Source, processing, amplification and speakers. The front stage is shown as configured in the editor.
-            </SectionHead>
-            <span className="inline-flex items-center gap-2.5 rounded-full border border-lemon/35 bg-lemon/10 px-4 py-2.5 text-[13px] text-lemon">
-              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 4l7 17 2.5-7.5L21 11z" />
-              </svg>
-              Click a product to see its specs
-            </span>
-          </div>
-          <Diagram label="Signal flow" nodes={sysNodes} edges={sysEdges} columnLabels={["SOURCE", "PROCESSING", "AMPLIFICATION", "SPEAKERS"]} />
+          <EditPencil href="/editor/components/#system-image" label="System diagram" className="right-5 top-5" />
+          <SignalFlowPanel
+            imageUrl={storageUrl(c.vehicle.system_diagram_path)}
+            imageAlt={c.vehicle.system_diagram_alt}
+            nodes={sysNodes}
+            edges={sysEdges}
+            heading={
+              <SectionHead eyebrow="System diagram" title="Signal flow" id="system-diagram">
+                Source, processing, amplification and speakers.
+              </SectionHead>
+            }
+          />
         </GlassPanel>
       </section>
 
