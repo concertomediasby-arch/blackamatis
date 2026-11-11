@@ -10,6 +10,14 @@ Web portfolio for **Black Amatis**, a Honda Odyssey car-audio build in a **two-f
 The approved prototype (design canvas) is the visual reference:
 https://claude.ai/artifact/QPLWhofacbUMACm7aXsG7m
 
+### Hosting
+- App on **Hostinger**; data, auth and storage on **Supabase** project `black-amatis` (ref `ddxcjzykcrozxqwubexr`, region Singapore).
+- Business / Cloud plan → Node.js web app (`next build` / `next start`, SSR + Server Actions kept).
+  Single / Premium plan → static export (`output: 'export'`), browser-side data and editor. **Plan not confirmed yet.**
+- Site lives on the subdomain `blackamatis.<domain>`. Never change existing DNS records or nameservers: another subdomain on the same domain is in use.
+- Anon/publishable key only in the browser; service-role key only on the server (Node path), never in a static build.
+- `NEXT_PUBLIC_SITE_URL` = `https://blackamatis.<domain>`; regenerate the print QR from it before printing.
+
 ### Open decision
 The car is lime green + black with gold, purple and white line art; the site palette is Prussian / amber / lemon. Do not change the design tokens until the user decides whether to switch to the car's colours.
 
@@ -29,7 +37,7 @@ The car is lime green + black with gold, purple and white line art; the site pal
 - **Zod** for form/data validation, **React Hook Form** in the editor
 - `next/font` for Google Fonts, `next/image` for all photos
 - `qrcode` package to generate the QR for the print display
-- Deploy on **Vercel**
+- Hosting on **Hostinger** (app) + **Supabase** (data, auth, storage). No Vercel.
 
 ```bash
 npm install
@@ -267,4 +275,4 @@ Sidebar: Overview · Vehicle & Story · Components · Photo Log · Bonus Request
 3. Public pages with static placeholder data: Home → Installation (diagrams + popover) → Judge → History → Theme → Bonus.
 4. Supabase schema, RLS, storage; swap static data for queries.
 5. Editor: auth, shell, then Vehicle → Components → Photo Log → Bonus → Overview; draft/publish.
-6. Print QR page, evidence-pack PDF, OG images, Lighthouse pass, deploy.
+6. Print QR page, evidence-pack PDF, OG images, Lighthouse pass, deploy to Hostinger.

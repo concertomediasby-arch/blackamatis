@@ -26,14 +26,21 @@ If `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` are empty:
 
 ## With Supabase
 
-1. Create a project and run `supabase/migrations/20261111000000_init.sql` (tables, RLS, `photos` + `pdfs` buckets).
+The project `black-amatis` (Singapore) already exists with all migrations and the bonus seed applied.
+For a fresh project:
+
+1. Run the files in `supabase/migrations/` in order (tables, RLS, `photos` + `pdfs` buckets, bonus columns, private role helpers), then `supabase/seed.sql`.
 2. Create the owner user in Supabase Auth, then add them as an editor:
    ```sql
    insert into public.editors (user_id, role) values ('<auth user id>', 'owner');
    ```
-3. Set the env vars in `.env.local` / Vercel and restart.
+3. Set the env vars in `.env.local` (local) or in the Hostinger web app settings, and restart.
 
 Editors save drafts (autosave every 10 s); only the `owner` role can **Publish**, which marks all drafts as published and revalidates the public pages. Public pages read `published` rows only and fall back to placeholders for empty tables.
+
+## Hosting
+
+Hostinger (app) + Supabase (data, auth, storage). Deployment steps for the team are in `docs/DEPLOY-HOSTINGER.md` (written once the Hostinger plan is confirmed).
 
 ## Structure
 
