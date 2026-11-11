@@ -34,6 +34,7 @@ export default function PhotosPage() {
     setArea_(next);
   };
 
+  const devices = [...content.components].sort((a, b) => a.sort - b.sort);
   const options = PHOTO_AREAS.map((a) => ({ key: a.key, label: a.label, count: content.photos.filter((p) => p.area === a.key).length }));
 
   return (
@@ -87,6 +88,19 @@ export default function PhotosPage() {
                     {CRITERIA.map((c) => (
                       <option key={c.key} value={c.key}>
                         {c.name}
+                      </option>
+                    ))}
+                  </SelectField>
+                  <SelectField
+                    label="Shows device"
+                    value={p.component_key ?? ""}
+                    onChange={(e) => patch(p.id, { component_key: e.target.value || null })}
+                    hint="Optional. The photo then appears in that device's circuit card on the cable diagram."
+                  >
+                    <option value="">— none —</option>
+                    {devices.map((c) => (
+                      <option key={c.id} value={c.key}>
+                        {c.title}
                       </option>
                     ))}
                   </SelectField>
