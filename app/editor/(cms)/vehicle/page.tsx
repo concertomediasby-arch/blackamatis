@@ -14,6 +14,8 @@ import {
 import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
 import { PartnersEditor } from "@/components/editor/sections/PartnersEditor";
+import { MediaListEditor } from "@/components/editor/sections/MediaListEditor";
+import { normalizeMedia } from "@/lib/bonus-media";
 import {
   STATEMENT_MAX_WORDS,
   storyFormSchema,
@@ -150,6 +152,20 @@ export default function VehiclePage() {
             }))
           }
         />
+        <MediaListEditor
+          label="More car photos (hero slider)"
+          intro="Extra cut-out photos (transparent PNG) of the car, e.g. other angles. Visitors swipe through them on the landing page after the photo above. They use the same position & size."
+          folder="vehicle"
+          numbered={false}
+          photosOnly
+          value={normalizeMedia(v.hero_photos)}
+          onChange={(list) =>
+            update((c) => ({
+              ...c,
+              vehicle: { ...c.vehicle, hero_photos: list },
+            }))
+          }
+        />
       </Card>
 
       <div id="faces">
@@ -204,6 +220,22 @@ export default function VehiclePage() {
             label="History summary"
             {...register("story")}
             error={e.story?.message}
+          />
+        </div>
+        <div id="f-history-photo">
+          <MediaListEditor
+            label="History photos (slider)"
+            intro="Photos of the car under the story, shown as a slider visitors can swipe. Landscape works best; set the crop focus on each. The caption is optional."
+            folder="history"
+            numbered={false}
+            photosOnly
+            value={normalizeMedia(v.history_photos)}
+            onChange={(list) =>
+              update((c) => ({
+                ...c,
+                vehicle: { ...c.vehicle, history_photos: list },
+              }))
+            }
           />
         </div>
       </Card>

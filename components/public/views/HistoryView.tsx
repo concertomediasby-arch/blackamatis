@@ -4,6 +4,8 @@ import {
   ContentFallback,
   useSiteContent,
 } from "@/components/public/ContentProvider";
+import { PhotoSlider } from "@/components/public/PhotoSlider";
+import { normalizeMedia } from "@/lib/bonus-media";
 import { EditPencil } from "@/components/public/EditMode";
 
 export function HistoryView() {
@@ -12,7 +14,7 @@ export function HistoryView() {
   const c = state.content;
   return (
     <>
-      <section className="px-8 sm:px-[72px] lg:px-[88px] relative grid grid-cols-1 items-end gap-12 pb-24 pt-24 md:grid-cols-2">
+      <section className="px-8 sm:px-[72px] lg:px-[88px] relative grid grid-cols-1 items-end gap-12 pb-16 pt-24 md:grid-cols-2">
         <EditPencil
           href="/editor/vehicle/#f-story"
           label="History summary"
@@ -32,6 +34,20 @@ export function HistoryView() {
         <p className="m-0 max-w-[620px] text-lg leading-[1.7] text-muted md:justify-self-end">
           {c.vehicle.story}
         </p>
+      </section>
+      <section
+        aria-label="The car"
+        className="relative px-3 pb-24 sm:px-6 lg:px-10"
+      >
+        <EditPencil
+          href="/editor/vehicle/#f-history-photo"
+          label="History photos"
+          className="-top-5 right-8"
+        />
+        <PhotoSlider
+          photos={normalizeMedia(c.vehicle.history_photos)}
+          label="Photos of Black Amatis"
+        />
       </section>
     </>
   );
