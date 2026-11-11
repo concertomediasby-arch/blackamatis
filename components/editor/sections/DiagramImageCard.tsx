@@ -24,7 +24,7 @@ const KINDS = {
     alt: "wiring_diagram_alt",
     field: "wiring_hotspots",
     intro:
-      "Upload your own cable / wiring diagram. The Installation page then shows it first in Power & fuses, and every device you mark below opens its spec sheet when clicked. The generated power diagram with cable sizes and fuses stays available as a second tab.",
+      "Upload your own cable / wiring diagram. The Installation page then shows it first in Power & fuses, and every circuit you mark below opens its power path, cables and fuses when clicked. The generated power diagram with cable sizes and fuses stays available as a second tab.",
     altHint: "One or two sentences, e.g. “Battery and main fuses to two power banks, then fused distribution blocks to every amplifier, the DSP and the streamer.”",
   },
 } as const;
@@ -50,7 +50,14 @@ export function DiagramImageCard({ kind }: { kind: keyof typeof KINDS }) {
         hint="Landscape works best. Shown full width; visitors can open it full size."
       />
       <TextArea label="Description for screen readers" rows={2} maxLength={400} value={alt} onChange={(e) => set({ [k.alt]: e.target.value })} hint={k.altHint} />
-      {path && <HotspotEditor imagePath={path} alt={alt} field={k.field} />}
+      {path &&
+        (kind === "wiring" ? (
+          <p className="m-0 text-sm text-[#4a4852]">
+            Make devices clickable in <a href="#circuits" className="font-semibold underline">Cable diagram circuits</a> below: each circuit gets its own boxes.
+          </p>
+        ) : (
+          <HotspotEditor imagePath={path} alt={alt} field={k.field} />
+        ))}
     </Card>
   );
 }

@@ -240,6 +240,44 @@ export type MoodItem = {
   sort: number;
 };
 
+/** One step of a power or ground run: a part (node, optionally a fuse) or a cable between parts. */
+export type ChainItem =
+  | { id: string; t: "node"; label: string; fuse_a?: number | null; /** A fuse, even when its rating is not filled in yet. */ is_fuse?: boolean }
+  | { id: string; t: "cable"; name: string; awg: string | null; length_cm: number | null };
+
+/** A cable outside the power/ground run: RCA signal, speaker cable or anything else. */
+export type SideCable = {
+  id: string;
+  role: "signal" | "speaker" | "other";
+  from: string;
+  to: string;
+  /** Product at the far end (e.g. the speaker), shown with its name. */
+  to_key?: string | null;
+  name: string;
+  awg: string | null;
+  length_cm: number | null;
+};
+
+/**
+ * A run on the cable diagram. "trunk": battery to a distribution / ground block
+ * (shared). "channel": one device fed from a trunk, with its own cables.
+ */
+export type Circuit = {
+  id: string;
+  name: string;
+  kind: "trunk" | "channel";
+  /** Product shown in the circuit (spec sheet), e.g. the amplifier. */
+  component_key: string | null;
+  /** The trunk circuits this run continues from (power + / ground −). */
+  power_from: string | null;
+  ground_from: string | null;
+  power: ChainItem[];
+  ground: ChainItem[];
+  cables: SideCable[];
+  wiring_hotspots: Hotspot[];
+  sort: number;
+};
+
 export type SiteContent = {
   vehicle: Vehicle;
   milestones: Milestone[];
@@ -256,4 +294,5 @@ export type SiteContent = {
   beforeAfter: BeforeAfter[];
   zones: ThemeZone[];
   moodboard: MoodItem[];
+  circuits: Circuit[];
 };
