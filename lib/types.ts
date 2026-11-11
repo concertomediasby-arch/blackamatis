@@ -266,6 +266,8 @@ export type Circuit = {
   id: string;
   name: string;
   kind: "trunk" | "channel";
+  /** Fuse position as labelled on the distribution block, e.g. "A7" (block A, 7th fuse). */
+  fuse_code?: string | null;
   /** Product shown in the circuit (spec sheet), e.g. the amplifier. */
   component_key: string | null;
   /** The trunk circuits this run continues from (power + / ground −). */
