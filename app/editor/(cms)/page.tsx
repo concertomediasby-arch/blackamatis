@@ -11,7 +11,7 @@ import { CLASS_INFO, type CriterionKey } from "@/lib/emma/matrix";
 /** Public pages and the tables their content comes from. */
 const PAGES = [
   { name: "Home", href: "/", edit: "/editor/vehicle/", tables: ["vehicle", "team", "partners"] },
-  { name: "History", href: "/history/", edit: "/editor/history/", tables: ["vehicle", "milestones", "competitions", "before_after"] },
+  { name: "History", href: "/history/", edit: "/editor/history/", tables: ["vehicle", "milestones", "competitions"] },
   { name: "Theme", href: "/theme/", edit: "/editor/theme/", tables: ["vehicle", "theme_zones", "moodboard_items"] },
   { name: "Installation", href: "/installation/", edit: "/editor/components/", tables: ["components", "wiring_links", "photos", "craft_photos"] },
   { name: "Bonus Point", href: "/bonus/", edit: "/editor/bonus/", tables: ["bonus_requests"] },
