@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 import { normalizeHotspots, type HotspotField } from "@/lib/photo";
-import type { AudioComponent, Photo, WiringLink } from "@/lib/types";
+import type { AudioComponent, Circuit, Photo, WiringLink } from "@/lib/types";
+import { CableDiagram } from "./CableDiagram";
 import { DiagramHotspots } from "./DiagramHotspots";
 
 type View = "image" | "interactive";
@@ -35,6 +36,7 @@ export function DiagramPanel({
   textList,
   circuit,
   imageHint = "Click a device on the diagram to see its specs",
+  circuits,
 }: {
   imageUrl: string | null;
   imageAlt: string;
@@ -53,10 +55,13 @@ export function DiagramPanel({
   /** Open a circuit card per device instead of the spec sheet (cable diagram). */
   circuit?: { links: WiringLink[]; photos: Photo[] };
   imageHint?: string;
+  /** Cable diagram runs (power, ground, cables per device); used instead of per-component areas when any is marked. */
+  circuits?: Circuit[];
 }) {
   const [view, setView] = useState<View>("image");
   const showImage = !!imageUrl && view === "image";
-  const clickable = components.some((c) => normalizeHotspots(c[field]).length > 0);
+  const runs = (circuits ?? []).filter((c) => normalizeHotspots(c.wiring_hotspots).length > 0);
+  const clickable = runs.length > 0 || components.some((c) => normalizeHotspots(c[field]).length > 0);
 
   if (!imageUrl) {
     return (
@@ -94,7 +99,11 @@ export function DiagramPanel({
                 <Hint>{imageHint}</Hint>
               </div>
             )}
-            <DiagramHotspots imageUrl={imageUrl} alt={imageAlt || defaultAlt} components={components} field={field} circuit={circuit} />
+            {runs.length > 0 ? (
+              <CableDiagram imageUrl={imageUrl} alt={imageAlt || defaultAlt} circuits={circuits!} components={components} />
+            ) : (
+              <DiagramHotspots imageUrl={imageUrl} alt={imageAlt || defaultAlt} components={components} field={field} circuit={circuit} />
+            )}
             <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted">
               <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-semibold text-amber hover:text-lemon">
                 Open full size ↗

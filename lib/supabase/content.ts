@@ -20,6 +20,7 @@ export const CONTENT_TABLES: { key: ListKey; table: string; order?: string }[] =
   { key: "beforeAfter", table: "before_after" },
   { key: "zones", table: "theme_zones", order: "sort" },
   { key: "moodboard", table: "moodboard_items", order: "sort" },
+  { key: "circuits", table: "circuits", order: "sort" },
 ];
 
 /** Columns the public may read; `strength` on bonus requests is editor-only. */
