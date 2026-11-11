@@ -140,8 +140,8 @@ Shared: floating glass header (wordmark, nav: History · Theme · Installation �
 - Vehicle data strip (Car, Year, EMMA category, Owner, Installer), project statement, **Team & partners** (4 people + 6 partner logos), footer with `id="contact"`.
 
 ### History `/history`
-- **Before/after slider** with tabs Exterior / Dashboard / Trunk. Accessible: real `<input type="range">` plus keyboard support.
-- Build timeline (from DB), competition history table (event, city, category, install points, result).
+- No before/after slider (removed on purpose; the `before_after` table is kept but unused).
+- Only the headline and the story (`vehicle.story`). No build timeline and no competition history (both removed on purpose; the `milestones` and `competitions` tables are kept but unused).
 
 ### Theme `/theme`
 - Two-face split hero (dark glass + lemon glass cards) with the dark/light side descriptions.
@@ -257,11 +257,11 @@ circuits(id, name, kind ('trunk'|'channel'), component_key, power_from, ground_f
 
 ## Editor (CMS) `/editor`
 
-Login: passwordless one-time code by email (Supabase email OTP, `shouldCreateUser: false`; the Magic Link email template shows `{{ .Token }}` and a sign-in link). Sidebar: Overview · Vehicle & Story · History · Theme · Components · Photo Log · Bonus Requests. Top bar: status ("Draft · unpublished changes"), **View public site**, **Save draft**, **Publish**.
+Login: passwordless one-time code by email (Supabase email OTP, `shouldCreateUser: false`; the Magic Link email template shows `{{ .Token }}` and a sign-in link). Sidebar: Overview · Vehicle & Story · Theme · Components · Photo Log · Bonus Requests. Top bar: status ("Draft · unpublished changes"), **View public site**, **Save draft**, **Publish**.
 - **Overview**: a card per public page (status, last edited by/when, Edit, Preview) + pre-event checklist + link to Judge Mode.
-- **Vehicle & Story**: vehicle fields, category/class selects, dark/light side names, statement (≤ 80 words, counter), team & links, timeline list with add/edit/reorder.
+- **Vehicle & Story**: vehicle fields, category/class selects, dark/light side names, statement (≤ 80 words, counter), team & links (no timeline: removed on purpose).
 - **Components**: list on the left (select, add, reorder), form on the right: brand, model, type-specific spec fields, photo upload (transparent PNG), PDF upload, "Show in System / Wiring diagram" checkboxes; wiring link editor for cable size and fuse per link with an inline warning when the fuse exceeds the VW75212 table for that cable.
-- **History**: before/after photo pairs (Exterior, Dashboard, Trunk); competition table (event, city, category, install points, result, date).
+- No History section in the editor: the History page shows only the story, edited in Vehicle & Story.
 - **Theme**: theme zones (name, photo, up to 8 theme elements each); sketches & moodboard (up to 8 images, first one large).
 - No tuning section (removed on purpose from the Installation page and the editor; the `tuning` table and `vehicle.tuning_*` columns are kept but unused).
 - **Photo Log**: area tabs, slots with upload, caption, "Proves" select (criteria list), add slot, drag to reorder; craftsmanship close-ups (3 per category).
