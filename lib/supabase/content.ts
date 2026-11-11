@@ -24,7 +24,7 @@ export const CONTENT_TABLES: { key: ListKey; table: string; order?: string }[] =
 
 /** Columns the public may read; `strength` on bonus requests is editor-only. */
 const PUBLIC_COLUMNS: Partial<Record<string, string>> = {
-  bonus_requests: 'id, no, code, "group", title, element, description, photo_path, submit, idea, execution, sort',
+  bonus_requests: 'id, no, code, "group", title, element, description, photo_path, submit, idea, execution, process, result, sort',
 };
 
 /** Tables without a draft/publish status column. */

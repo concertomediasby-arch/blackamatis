@@ -6,6 +6,7 @@ import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 import { BONUS_MODES, DEFAULT_BONUS_MODE, EXECUTION_LABELS, estimateBonus, requestPoints, type BonusMode, type Execution } from "@/lib/emma/bonus";
 import { BONUS_GROUPS, bonusCode, groupInfo, nextBonusNo, type BonusGroup } from "@/lib/emma/bonus-locations";
 import type { PublicBonusRequest } from "@/lib/types";
+import { BonusDetails } from "./BonusDetails";
 
 type Row = PublicBonusRequest & { added?: boolean };
 type Filter = "all" | BonusGroup;
@@ -18,6 +19,14 @@ export function BonusList({ initial }: { initial: PublicBonusRequest[] }) {
   const [rows, setRows] = useState<Row[]>(() => [...initial].sort((a, b) => a.sort - b.sort));
   const [mode, setMode] = useState<BonusMode>(DEFAULT_BONUS_MODE);
   const [filter, setFilter] = useState<Filter>("all");
+  const [open, setOpen] = useState<Set<string>>(() => new Set());
+  const toggle = (id: string) =>
+    setOpen((s) => {
+      const next = new Set(s);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
   const est = estimateBonus(rows, mode);
   const cls = BONUS_MODES[mode];
@@ -128,7 +137,18 @@ export function BonusList({ initial }: { initial: PublicBonusRequest[] }) {
                     />
                   </label>
                 ) : (
-                  <span className="text-[15px] font-semibold leading-snug">{name}</span>
+                  <button
+                    type="button"
+                    aria-expanded={open.has(r.id)}
+                    aria-controls={open.has(r.id) ? `bonus-${r.code}` : undefined}
+                    onClick={() => toggle(r.id)}
+                    className="group -mx-1 flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-1 text-left text-[15px] font-semibold leading-snug hover:underline"
+                  >
+                    <span>{name}</span>
+                    <span className="flex-none whitespace-nowrap font-mono text-[10px] font-medium tracking-[0.12em] text-navy">
+                      {open.has(r.id) ? "HIDE ▴" : "IDEA · PROCESS · RESULT ▾"}
+                    </span>
+                  </button>
                 )}
               </div>
               <label className="col-start-2 flex min-h-11 cursor-pointer items-center gap-2.5 text-sm font-semibold lg:col-start-auto">
@@ -164,6 +184,7 @@ export function BonusList({ initial }: { initial: PublicBonusRequest[] }) {
                 <span className="font-display text-3xl font-black">{pts}</span>
                 <span className="font-mono text-[10px] tracking-[0.12em] text-dark-muted">PTS</span>
               </span>
+              {open.has(r.id) && !r.added && <BonusDetails request={r} id={`bonus-${r.code}`} />}
             </li>
           );
         })}
