@@ -4,7 +4,6 @@ import {
   ContentFallback,
   useSiteContent,
 } from "@/components/public/ContentProvider";
-import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { EditPencil } from "@/components/public/EditMode";
 
@@ -74,74 +73,6 @@ export function HistoryView() {
             </li>
           ))}
         </ol>
-      </section>
-
-      <section aria-labelledby="events" className="mx-3 sm:mx-6 lg:mx-10">
-        <GlassPanel tone="light" className="relative rounded-[36px]">
-          <EditPencil
-            href="/editor/history/#competitions"
-            label="Competition history"
-            className="right-5 top-5"
-            tone="light"
-          />
-          <div className="flex flex-col gap-10 px-5 py-20 sm:px-12">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <h2 id="events" className="display m-0 text-5xl font-extrabold">
-                Competition history
-              </h2>
-              <span className="font-mono text-xs tracking-[0.12em] text-dark-muted">
-                UPDATED AFTER EACH EVENT
-              </span>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] border-collapse text-[15px]">
-                <thead>
-                  <tr className="text-left font-mono text-[11px] tracking-[0.12em] text-dark-muted">
-                    {[
-                      "EVENT",
-                      "CITY",
-                      "CATEGORY",
-                      "INSTALL POINTS",
-                      "RESULT",
-                    ].map((h) => (
-                      <th
-                        key={h}
-                        scope="col"
-                        className="border-b-2 border-black py-3 pr-4 font-medium"
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {c.competitions.map((e) => (
-                    <tr key={e.id}>
-                      <th
-                        scope="row"
-                        className="border-b border-[#C2B50C] py-4 pr-4 text-left font-semibold"
-                      >
-                        {e.event}
-                      </th>
-                      <td className="border-b border-[#C2B50C] py-4 pr-4">
-                        {e.city}
-                      </td>
-                      <td className="border-b border-[#C2B50C] py-4 pr-4">
-                        {e.category}
-                      </td>
-                      <td className="border-b border-[#C2B50C] py-4 pr-4">
-                        {e.install_points}
-                      </td>
-                      <td className="border-b border-[#C2B50C] py-4">
-                        {e.result}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </GlassPanel>
       </section>
     </>
   );

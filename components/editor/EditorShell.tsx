@@ -10,7 +10,6 @@ import { useEditor } from "./EditorProvider";
 const NAV = [
   { href: "/editor", label: "Overview" },
   { href: "/editor/vehicle", label: "Vehicle & Story" },
-  { href: "/editor/history", label: "History" },
   { href: "/editor/theme", label: "Theme" },
   { href: "/editor/components", label: "Components" },
   { href: "/editor/photos", label: "Photo Log" },

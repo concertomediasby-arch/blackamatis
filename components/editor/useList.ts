@@ -8,7 +8,7 @@ type Item<K extends ListKey> = SiteContent[K][number];
 
 export const newId = () => crypto.randomUUID();
 
-/** Read and edit one list of the editor draft (e.g. "competitions"). */
+/** Read and edit one list of the editor draft (e.g. "milestones"). */
 export function useList<K extends ListKey>(key: K) {
   const { content, update } = useEditor();
   const items = content[key] as Item<K>[];
