@@ -153,9 +153,8 @@ Shared: floating glass header (wordmark, nav: History · Theme · Installation �
 In this order:
 1. **System diagram — Signal flow**: Head Unit → DSP → Amplifier A / Amplifier B → Tweeter, Midrange, Midbass (from Amp A) and Subwoofer (from Amp B). Default front stage is 3-way; it must be data-driven.
 2. **Wiring diagram — Power & fuses**: Main Battery → Main Fuse (≤ 40 cm from + post) → Distribution → Amp A, Amp B, DSP, Head Unit; dashed line to Chassis Ground. Cable size labels on links, `[__ mm²] · [__ A]` on each output.
-3. **Tuning notes**: target curve chart (20 Hz–20 kHz), crossover table (driver, HPF, LPF, slope), cards for time alignment, EQ, listening position, measurement tool.
-4. **Photo log — "Behind the panels"** (lemon glass): area tabs Engine Bay, Doors, Dashboard, Trunk, Under Floor; each photo has a code (`EB-01`), caption and a "✓ proves: <criterion>" pill.
-5. **Craftsmanship close-up**: tabs Wiring, Head Unit, Amplifiers, Speakers, Other Components; 3 close-ups + "What to look at" checklist; note "M: 2 pts · X: 10 pts per category".
+3. **Photo log — "Behind the panels"** (lemon glass): area tabs Engine Bay, Doors, Dashboard, Trunk, Under Floor; each photo has a code (`EB-01`), caption and a "✓ proves: <criterion>" pill.
+4. **Craftsmanship close-up**: tabs Wiring, Head Unit, Amplifiers, Speakers, Other Components; 3 close-ups + "What to look at" checklist; note "M: 2 pts · X: 10 pts per category".
 
 Diagrams: render as SVG (lines/arrows) with HTML buttons for products positioned over it; horizontal scroll inside a rounded container on small screens.
 
@@ -256,13 +255,13 @@ before_after(id, view, before_path, after_path)
 
 ## Editor (CMS) `/editor`
 
-Login: passwordless one-time code by email (Supabase email OTP, `shouldCreateUser: false`; the Magic Link email template shows `{{ .Token }}` and a sign-in link). Sidebar: Overview · Vehicle & Story · History · Theme · Components · Tuning · Photo Log · Bonus Requests. Top bar: status ("Draft · unpublished changes"), **View public site**, **Save draft**, **Publish**.
+Login: passwordless one-time code by email (Supabase email OTP, `shouldCreateUser: false`; the Magic Link email template shows `{{ .Token }}` and a sign-in link). Sidebar: Overview · Vehicle & Story · History · Theme · Components · Photo Log · Bonus Requests. Top bar: status ("Draft · unpublished changes"), **View public site**, **Save draft**, **Publish**.
 - **Overview**: a card per public page (status, last edited by/when, Edit, Preview) + pre-event checklist + link to Judge Mode.
 - **Vehicle & Story**: vehicle fields, category/class selects, dark/light side names, statement (≤ 80 words, counter), team & links, timeline list with add/edit/reorder.
 - **Components**: list on the left (select, add, reorder), form on the right: brand, model, type-specific spec fields, photo upload (transparent PNG), PDF upload, "Show in System / Wiring diagram" checkboxes; wiring link editor for cable size and fuse per link with an inline warning when the fuse exceeds the VW75212 table for that cable.
 - **History**: before/after photo pairs (Exterior, Dashboard, Trunk); competition table (event, city, category, install points, result, date).
 - **Theme**: theme zones (name, photo, up to 8 theme elements each); sketches & moodboard (up to 8 images, first one large).
-- **Tuning**: crossover rows (driver, HPF, LPF, slope, time align, EQ bands, reorderable) and tuning notes (EQ, listening position, measurement tool, stored on `vehicle`).
+- No tuning section (removed on purpose from the Installation page and the editor; the `tuning` table and `vehicle.tuning_*` columns are kept but unused).
 - **Photo Log**: area tabs, slots with upload, caption, "Proves" select (criteria list), add slot, drag to reorder; craftsmanship close-ups (3 per category).
 - **Vehicle & Story** also edits partner logos (name, logo, optional link).
 - Public pages show a pencil on each editable section for signed-in editors (Edit mode bar can hide them); a pencil deep-links to the editor field.
