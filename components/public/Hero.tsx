@@ -6,7 +6,6 @@ import { ArrowUpRight } from "@/components/ui/Arrow";
 import { CarPhoto } from "./CarPhoto";
 import { EditPencil } from "./EditMode";
 import type { CarPhotoLayout } from "@/lib/photo";
-import type { Callout } from "@/lib/home-stats";
 import { SiteHeader } from "./SiteHeader";
 
 type Face = "dark" | "light";
@@ -57,112 +56,18 @@ const SECTIONS = [
   { href: "#vehicle", label: "Details" },
 ];
 
-/** Gap between the car box and the label column, in % of the box width. */
-const REACH = 8;
-
-/** Labels stacked evenly beside the car; elbow lines run from each point to its label. */
-function Callouts({
-  items,
-  accent,
-  ink,
-  muted,
-  line,
-}: {
-  items: Callout[];
-  accent: string;
-  ink: string;
-  muted: string;
-  line: string;
-}) {
-  const rowY = (i: number) =>
-    items.length === 1 ? 50 : -4 + (i * 108) / (items.length - 1);
-  return (
-    <>
-      <svg
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-      >
-        {items.map((c, i) => {
-          const ly = rowY(i);
-          const elbow = 100 + REACH / 2;
-          return (
-            <polyline
-              key={c.id}
-              points={`${c.x},${c.y} ${elbow},${c.y} ${elbow},${ly} ${100 + REACH},${ly}`}
-              fill="none"
-              stroke={line}
-              strokeWidth="1"
-              vectorEffect="non-scaling-stroke"
-            />
-          );
-        })}
-      </svg>
-      {items.map((c) => (
-        <span
-          key={`${c.id}-dot`}
-          aria-hidden="true"
-          className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full"
-          style={{
-            left: `${c.x}%`,
-            top: `${c.y}%`,
-            background: accent,
-            boxShadow: `0 0 0 4px ${accent}33`,
-          }}
-        />
-      ))}
-      <ul
-        className="absolute m-0 list-none p-0"
-        style={{ left: `${100 + REACH}%`, top: 0, bottom: 0, width: 230 }}
-      >
-        {items.map((c, i) => (
-          <li
-            key={c.id}
-            className="absolute left-0 flex w-full -translate-y-1/2 items-center gap-3"
-            style={{ top: `${rowY(i)}%` }}
-          >
-            <span
-              className="flex h-9 w-9 flex-none items-center justify-center rounded-full border backdrop-blur-md"
-              style={{ borderColor: line }}
-            >
-              <span
-                className="h-1.5 w-1.5 rounded-full"
-                style={{ background: accent }}
-              />
-            </span>
-            <span className="flex min-w-0 flex-col leading-tight">
-              <span
-                className="truncate text-[14px] font-semibold"
-                style={{ color: ink }}
-              >
-                {c.title}
-              </span>
-              <span className="truncate text-[12px]" style={{ color: muted }}>
-                {c.note}
-              </span>
-            </span>
-          </li>
-        ))}
-      </ul>
-    </>
-  );
-}
-
 type Props = {
   classLabel: string;
   carPhotoUrl: string | null;
   carLayout: CarPhotoLayout;
   instagramUrl: string | null;
-  /** Labelled pointers on the car (text from the data). */
-  callouts: Callout[];
   /** Thumbnail for the judges' card (e.g. the system diagram). */
   judgeThumbUrl: string | null;
 };
 
 /**
  * Landing hero, one screen tall: AMATIS large and faint behind the car,
- * callouts pointing at the car, the headline bottom left, a judges' card,
+ * the car on the right, the headline bottom left, a judges' card,
  * a section index and a vertical scroll cue on the right edge.
  */
 export function Hero({
@@ -170,7 +75,6 @@ export function Hero({
   carPhotoUrl,
   carLayout,
   instagramUrl,
-  callouts,
   judgeThumbUrl,
 }: Props) {
   // The hero shows the dark face; the light palette stays for a future switch.
@@ -218,7 +122,7 @@ export function Hero({
       <SiteHeader face={face} inHero />
 
       <div className="relative z-10 grid flex-1 grid-cols-1 gap-6 px-8 pb-6 pt-6 sm:px-[72px] lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:pr-[140px] lg:pl-[88px]">
-        {/* Car with callouts */}
+        {/* Car */}
         <div className="relative flex flex-col items-center justify-center gap-4 lg:order-2 lg:items-end">
           <EditPencil
             href="/editor/vehicle/#f-car-photo"
@@ -227,8 +131,8 @@ export function Hero({
             tone={pencilTone}
           />
           <div
-            className="relative w-full lg:mr-[300px] lg:self-end lg:w-[min(780px,calc(100%-300px))]"
-            style={{ maxWidth: "min(780px, 88vh)" }}
+            className="relative w-full lg:w-[92%]"
+            style={{ maxWidth: "min(1040px, 108vh)" }}
           >
             {carPhotoUrl ? (
               <CarPhoto
@@ -259,28 +163,7 @@ export function Hero({
                 ))}
               </svg>
             )}
-            <div className="absolute inset-0 hidden lg:block">
-              <Callouts
-                items={callouts}
-                accent={f.accent}
-                ink={f.ink}
-                muted={f.muted}
-                line="rgba(242,240,230,0.35)"
-              />
-            </div>
           </div>
-          {/* Phones: callouts as a short list under the car */}
-          <ul className="m-0 flex list-none flex-wrap justify-center gap-2 p-0 lg:hidden">
-            {callouts.map((c) => (
-              <li
-                key={c.id}
-                className="rounded-full border px-3 py-1 text-[12px]"
-                style={{ borderColor: f.glassBorder, color: f.muted }}
-              >
-                <b style={{ color: f.ink }}>{c.title}</b> · {c.note}
-              </li>
-            ))}
-          </ul>
         </div>
 
         {/* Headline, bottom left */}

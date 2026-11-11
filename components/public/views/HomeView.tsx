@@ -10,7 +10,6 @@ import { ArrowUpRight } from "@/components/ui/Arrow";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { CLASS_INFO } from "@/lib/emma/matrix";
-import { heroCallouts, homeHighlights } from "@/lib/home-stats";
 import { normalizeCarLayout } from "@/lib/photo";
 import { storageUrl } from "@/lib/supabase/env";
 import { instagramHref } from "@/lib/format";
@@ -89,7 +88,6 @@ export function HomeView() {
         carLayout={normalizeCarLayout(v.car_photo_layout)}
         instagramUrl={instagramHref(v.instagram)}
         classLabel={CLASS_INFO[v.class].name}
-        callouts={heroCallouts(c, homeHighlights(c))}
         judgeThumbUrl={storageUrl(v.system_diagram_path)}
       />
 
