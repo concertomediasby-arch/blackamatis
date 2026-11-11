@@ -63,7 +63,6 @@ export function HomeView() {
   return (
     <>
       <Hero
-        emmaClass={v.class}
         darkName={v.dark_side_name}
         lightName={v.light_side_name}
         carPhotoUrl={storageUrl(v.car_photo_path)}

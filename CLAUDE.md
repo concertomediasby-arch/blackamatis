@@ -135,8 +135,8 @@ Calm and functional, not glass: surface `#F4F2EC`, cards white with `#D9D6CC` bo
 Shared: floating glass header (wordmark, nav: History · Theme · Installation · Bonus Point · Judge Mode, `EMMA 2026 · [CATEGORY]` pill), glass footer with prev/next links. Fluid layout, max-width ~1280–1360px, works at 360px wide.
 
 ### Home `/`
-- **Hero** (inspired by a product-landing layout): huge word **AMATIS** behind a cut-out car photo (transparent PNG; silhouette until uploaded), splatter dots around the car. Left glass card: tag line + "ONE CAR. TWO FACES." + short copy. Right glass card: **Choose face** (two round swatches) + **Category** chips E/S/M/X. Bottom row: social icons, "Scroll to explore", CTA "View installation ↗". Top: glass nav pill + "Contact".
-- **Face toggle** switches the whole hero: dark face = prussian bg, amber word, light text; light face = lemon bg, black word, black text. Glow orbs and glass tints switch too. Animate background/colour 0.5s.
+- **Hero** (inspired by a product-landing layout): huge word **AMATIS** behind a cut-out car photo (transparent PNG; silhouette until uploaded), splatter dots around the car. Left glass card: tag line + "ONE CAR. TWO FACES." + short copy. (The right card with *Choose face* swatches and *Category* chips was removed on request; the hero shows the dark face.) Bottom row: social icons, "Scroll to explore", CTA "View installation ↗". Top: glass nav pill + "Contact".
+- The hero keeps both palettes in code (dark face = prussian bg, amber word, light text; light face = lemon bg, black word, black text) but has no switch on the page.
 - Vehicle data strip (Car, Year, EMMA category, Owner, Installer), project statement, four page cards, **Team & partners** (4 people + 6 partner logos), footer with `id="contact"`.
 
 ### History `/history`
