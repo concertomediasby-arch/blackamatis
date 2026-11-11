@@ -37,7 +37,7 @@ const WAYS = [
       {
         href: "/history",
         label: "History",
-        note: "The story and the build timeline",
+        note: "From stock to the stage: the story of the build",
       },
     ],
   },

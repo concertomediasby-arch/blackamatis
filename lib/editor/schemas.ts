@@ -33,15 +33,6 @@ export const vehicleSchema = z.object({
 });
 export type VehicleForm = z.infer<typeof vehicleSchema>;
 
-export const milestoneSchema = z.object({
-  id: z.string(),
-  when_label: text(30).min(1, "Required"),
-  title: text(80).min(1, "Required"),
-  body: text(500),
-  photo_path: z.string().nullable(),
-  sort: z.number(),
-});
-
 export const teamSchema = z.object({
   id: z.string(),
   role: text(40).min(1, "Required"),
@@ -52,7 +43,6 @@ export const teamSchema = z.object({
 });
 
 export const storyFormSchema = vehicleSchema.extend({
-  milestones: z.array(milestoneSchema),
   team: z.array(teamSchema),
 });
 export type StoryForm = z.infer<typeof storyFormSchema>;
