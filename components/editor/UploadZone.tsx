@@ -4,11 +4,12 @@ import { useId, useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { uploadFile } from "@/lib/editor/upload";
 import { splitPhoto } from "@/lib/photo";
+import { storageUrl } from "@/lib/supabase/env";
 import { FocusPicker } from "./FocusPicker";
 
 type Props = {
   label: string;
-  kind: "photo" | "pdf";
+  kind: "photo" | "pdf" | "video";
   folder: string;
   value: string | null;
   onChange: (path: string | null) => void;
@@ -60,19 +61,23 @@ export function UploadZone({ label, kind, folder, value, onChange, hint, classNa
       >
         {kind === "photo" ? (
           <Placeholder path={value} label="No photo" tone="light" className="h-20 w-24 flex-none rounded-lg bg-white text-[9px]" sizes="96px" fit="contain" />
+        ) : kind === "video" && storageUrl(value) ? (
+          <video src={storageUrl(value)!} muted playsInline preload="metadata" className="h-20 w-24 flex-none rounded-lg bg-black object-cover" />
+        ) : kind === "video" ? (
+          <span className="flex h-20 w-24 flex-none items-center justify-center rounded-lg border border-editor-border bg-white font-mono text-[11px]">NO VIDEO</span>
         ) : (
           <span className="flex h-20 w-24 flex-none items-center justify-center rounded-lg border border-editor-border bg-white font-mono text-[11px]">
             {value ? "PDF ✓" : "NO PDF"}
           </span>
         )}
         <div className="flex flex-1 flex-col gap-2 text-sm">
-          <span className="text-[#4a4852]">{busy ? "Uploading…" : hint ?? (kind === "photo" ? "Drop an image or choose a file" : "Drop a PDF or choose a file")}</span>
+          <span className="text-[#4a4852]">{busy ? "Uploading…" : hint ?? { photo: "Drop an image or choose a file", pdf: "Drop a PDF or choose a file", video: "Drop a video or choose a file" }[kind]}</span>
           <div className="flex flex-wrap gap-2">
             <label className="pill cursor-pointer border border-prussian bg-white px-4 text-prussian focus-within:outline focus-within:outline-2 focus-within:outline-prussian">
               Choose file
               <input
                 type="file"
-                accept={kind === "photo" ? "image/*" : "application/pdf"}
+                accept={{ photo: "image/*", pdf: "application/pdf", video: "video/mp4,video/quicktime,video/webm" }[kind]}
                 className="sr-only"
                 aria-labelledby={`${id}-l`}
                 onChange={(e) => void handle(e.target.files?.[0])}

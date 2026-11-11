@@ -91,6 +91,14 @@ export const wiringLinkSchema = z.object({
   fuse_a: optionalNumber,
 });
 
+const bonusMediaSchema = z.object({
+  id: z.string(),
+  kind: z.enum(["photo", "video"]),
+  path: z.string().nullable(),
+  url: z.string().max(500).nullable().optional(),
+  caption: text(300),
+});
+
 export const bonusSchema = z.object({
   id: z.string(),
   no: z.number().int().min(1),
@@ -98,8 +106,10 @@ export const bonusSchema = z.object({
   group: z.enum(BONUS_GROUPS.map((g) => g.key) as [BonusGroup, ...BonusGroup[]]),
   title: text(160).min(1, "Give the request a name"),
   element: z.string().min(1, "Choose an element"),
-  description: text(800),
+  description: text(2000),
   photo_path: z.string().nullable(),
+  process: z.array(bonusMediaSchema).nullable().optional(),
+  result: z.array(bonusMediaSchema).nullable().optional(),
   submit: z.boolean(),
   idea: z.boolean(),
   execution: z.union([z.literal(0), z.literal(1), z.literal(2)]),

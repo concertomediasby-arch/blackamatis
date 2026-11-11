@@ -27,25 +27,36 @@ const blobToDataUrl = (b: Blob) =>
     r.readAsDataURL(b);
   });
 
+/** Supabase's per-file upload limit on the current plan. Longer videos: use a YouTube link. */
+export const MAX_VIDEO_MB = 50;
+
 /**
- * Upload a photo (resized to WebP) or a PDF. Returns the storage path.
+ * Upload a photo (resized to WebP), a PDF or a video (as is). Returns the storage path.
  * In preview mode (no Supabase) images become data URLs kept in this browser.
  */
-export async function uploadFile(file: File, kind: "photo" | "pdf", folder: string): Promise<string> {
+export async function uploadFile(file: File, kind: "photo" | "pdf" | "video", folder: string): Promise<string> {
   if (kind === "photo" && !file.type.startsWith("image/")) throw new Error("Choose an image file");
   if (kind === "pdf" && file.type !== "application/pdf") throw new Error("Choose a PDF file");
+  if (kind === "video") {
+    if (!file.type.startsWith("video/")) throw new Error("Choose a video file (MP4, MOV or WebM)");
+    if (file.size > MAX_VIDEO_MB * 1024 * 1024)
+      throw new Error(`This video is ${Math.round(file.size / 1024 / 1024)} MB; the limit is ${MAX_VIDEO_MB} MB. Shorten it, or upload it to YouTube and paste the link.`);
+  }
 
   if (!isSupabaseConfigured) {
-    if (kind === "pdf") return URL.createObjectURL(file);
+    if (kind !== "photo") return URL.createObjectURL(file);
     return blobToDataUrl(await toWebp(file, PREVIEW_MAX_PX));
   }
 
   const db = createClient()!;
   const body = kind === "photo" ? await toWebp(file, MAX_PX) : file;
-  const ext = kind === "photo" ? "webp" : "pdf";
+  const videoExt = (file.name.split(".").pop() || "mp4").toLowerCase().replace(/[^a-z0-9]/g, "") || "mp4";
+  const ext = kind === "photo" ? "webp" : kind === "pdf" ? "pdf" : videoExt;
   const path = `${folder}/${crypto.randomUUID()}.${ext}`;
-  const bucket = kind === "photo" ? STORAGE_BUCKETS.photos : STORAGE_BUCKETS.pdfs;
-  const { error } = await db.storage.from(bucket).upload(path, body, { contentType: kind === "photo" ? "image/webp" : "application/pdf" });
+  // Videos sit with the photos (public read).
+  const bucket = kind === "pdf" ? STORAGE_BUCKETS.pdfs : STORAGE_BUCKETS.photos;
+  const contentType = kind === "photo" ? "image/webp" : kind === "pdf" ? "application/pdf" : file.type;
+  const { error } = await db.storage.from(bucket).upload(path, body, { contentType });
   if (error) throw new Error(error.message);
   return path;
 }
