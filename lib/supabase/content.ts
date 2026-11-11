@@ -44,7 +44,7 @@ function withoutNulls<T extends object>(row: T): Partial<T> {
 export async function fetchPublishedContent(db: SupabaseClient): Promise<SiteContent> {
   const out: SiteContent = { ...PLACEHOLDER, evidence: [] };
 
-  const vehicle = await db.from("vehicle").select("*").eq("status", "published").limit(1).maybeSingle();
+  const vehicle = await db.from("vehicle").select("*").eq("status", "published").order("updated_at", { ascending: false }).limit(1).maybeSingle();
   if (vehicle.error) throw new ContentError(vehicle.error.message);
   if (vehicle.data) out.vehicle = { ...PLACEHOLDER.vehicle, ...withoutNulls(vehicle.data) };
 

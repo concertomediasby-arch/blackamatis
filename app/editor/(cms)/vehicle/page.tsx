@@ -33,7 +33,13 @@ export default function VehiclePage() {
   // Mirror form values into the editor draft (autosave picks them up).
   useEffect(() => {
     const sub = watch((val) => {
-      const { milestones, team: t, ...vehicle } = val as StoryForm;
+      const { milestones, team: t, ...formVehicle } = val as StoryForm & Record<string, unknown>;
+      // The form only edits fields; the row id and database bookkeeping stay as stored.
+      const { id: _id, status: _st, updated_at: _ua, updated_by: _ub, ...vehicle } = formVehicle;
+      void _id;
+      void _st;
+      void _ua;
+      void _ub;
       update((c) => ({
         ...c,
         vehicle: { ...c.vehicle, ...vehicle },

@@ -4,6 +4,7 @@ import { PLACEHOLDER } from "../data/placeholder";
 import { createClient } from "../supabase/client";
 import { CONTENT_TABLES, fetchEditorContent } from "../supabase/content";
 import { isSupabaseConfigured } from "../supabase/env";
+import { stableUuid } from "./ids";
 import type { SiteContent } from "../types";
 
 /**
@@ -37,8 +38,6 @@ export const snapshotOf = (c: SiteContent, key: SaveKey) => JSON.stringify(key =
 export type TableState = { rows: number; drafts: number; last: string | null; lastBy: string | null };
 export type PublishState = Record<string, TableState>;
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const ensureId = (id: string) => (UUID.test(id) ? id : crypto.randomUUID());
 
 function db() {
   const c = createClient();
@@ -87,15 +86,20 @@ export async function saveDraft(session: EditorSession, content: SiteContent, ke
 
   const next: SiteContent = { ...content };
   if (keys.includes("vehicle")) {
-    const vehicle = { ...content.vehicle, id: ensureId(content.vehicle.id), status: "draft", updated_by: session.userId, updated_at: savedAt };
+    const vehicle = { ...content.vehicle, id: await stableUuid(content.vehicle.id), status: "draft", updated_by: session.userId, updated_at: savedAt };
     const vr = await client.from("vehicle").upsert(vehicle);
     if (vr.error) throw new Error(`vehicle: ${vr.error.message}`);
+    // There is one vehicle: remove any other row so the site can never show a stale copy.
+    const vd = await client.from("vehicle").delete().neq("id", vehicle.id);
+    if (vd.error) throw new Error(`vehicle: ${vd.error.message}`);
     next.vehicle = { ...content.vehicle, id: vehicle.id };
   }
 
   for (const { key, table } of WRITE_TABLES) {
     if (!keys.includes(key as SaveKey)) continue;
-    const rows = (content[key] as { id: string }[]).map((r) => ({ ...r, id: ensureId(r.id), status: "draft", updated_by: session.userId, updated_at: savedAt }));
+    const rows = await Promise.all(
+      (content[key] as { id: string }[]).map(async (r) => ({ ...r, id: await stableUuid(r.id), status: "draft", updated_by: session.userId, updated_at: savedAt })),
+    );
     if (rows.length) {
       const { error } = await client.from(table).upsert(rows);
       if (error) throw new Error(`${table}: ${error.message}`);
