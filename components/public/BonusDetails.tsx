@@ -86,7 +86,7 @@ function MediaGrid({ items, steps, name, empty }: { items: BonusMedia[]; steps: 
 /** Idea, Process or Result of one bonus request, shown under its row (the row's buttons pick which). */
 export function BonusDetails({ request: r, id, tab }: { request: PublicBonusRequest; id: string; tab: BonusTab }) {
   const name = r.title || r.code;
-  const paragraphs = r.description.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+  const paragraphs = (r.description ?? "").split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
   const label = { idea: "Idea", process: "Process", result: "Result" }[tab];
 
   return (
