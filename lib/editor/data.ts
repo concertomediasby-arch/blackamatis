@@ -5,6 +5,7 @@ import { createClient } from "../supabase/client";
 import { CONTENT_TABLES, fetchEditorContent } from "../supabase/content";
 import { isSupabaseConfigured } from "../supabase/env";
 import { stableUuid } from "./ids";
+import { normalizeHotspots } from "../photo";
 import type { SiteContent } from "../types";
 
 /**
@@ -98,7 +99,14 @@ export async function saveDraft(session: EditorSession, content: SiteContent, ke
   for (const { key, table } of WRITE_TABLES) {
     if (!keys.includes(key as SaveKey)) continue;
     const rows = await Promise.all(
-      (content[key] as { id: string }[]).map(async (r) => ({ ...r, id: await stableUuid(r.id), status: "draft", updated_by: session.userId, updated_at: savedAt })),
+      (content[key] as { id: string }[]).map(async (r) => ({
+        ...r,
+        ...(table === "components" ? { hotspots: normalizeHotspots((r as { hotspots?: unknown }).hotspots) } : {}),
+        id: await stableUuid(r.id),
+        status: "draft",
+        updated_by: session.userId,
+        updated_at: savedAt,
+      })),
     );
     if (rows.length) {
       const { error } = await client.from(table).upsert(rows);

@@ -33,7 +33,7 @@ export function SystemDiagramImage() {
         onChange={(e) => set({ system_diagram_alt: e.target.value })}
         hint="One or two sentences, e.g. “Head unit to STEG DSP, then amplifiers per channel to tweeters, midranges, midbass and two subwoofers.”"
       />
-      {v.system_diagram_path && <HotspotEditor imagePath={v.system_diagram_path} />}
+      {v.system_diagram_path && <HotspotEditor imagePath={v.system_diagram_path} alt={v.system_diagram_alt} />}
     </Card>
   );
 }

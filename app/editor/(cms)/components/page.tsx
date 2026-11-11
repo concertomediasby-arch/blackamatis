@@ -8,19 +8,11 @@ import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
 import { SystemDiagramImage } from "@/components/editor/sections/SystemDiagramImage";
 import { componentSchema, type ComponentForm } from "@/lib/editor/schemas";
+import { ROLE_BY_TYPE, newComponent } from "@/lib/editor/components";
 import { FUSE_TABLE, checkFuse } from "@/lib/emma/fuses";
 import { SPEC_FIELDS, TYPE_LABELS, placeholderFor } from "@/lib/specs";
 import { COMPONENT_TYPES, type AudioComponent, type ComponentType, type WiringLink } from "@/lib/types";
 
-const ROLE_BY_TYPE: Record<ComponentType, string> = {
-  head_unit: "SOURCE",
-  dsp: "PROCESSING",
-  amplifier: "AMPLIFICATION",
-  speaker: "SPEAKERS",
-  battery: "POWER SOURCE",
-  main_fuse: "PROTECTION",
-  distribution: "DISTRIBUTION",
-};
 
 export default function ComponentsPage() {
   const { content, update } = useEditor();
@@ -35,30 +27,9 @@ export default function ComponentsPage() {
     setList(next);
   };
   const add = () => {
-    const id = `new-${crypto.randomUUID()}`;
-    const n = list.length + 1;
-    setList([
-      ...list,
-      {
-        id,
-        key: `component_${n}`,
-        title: "New component",
-        role: ROLE_BY_TYPE.speaker,
-        type: "speaker",
-        brand: "",
-        model: "",
-        specs: [],
-        note: "",
-        photo_path: null,
-        pdf_path: null,
-        in_system: false,
-        in_wiring: false,
-        fed_by: null,
-        hotspots: [],
-        sort: n,
-      },
-    ]);
-    setSelected(id);
+    const c = newComponent({ title: "New component", type: "speaker", existing: list });
+    setList([...list, c]);
+    setSelected(c.id);
   };
   const remove = (id: string) => {
     const gone = list.find((x) => x.id === id);
