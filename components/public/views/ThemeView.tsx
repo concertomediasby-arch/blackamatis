@@ -7,11 +7,40 @@ import {
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { EditPencil } from "@/components/public/EditMode";
+import { MotifMap } from "@/components/public/MotifMap";
+import { normalizeMotifs, normalizePoints } from "@/lib/theme";
 
 /** First image large; if an odd number of small ones remains, the last spans two columns. */
 function moodSpan(i: number, n: number) {
   if (i === 0) return "col-span-2 row-span-2";
   return (n - 1) % 2 === 1 && i === n - 1 && n > 1 ? "col-span-2" : "";
+}
+
+/** Short points under a side's description. */
+function SidePoints({
+  points,
+  tone,
+}: {
+  points: string[];
+  tone: "dark" | "light";
+}) {
+  if (points.length === 0) return null;
+  return (
+    <ul className="m-0 flex list-none flex-col gap-2 p-0">
+      {points.map((p, i) => (
+        <li
+          key={i}
+          className={`flex gap-3 text-[15px] leading-snug ${tone === "dark" ? "text-ink" : "text-black"}`}
+        >
+          <span
+            aria-hidden="true"
+            className={`mt-[7px] h-1.5 w-1.5 flex-none rounded-full ${tone === "dark" ? "bg-amber" : "bg-navy"}`}
+          />
+          {p}
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 export function ThemeView() {
@@ -26,7 +55,7 @@ export function ThemeView() {
         aria-labelledby="two-face"
         className="grid grid-cols-1 gap-5 px-3 pt-8 sm:px-6 md:grid-cols-2 lg:px-10"
       >
-        <GlassPanel className="relative flex min-h-[560px] flex-col justify-between gap-6 rounded-[36px] px-6 py-16 sm:px-14 sm:py-24">
+        <GlassPanel className="relative flex flex-col gap-8 rounded-[36px] px-6 py-12 sm:px-12 sm:py-16">
           <EditPencil
             href="/editor/vehicle/#faces"
             label="Dark side"
@@ -47,11 +76,22 @@ export function ThemeView() {
             <p className="m-0 max-w-[460px] text-[17px] leading-[1.7] text-muted">
               {v.dark_side_body}
             </p>
+            <SidePoints
+              points={normalizePoints(v.dark_side_points)}
+              tone="dark"
+            />
           </div>
+          <Placeholder
+            path={v.dark_side_photo_path ?? null}
+            label="Dark side photo"
+            alt={`${v.dark_side_name}: the dark side of Black Amatis`}
+            className="aspect-[16/10] w-full rounded-[24px] border border-white/10"
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
         </GlassPanel>
         <GlassPanel
           tone="light"
-          className="relative flex min-h-[560px] flex-col justify-end gap-6 rounded-[36px] px-6 py-16 sm:px-14 sm:py-24"
+          className="relative flex flex-col justify-between gap-8 rounded-[36px] px-6 py-12 sm:px-12 sm:py-16"
         >
           <EditPencil
             href="/editor/vehicle/#faces"
@@ -73,7 +113,50 @@ export function ThemeView() {
             <p className="m-0 max-w-[460px] text-[17px] leading-[1.7] text-dark-muted">
               {v.light_side_body}
             </p>
+            <SidePoints
+              points={normalizePoints(v.light_side_points)}
+              tone="light"
+            />
           </div>
+          <Placeholder
+            path={v.light_side_photo_path ?? null}
+            label="Light side photo"
+            alt={`${v.light_side_name}: the light side of Black Amatis`}
+            tone="light"
+            className="aspect-[16/10] w-full rounded-[24px] border border-black/15"
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
+        </GlassPanel>
+      </section>
+
+      <section
+        id="motifs"
+        aria-labelledby="motifs-title"
+        className="relative px-3 pt-16 sm:px-6 lg:px-10"
+      >
+        <GlassPanel className="relative flex flex-col gap-8 rounded-[36px] p-5 sm:p-12">
+          <EditPencil
+            href="/editor/theme/#motifs"
+            label="Motifs"
+            className="right-5 top-5"
+          />
+          <div className="flex max-w-[680px] flex-col gap-3">
+            <span className="eyebrow text-amber">Motifs &amp; meaning</span>
+            <h2
+              id="motifs-title"
+              className="display m-0 text-[clamp(40px,5vw,56px)] font-extrabold"
+            >
+              Every line has a reason
+            </h2>
+            <p className="m-0 leading-[1.7] text-muted">
+              Click a number on the car to see what the motif is and why it is
+              there.
+            </p>
+          </div>
+          <MotifMap
+            photo={v.motif_photo_path ?? null}
+            motifs={normalizeMotifs(v.motifs)}
+          />
         </GlassPanel>
       </section>
 

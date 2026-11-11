@@ -26,6 +26,14 @@ export type Vehicle = {
   instagram: string;
   website: string;
   car_photo_path: string | null;
+  /** Theme page: a photo and short points per side. */
+  dark_side_photo_path?: string | null;
+  light_side_photo_path?: string | null;
+  dark_side_points?: string[] | null;
+  light_side_points?: string[] | null;
+  /** Theme page: one car photo with numbered points, each motif with its meaning. */
+  motif_photo_path?: string | null;
+  motifs?: Motif[] | null;
   /** More cut-out car photos for the landing hero slider (after car_photo_path), in order. */
   hero_photos?: BonusMedia[] | null;
   /** Photos of the car under the story on the History page (slider), in order. */
@@ -44,6 +52,9 @@ export type Vehicle = {
   tuning_measurement: string;
   updated_at: string | null;
 };
+
+/** A motif on the car: a point on the motif photo (in %) with its title and meaning. */
+export type Motif = { id: string; title: string; meaning: string; x: number; y: number };
 
 export type Milestone = {
   id: string;
