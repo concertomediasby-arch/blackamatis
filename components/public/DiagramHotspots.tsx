@@ -5,7 +5,8 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { popoverPosition } from "@/lib/diagram";
 import { isPlaceholder } from "@/lib/format";
 import { normalizeHotspots, type HotspotField } from "@/lib/photo";
-import type { AudioComponent } from "@/lib/types";
+import type { AudioComponent, Photo, WiringLink } from "@/lib/types";
+import { CIRCUIT_H, CIRCUIT_W, CircuitCard } from "./CircuitCard";
 import { POPOVER_H, POPOVER_W, SpecPopover } from "./SpecPopover";
 
 /** Below this width the spec sheet opens under the image instead of next to the device. */
@@ -23,12 +24,15 @@ export function DiagramHotspots({
   alt,
   components,
   field = "hotspots",
+  circuit,
 }: {
   imageUrl: string;
   alt: string;
   components: AudioComponent[];
   /** Which areas to use: the system diagram's or the wiring diagram's. */
   field?: HotspotField;
+  /** Cable diagram: open a circuit card (power path, cable, fuse, proof photos) instead of the spec sheet. */
+  circuit?: { links: WiringLink[]; photos: Photo[] };
 }) {
   const uid = useId().replace(/:/g, "");
   const boxRef = useRef<HTMLDivElement>(null);
@@ -36,6 +40,7 @@ export function DiagramHotspots({
   const btnRefs = useRef(new Map<string, HTMLButtonElement>());
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [open, setOpen] = useState<string | null>(null);
+  const [showSpecs, setShowSpecs] = useState(false);
 
   const spots: Spot[] = components.flatMap((c) => normalizeHotspots(c[field]).map((s, i) => ({ id: `${c.id}-${i}`, component: c, ...s })));
 
@@ -60,14 +65,42 @@ export function DiagramHotspots({
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, close]);
+  }, [open, showSpecs, close]);
 
   const active = spots.find((s) => s.id === open);
+  const asCircuit = !!circuit && !showSpecs;
+  const pop = asCircuit ? { w: CIRCUIT_W, h: CIRCUIT_H } : { w: POPOVER_W, h: POPOVER_H };
   const floating = size.w >= FLOAT_MIN_WIDTH;
   const pos =
     active && floating
-      ? popoverPosition({ x: (active.x / 100) * size.w, y: (active.y / 100) * size.h, w: (active.w / 100) * size.w }, { w: POPOVER_W, h: POPOVER_H }, { width: size.w, height: Math.max(size.h, POPOVER_H + 16) })
+      ? popoverPosition({ x: (active.x / 100) * size.w, y: (active.y / 100) * size.h, w: (active.w / 100) * size.w }, pop, { width: size.w, height: Math.max(size.h, pop.h + 16) })
       : null;
+  const detail = (style: React.CSSProperties, inline: boolean) =>
+    active &&
+    (asCircuit ? (
+      <CircuitCard
+        ref={popRef}
+        id={`${uid}-pop`}
+        component={active.component}
+        components={components}
+        links={circuit.links}
+        photos={circuit.photos}
+        style={style}
+        inline={inline}
+        onClose={close}
+        onShowSpecs={() => setShowSpecs(true)}
+      />
+    ) : (
+      <SpecPopover
+        ref={popRef}
+        id={`${uid}-pop`}
+        component={active.component}
+        style={style}
+        inline={inline}
+        onClose={close}
+        onBack={circuit ? () => setShowSpecs(false) : undefined}
+      />
+    ));
   const brandModel = (c: AudioComponent) => [c.brand, c.model].filter((x) => !isPlaceholder(x)).join(" ");
 
   return (
@@ -89,20 +122,22 @@ export function DiagramHotspots({
               type="button"
               aria-expanded={on}
               aria-controls={on ? `${uid}-pop` : undefined}
-              aria-label={`${s.component.title}${bm ? `, ${bm}` : ""}. Open spec sheet`}
+              aria-label={`${s.component.title}${bm ? `, ${bm}` : ""}. ${circuit ? "Open circuit: power path, cable and fuse" : "Open spec sheet"}`}
               title={s.component.title}
-              onClick={() => (on ? close() : setOpen(s.id))}
+              onClick={() => {
+                setShowSpecs(false);
+                if (on) close();
+                else setOpen(s.id);
+              }}
               // Invisible: no box or dot. Only keyboard focus shows the global focus ring.
               className="absolute cursor-pointer rounded-lg bg-transparent"
               style={{ left: `${s.x}%`, top: `${s.y}%`, width: `${s.w}%`, height: `${s.h}%` }}
             />
           );
         })}
-        {active && pos && (
-          <SpecPopover ref={popRef} id={`${uid}-pop`} component={active.component} style={{ left: pos.left, top: pos.top }} onClose={close} />
-        )}
+        {pos && detail({ left: pos.left, top: pos.top }, false)}
       </div>
-      {active && !floating && <SpecPopover ref={popRef} id={`${uid}-pop`} component={active.component} style={{}} onClose={close} inline />}
+      {!floating && detail({}, true)}
     </div>
   );
 }
