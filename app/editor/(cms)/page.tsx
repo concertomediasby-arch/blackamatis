@@ -11,9 +11,9 @@ import { CLASS_INFO, type CriterionKey } from "@/lib/emma/matrix";
 /** Public pages and the tables their content comes from. */
 const PAGES = [
   { name: "Home", href: "/", edit: "/editor/vehicle/", tables: ["vehicle", "team", "partners"] },
-  { name: "History", href: "/history/", edit: "/editor/vehicle/#timeline", tables: ["vehicle", "milestones", "competitions", "before_after"] },
-  { name: "Theme", href: "/theme/", edit: "/editor/vehicle/#faces", tables: ["vehicle", "theme_zones"] },
-  { name: "Installation", href: "/installation/", edit: "/editor/components/", tables: ["components", "wiring_links", "tuning", "photos", "craft_photos"] },
+  { name: "History", href: "/history/", edit: "/editor/history/", tables: ["vehicle", "milestones", "competitions", "before_after"] },
+  { name: "Theme", href: "/theme/", edit: "/editor/theme/", tables: ["vehicle", "theme_zones", "moodboard_items"] },
+  { name: "Installation", href: "/installation/", edit: "/editor/components/", tables: ["vehicle", "components", "wiring_links", "tuning", "photos", "craft_photos"] },
   { name: "Bonus Point", href: "/bonus/", edit: "/editor/bonus/", tables: ["bonus_requests"] },
   { name: "Judge Mode", href: "/judge/", edit: "/editor/#checklist", tables: [] },
 ];

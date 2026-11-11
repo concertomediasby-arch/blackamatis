@@ -115,3 +115,55 @@ export const photoSchema = z.object({
   path: z.string().nullable(),
   sort: z.number(),
 });
+
+// ── Sections added for History, Theme, Tuning, close-ups and partners ──
+
+export const competitionSchema = z.object({
+  event: text(120).min(1, "Add the event name"),
+  city: text(80),
+  category: text(60),
+  install_points: text(30),
+  result: text(60),
+  date: z.union([z.null(), z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use a full date")]),
+});
+
+export const partnerSchema = z.object({
+  name: text(80).min(1, "Add the partner name"),
+  url: z.union([z.null(), z.literal(""), z.url("Enter a full URL, e.g. https://…")]),
+});
+
+export const zoneSchema = z.object({
+  name: text(40).min(1, "Required"),
+  elements: z.array(text(140)).max(8, "Max 8 elements"),
+});
+
+export const moodSchema = z.object({ caption: text(80) });
+
+export const tuningRowSchema = z.object({
+  driver: text(40).min(1, "Add the driver name"),
+  hpf_hz: text(30),
+  lpf_hz: text(30),
+  slope_db: text(30),
+  time_align_ms: text(30),
+  eq_bands: text(60),
+});
+
+export const craftSchema = z.object({ caption: text(80).min(1, "Add a caption") });
+
+export const tuningNotesSchema = z.object({
+  tuning_eq: text(400),
+  tuning_listening: text(400),
+  tuning_measurement: text(400),
+});
+
+/** Inline field errors for a row: { field: message }. */
+export function fieldErrors(schema: z.ZodType, value: unknown): Record<string, string> {
+  const r = schema.safeParse(value);
+  if (r.success) return {};
+  const out: Record<string, string> = {};
+  for (const issue of r.error.issues) {
+    const k = String(issue.path[0] ?? "");
+    if (!out[k]) out[k] = issue.message;
+  }
+  return out;
+}

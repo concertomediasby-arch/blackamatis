@@ -123,7 +123,8 @@ export function HomeView() {
               </li>
             ))}
           </ul>
-          <div className="flex flex-col gap-4">
+          <div className="relative flex flex-col gap-4">
+            <EditPencil href="/editor/vehicle/#partners" label="Partners" className="-top-3 right-0" />
             <span className="eyebrow text-muted-2">Supported by</span>
             <ul className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3 p-0">
               {c.partners.map((p) => {

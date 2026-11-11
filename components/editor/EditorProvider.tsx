@@ -12,6 +12,7 @@ import {
   type SaveKey,
 } from "@/lib/editor/data";
 import type { SiteContent } from "@/lib/types";
+import { PLACEHOLDER } from "@/lib/data/placeholder";
 import { PREVIEW_EDITOR_FLAG } from "@/components/public/EditMode";
 
 const LS_KEY = "ba-editor-draft-v1";
@@ -87,8 +88,10 @@ export function EditorProvider({ session, initial, children }: { session: Editor
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
         const saved = JSON.parse(raw) as { content: SiteContent; savedAt: string; publishedAt?: string; unpublished?: boolean };
-        setContent(saved.content);
-        savedRef.current = snapshots(saved.content);
+        // Drafts stored by an older version may lack newer sections: fill them from the defaults.
+        const restored: SiteContent = { ...PLACEHOLDER, ...saved.content, vehicle: { ...PLACEHOLDER.vehicle, ...saved.content.vehicle } };
+        setContent(restored);
+        savedRef.current = snapshots(restored);
         setLocalSaved(saved.savedAt);
         setLastPublished(saved.publishedAt ?? null);
         setLocalUnpublished(!!saved.unpublished);

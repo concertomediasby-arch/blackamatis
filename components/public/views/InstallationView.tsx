@@ -114,7 +114,8 @@ export function InstallationView() {
       </section>
 
       <section aria-labelledby="tuning" className="mx-auto max-w-[1360px] px-3 pb-16 sm:px-6 lg:px-10">
-        <GlassPanel className="flex flex-col gap-8 rounded-[36px] p-5 sm:p-12">
+        <GlassPanel className="relative flex flex-col gap-8 rounded-[36px] p-5 sm:p-12">
+          <EditPencil href="/editor/tuning/" label="Tuning notes" className="right-5 top-5" />
           <SectionHead eyebrow="Tuning notes" title="Tuning" id="tuning">
             Target curve, crossover points and how the system was set up for the listening position.
           </SectionHead>
@@ -135,7 +136,7 @@ export function InstallationView() {
                   </tr>
                 </thead>
                 <tbody>
-                  {c.tuning.map((t) => (
+                  {[...c.tuning].sort((a, b) => a.sort - b.sort).map((t) => (
                     <tr key={t.id}>
                       <th scope="row" className="border-b border-white/10 py-3 pr-3 text-left font-semibold">
                         {t.driver}
@@ -153,7 +154,7 @@ export function InstallationView() {
             <li className="glass-inset flex flex-col gap-3 rounded-3xl p-6">
               <span className="label text-amber">Time alignment</span>
               <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-sm text-muted">
-                {c.tuning.map((t) => (
+                {[...c.tuning].sort((a, b) => a.sort - b.sort).map((t) => (
                   <li key={t.id} className="flex justify-between gap-3">
                     <span>{t.driver}</span>
                     <span className="font-mono text-ink">{t.time_align_ms}</span>
@@ -163,15 +164,15 @@ export function InstallationView() {
             </li>
             <li className="glass-inset flex flex-col gap-3 rounded-3xl p-6">
               <span className="label text-amber">EQ</span>
-              <p className="m-0 text-sm text-muted">[EQ approach: number of bands, per-channel or global, main corrections.]</p>
+              <p className="m-0 whitespace-pre-line text-sm text-muted">{c.vehicle.tuning_eq}</p>
             </li>
             <li className="glass-inset flex flex-col gap-3 rounded-3xl p-6">
               <span className="label text-amber">Listening position</span>
-              <p className="m-0 text-sm text-muted">[Driver seat / centre / both: what the system is tuned for.]</p>
+              <p className="m-0 whitespace-pre-line text-sm text-muted">{c.vehicle.tuning_listening}</p>
             </li>
             <li className="glass-inset flex flex-col gap-3 rounded-3xl p-6">
               <span className="label text-amber">Measurement tool</span>
-              <p className="m-0 text-sm text-muted">[Microphone and software used.]</p>
+              <p className="m-0 whitespace-pre-line text-sm text-muted">{c.vehicle.tuning_measurement}</p>
             </li>
           </ul>
         </GlassPanel>
@@ -190,7 +191,8 @@ export function InstallationView() {
       </section>
 
       <section id="craftsmanship" aria-labelledby="craft-title" className="mx-auto max-w-[1360px] px-3 pt-16 sm:px-6 lg:px-10">
-        <GlassPanel className="flex flex-col gap-8 rounded-[36px] p-5 sm:p-12">
+        <GlassPanel className="relative flex flex-col gap-8 rounded-[36px] p-5 sm:p-12">
+          <EditPencil href="/editor/photos/#craft" label="Craftsmanship close-ups" className="right-5 top-5" />
           <SectionHead eyebrow="Craftsmanship" title="Close-up" id="craft-title">
             Fit and finish in every category judges look at.
           </SectionHead>

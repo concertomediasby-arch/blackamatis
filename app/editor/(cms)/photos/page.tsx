@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Card, PageTitle, SelectField, TextField, btn } from "@/components/editor/Field";
 import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
+import { CraftCloseups } from "@/components/editor/sections/CraftCloseups";
 import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 import { photoSchema } from "@/lib/editor/schemas";
 import { CRITERIA } from "@/lib/emma/criteria";
@@ -104,6 +105,7 @@ export default function PhotosPage() {
           + Add slot
         </button>
       </div>
+      <CraftCloseups />
     </div>
   );
 }

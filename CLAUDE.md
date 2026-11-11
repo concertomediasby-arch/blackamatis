@@ -239,13 +239,14 @@ competitions(id, event, city, category, install_points, result, date)
 components(id, key, title, role, type, brand, model, specs jsonb, photo_path, pdf_path,
            in_system boolean, in_wiring boolean, sort)
 wiring_links(id, from_key, to_key, cable_mm2, fuse_a)
-tuning(id, driver, hpf_hz, lpf_hz, slope_db, time_align_ms, eq_bands)
+tuning(id, driver, hpf_hz, lpf_hz, slope_db, time_align_ms, eq_bands, sort)
 photos(id, area, code, caption, proves_criterion, path, sort)
 craft_photos(id, category, caption, path, sort)
 bonus_requests(id, no, code, "group", title, element, description, photo_path, submit boolean,
                idea boolean, execution int, strength ('strong'|'medium'|'weak'|'unlikely'), sort)
 judge_evidence(criterion_key, ready boolean, note, updated_by, updated_at)
 team(id, role, name, line, photo_path, sort)
+moodboard_items(id, caption, path, sort)
 partners(id, name, logo_path, url, sort)
 before_after(id, view, before_path, after_path)
 ```
@@ -255,11 +256,16 @@ before_after(id, view, before_path, after_path)
 
 ## Editor (CMS) `/editor`
 
-Login: passwordless one-time code by email (Supabase email OTP, `shouldCreateUser: false`; the Magic Link email template shows `{{ .Token }}` and a sign-in link). Sidebar: Overview · Vehicle & Story · Components · Photo Log · Bonus Requests. Top bar: status ("Draft · unpublished changes"), **View public site**, **Save draft**, **Publish**.
+Login: passwordless one-time code by email (Supabase email OTP, `shouldCreateUser: false`; the Magic Link email template shows `{{ .Token }}` and a sign-in link). Sidebar: Overview · Vehicle & Story · History · Theme · Components · Tuning · Photo Log · Bonus Requests. Top bar: status ("Draft · unpublished changes"), **View public site**, **Save draft**, **Publish**.
 - **Overview**: a card per public page (status, last edited by/when, Edit, Preview) + pre-event checklist + link to Judge Mode.
 - **Vehicle & Story**: vehicle fields, category/class selects, dark/light side names, statement (≤ 80 words, counter), team & links, timeline list with add/edit/reorder.
 - **Components**: list on the left (select, add, reorder), form on the right: brand, model, type-specific spec fields, photo upload (transparent PNG), PDF upload, "Show in System / Wiring diagram" checkboxes; wiring link editor for cable size and fuse per link with an inline warning when the fuse exceeds the VW75212 table for that cable.
-- **Photo Log**: area tabs, slots with upload, caption, "Proves" select (criteria list), add slot, drag to reorder.
+- **History**: before/after photo pairs (Exterior, Dashboard, Trunk); competition table (event, city, category, install points, result, date).
+- **Theme**: theme zones (name, photo, up to 8 theme elements each); sketches & moodboard (up to 8 images, first one large).
+- **Tuning**: crossover rows (driver, HPF, LPF, slope, time align, EQ bands, reorderable) and tuning notes (EQ, listening position, measurement tool, stored on `vehicle`).
+- **Photo Log**: area tabs, slots with upload, caption, "Proves" select (criteria list), add slot, drag to reorder; craftsmanship close-ups (3 per category).
+- **Vehicle & Story** also edits partner logos (name, logo, optional link).
+- Public pages show a pencil on each editable section for signed-in editors (Edit mode bar can hide them); a pencil deep-links to the editor field.
 - **Bonus Requests**: table (code, name, group, element A–D, strength badge, photo, Submit, Edit) + drawer. "New request" offers a location picker (61-spot catalogue) or free text, element, strength, description, photo. Counter "Submitted n / max" with a warning above the class limit.
 - Every form: labels, inline Zod errors, autosave draft every 10 s, unsaved-changes guard.
 

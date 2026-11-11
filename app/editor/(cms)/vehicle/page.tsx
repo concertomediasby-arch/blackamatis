@@ -6,6 +6,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { Card, PageTitle, SelectField, TextArea, TextField, btn } from "@/components/editor/Field";
 import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
+import { PartnersEditor } from "@/components/editor/sections/PartnersEditor";
 import { STATEMENT_MAX_WORDS, storyFormSchema, wordCount, type StoryForm } from "@/lib/editor/schemas";
 import { CLASSES, CLASS_INFO } from "@/lib/emma/matrix";
 
@@ -137,6 +138,8 @@ export default function VehiclePage() {
           + Add team member
         </button>
       </Card>
+
+      <PartnersEditor />
 
       <div id="timeline">
         <Card title="Build timeline">

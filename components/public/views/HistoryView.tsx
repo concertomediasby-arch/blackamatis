@@ -28,7 +28,8 @@ export function HistoryView() {
       </section>
 
       <section aria-labelledby="compare" className="mx-auto max-w-[1360px] px-3 pb-24 sm:px-6 lg:px-10">
-        <GlassPanel className="rounded-[36px] p-5 sm:p-12">
+        <GlassPanel className="relative rounded-[36px] p-5 sm:p-12">
+          <EditPencil href="/editor/history/#before-after" label="Before and after photos" className="-top-5 right-8" />
           <BeforeAfter items={c.beforeAfter} />
         </GlassPanel>
       </section>
@@ -53,7 +54,8 @@ export function HistoryView() {
       </section>
 
       <section aria-labelledby="events" className="mx-3 sm:mx-6 lg:mx-10">
-        <GlassPanel tone="light" className="rounded-[36px]">
+        <GlassPanel tone="light" className="relative rounded-[36px]">
+          <EditPencil href="/editor/history/#competitions" label="Competition history" className="right-5 top-5" tone="light" />
           <div className="mx-auto flex max-w-[1280px] flex-col gap-10 px-5 py-20 sm:px-12">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <h2 id="events" className="display m-0 text-5xl font-extrabold">

@@ -169,6 +169,9 @@ export const PLACEHOLDER: SiteContent = {
     instagram: "[@INSTAGRAM]",
     website: "",
     car_photo_path: null,
+    tuning_eq: "[EQ approach: number of bands, per-channel or global, main corrections.]",
+    tuning_listening: "[Driver seat / centre / both: what the system is tuned for.]",
+    tuning_measurement: "[Microphone and software used.]",
     updated_at: null,
   },
   milestones: [
@@ -197,7 +200,7 @@ export const PLACEHOLDER: SiteContent = {
     { id: id("w"), from_key: "dist", to_key: "dsp", cable_mm2: null, fuse_a: null },
     { id: id("w"), from_key: "dist", to_key: "hu", cable_mm2: null, fuse_a: null },
   ],
-  tuning: ["Tweeter", "Midrange", "Midbass", "Subwoofer"].map((driver) => ({
+  tuning: ["Tweeter", "Midrange", "Midbass", "Subwoofer"].map((driver, i) => ({
     id: id("t"),
     driver,
     hpf_hz: "[__ Hz]",
@@ -205,6 +208,7 @@ export const PLACEHOLDER: SiteContent = {
     slope_db: "[__ dB/oct]",
     time_align_ms: "[__ ms]",
     eq_bands: "[__]",
+    sort: i + 1,
   })),
   photos,
   craft,
@@ -262,8 +266,9 @@ export const PLACEHOLDER: SiteContent = {
     { id: id("ba"), view: "trunk", before_path: null, after_path: null },
   ],
   zones: [
-    { key: "exterior", name: "Exterior", criterion: "Overall design of vehicle", photo_path: null, elements: ["[Theme element 1]", "[Theme element 2]", "[Theme element 3]"] },
-    { key: "interior", name: "Interior", criterion: "Design of interior", photo_path: null, elements: ["[Theme element 1]", "[Theme element 2]", "[Theme element 3]"] },
-    { key: "trunk", name: "Trunk", criterion: "Design of trunk", photo_path: null, elements: ["[Theme element 1]", "[Theme element 2]", "[Theme element 3]"] },
+    { id: id("z"), sort: 1, key: "exterior", name: "Exterior", criterion: "Overall design of vehicle", photo_path: null, elements: ["[Theme element 1]", "[Theme element 2]", "[Theme element 3]"] },
+    { id: id("z"), sort: 2, key: "interior", name: "Interior", criterion: "Design of interior", photo_path: null, elements: ["[Theme element 1]", "[Theme element 2]", "[Theme element 3]"] },
+    { id: id("z"), sort: 3, key: "trunk", name: "Trunk", criterion: "Design of trunk", photo_path: null, elements: ["[Theme element 1]", "[Theme element 2]", "[Theme element 3]"] },
   ],
+  moodboard: ["Concept sketch", "Reference", "Reference", "Render / mockup"].map((caption, i) => ({ id: id("mb"), caption, path: null, sort: i + 1 })),
 };
