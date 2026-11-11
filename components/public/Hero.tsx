@@ -49,82 +49,70 @@ const FACES = {
   },
 } as const;
 
-/** Deterministic splatter dots around the car. */
-const DOTS = (() => {
-  let s = 7;
-  const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
-  return Array.from({ length: 80 }, () => {
-    const x = 60 + rnd() * 900;
-    const y = 110 + rnd() * 430;
-    const r = rnd() < 0.08 ? 5 + rnd() * 3 : 1 + rnd() * 3.5;
-    return { x: Math.round(x), y: Math.round(y), r: Math.round(r * 10) / 10 };
-  });
-})();
+/** Section index on the right edge. */
+const SECTIONS = [
+  { href: "#top", label: "Build" },
+  { href: "#start", label: "Ways in" },
+  { href: "#vehicle", label: "Details" },
+];
 
 type Props = {
-  darkName: string;
-  lightName: string;
+  classLabel: string;
   carPhotoUrl: string | null;
   carLayout: CarPhotoLayout;
   instagramUrl: string | null;
+  /** Thumbnail for the judges' card (e.g. the system diagram). */
+  judgeThumbUrl: string | null;
 };
 
+/**
+ * Landing hero, one screen tall: AMATIS large and faint behind the car,
+ * the car on the right, the headline bottom left, a judges' card,
+ * a section index and a vertical scroll cue on the right edge.
+ */
 export function Hero({
-  darkName,
-  lightName,
+  classLabel,
   carPhotoUrl,
   carLayout,
   instagramUrl,
+  judgeThumbUrl,
 }: Props) {
   // The hero shows the dark face; the light palette stays for a future switch.
   const [face] = useState<Face>("dark");
   const f = FACES[face];
   const pencilTone = face === "dark" ? "dark" : "light";
-  const glassStyle = {
-    background: f.glass,
-    borderColor: f.glassBorder,
-    transition:
-      "background-color .5s ease, color .5s ease, border-color .5s ease",
-  };
 
   return (
     <section
+      id="top"
       aria-label="Hero"
-      className={`relative flex min-h-[860px] flex-col overflow-hidden ${face === "light" ? "on-light" : ""}`}
-      style={{
-        background: f.bg,
-        color: f.ink,
-        transition: "background-color .5s ease, color .5s ease",
-      }}
+      className={`relative flex min-h-[100svh] flex-col overflow-hidden ${face === "light" ? "on-light" : ""}`}
+      style={{ background: f.bg, color: f.ink }}
     >
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-0"
       >
         <div
-          className="orb left-[30%] top-[-120px] h-[560px] w-[560px] opacity-45 blur-[130px]"
+          className="orb right-[20%] top-[-180px] h-[640px] w-[640px] opacity-35 blur-[140px]"
           style={{ background: f.orbA }}
         />
         <div
-          className="orb bottom-[-160px] right-[-80px] h-[520px] w-[520px] opacity-80 blur-[120px]"
-          style={{ background: f.orbB }}
-        />
-        <div
-          className="orb bottom-[-200px] left-[-120px] h-[480px] w-[480px] opacity-70 blur-[120px]"
+          className="orb bottom-[-200px] left-[-120px] h-[520px] w-[520px] opacity-70 blur-[120px]"
           style={{ background: f.orbB }}
         />
       </div>
 
+      {/* AMATIS, large and faint, behind everything */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-1/2 z-0 flex -translate-y-[46%] justify-center"
+        className="pointer-events-none absolute inset-x-0 top-[16%] z-0 flex justify-center"
       >
         <span
-          className="font-display font-black leading-[0.8] tracking-[-0.01em]"
+          className="select-none font-display font-black leading-[0.8]"
           style={{
-            fontSize: "clamp(150px, 25vw, 400px)",
-            color: f.word,
-            transition: "color .5s ease",
+            fontSize: "clamp(140px, min(27vw, 46vh), 520px)",
+            color: "rgba(242,240,230,0.06)",
           }}
         >
           AMATIS
@@ -133,63 +121,31 @@ export function Hero({
 
       <SiteHeader face={face} inHero />
 
-      <div className="relative z-10 flex flex-1 flex-wrap items-center justify-between gap-6 px-5 py-6 sm:px-8 lg:px-14">
-        <div
-          className="relative flex max-w-[360px] flex-[1_1_260px] flex-col gap-4 rounded-[28px] border p-7 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur-[24px] backdrop-saturate-150"
-          style={glassStyle}
-        >
-          <EditPencil
-            href="/editor/vehicle/#faces"
-            label="Dark and light side names"
-            tone={pencilTone}
-          />
-          <span className="eyebrow" style={{ color: f.accent }}>
-            {face === "dark" ? darkName : lightName}
-          </span>
-          <h1
-            className="display m-0 font-black tracking-[0.01em]"
-            style={{ fontSize: "clamp(44px, 4.6vw, 64px)" }}
-          >
-            ONE CAR.
-            <br />
-            TWO FACES.
-          </h1>
-          <p
-            className="m-0 text-[15px] leading-relaxed"
-            style={{ color: f.muted }}
-          >
-            A Honda Odyssey built for EMMA 2026. One two-face concept, carried
-            from the exterior through the interior to the trunk.
-          </p>
-        </div>
-
-        <div className="relative flex min-h-[340px] flex-[3_1_460px] flex-col items-center justify-center">
+      <div className="relative z-10 grid flex-1 grid-cols-1 gap-6 px-8 pb-6 pt-6 sm:px-[72px] lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:pr-[140px] lg:pl-[88px]">
+        {/* Car */}
+        <div className="relative flex flex-col items-center justify-center gap-4 lg:order-2 lg:items-end">
           <EditPencil
             href="/editor/vehicle/#f-car-photo"
             label="Car photo"
-            className="right-[8%] top-6"
+            className="right-[2%] top-[4%]"
             tone={pencilTone}
           />
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 1000 660"
-            preserveAspectRatio="xMidYMid meet"
-            className="absolute -inset-x-[4%] -inset-y-[6%] h-[112%] w-[108%] opacity-85"
-            style={{ fill: f.speck }}
+          <div
+            className="relative w-full lg:w-[92%]"
+            style={{ maxWidth: "min(1040px, 108vh)" }}
           >
-            {DOTS.map((d, i) => (
-              <circle key={i} cx={d.x} cy={d.y} r={d.r} />
-            ))}
-          </svg>
-          {carPhotoUrl ? (
-            <CarPhoto url={carPhotoUrl} layout={carLayout} />
-          ) : (
-            <>
+            {carPhotoUrl ? (
+              <CarPhoto
+                url={carPhotoUrl}
+                layout={carLayout}
+                className="max-w-none"
+              />
+            ) : (
               <svg
                 role="img"
                 aria-label="Honda Odyssey silhouette (car photo not uploaded yet)"
                 viewBox="0 0 810 330"
-                className="relative h-auto w-full max-w-[820px] drop-shadow-[0_40px_40px_rgba(0,0,0,0.45)]"
+                className="relative h-auto w-full drop-shadow-[0_40px_40px_rgba(0,0,0,0.45)]"
               >
                 <path
                   d="M30 255 C30 225 45 205 80 195 L190 170 L285 75 C298 62 312 58 330 58 L705 58 C735 58 750 72 756 95 L778 205 C782 225 780 250 768 258 L702 262 A62 62 0 0 0 578 262 L267 262 A62 62 0 0 0 143 262 L45 262 C35 262 30 260 30 255 Z"
@@ -199,37 +155,61 @@ export function Hero({
                   d="M300 80 L250 162 L420 162 L420 80 Z M436 80 L436 162 L600 162 L600 80 Z M616 80 L616 162 L738 162 L727 102 C724 88 716 80 702 80 Z"
                   fill={f.carGlass}
                 />
-                <path
-                  d="M428 80 L428 250 M608 80 L608 250 M60 222 L770 222"
-                  stroke={f.carGlass}
-                  strokeWidth="3"
-                  fill="none"
-                />
-                <path d="M52 206 L118 196 L112 214 L56 220 Z" fill={f.light} />
-                <path
-                  d="M752 120 L770 120 L776 170 L758 170 Z"
-                  fill={f.light}
-                />
                 {[205, 640].map((cx) => (
                   <g key={cx}>
                     <circle cx={cx} cy="262" r="52" fill="#000" />
                     <circle cx={cx} cy="262" r="28" fill={f.carGlass} />
-                    <circle cx={cx} cy="262" r="8" fill={f.light} />
                   </g>
                 ))}
               </svg>
-              <span
-                className="relative mt-2 font-mono text-[11px] tracking-[0.12em]"
-                style={{ color: f.muted }}
-              >
-                [REPLACE WITH CAR PHOTO · TRANSPARENT PNG]
-              </span>
-            </>
-          )}
+            )}
+          </div>
+        </div>
+
+        {/* Headline, bottom left */}
+        <div className="relative flex flex-col justify-end gap-5 pt-10 lg:order-1 lg:pb-10">
+          <span
+            className="font-mono text-[12px] uppercase tracking-[0.16em]"
+            style={{ color: f.accent }}
+          >
+            EMMA 2026 · {classLabel}
+          </span>
+          <h1
+            className="display m-0 font-black"
+            style={{
+              fontSize: "clamp(48px, min(5.4vw, 9vh), 104px)",
+              lineHeight: 0.92,
+            }}
+          >
+            One car.
+            <br />
+            Two faces.
+          </h1>
+          <p
+            className="m-0 max-w-[380px] text-[17px] leading-relaxed"
+            style={{ color: f.muted }}
+          >
+            A Honda Odyssey built for EMMA 2026. One two-face concept, from the
+            exterior through the interior to the trunk.
+          </p>
+          <a
+            href="#start"
+            className="group inline-flex min-h-12 items-center gap-3 self-start rounded-full border py-1.5 pl-6 pr-1.5 font-semibold uppercase tracking-[0.06em]"
+            style={{ borderColor: f.line, color: f.ink }}
+          >
+            Explore the build
+            <span
+              className="flex h-10 w-10 items-center justify-center rounded-full transition-transform group-hover:translate-x-0.5"
+              style={{ background: f.ctaBg, color: f.ctaFg }}
+            >
+              <span aria-hidden="true">→</span>
+            </span>
+          </a>
         </div>
       </div>
 
-      <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 px-5 pb-7 sm:px-8 lg:px-14">
+      {/* Judges' card, bottom */}
+      <div className="relative z-10 flex flex-wrap items-end justify-between gap-4 px-5 pb-6 sm:px-8 lg:pl-14 lg:pr-[140px]">
         <div className="flex gap-1">
           <a
             href={instagramUrl ?? "#contact"}
@@ -278,33 +258,75 @@ export function Hero({
             </svg>
           </a>
         </div>
-        <div className="hidden items-center gap-4 sm:flex">
-          <span
-            aria-hidden="true"
-            className="h-px w-20"
-            style={{ background: f.line }}
-          />
-          <a
-            href="#vehicle"
-            className="text-[13px] font-semibold"
-            style={{ color: f.ink }}
-          >
-            Scroll to explore
-          </a>
-          <span
-            aria-hidden="true"
-            className="h-px w-20"
-            style={{ background: f.line }}
-          />
-        </div>
         <Link
-          href="/installation"
-          className="pill min-h-12"
-          style={{ background: f.ctaBg, color: f.ctaFg }}
+          href="/judge"
+          className="group flex items-center gap-4 rounded-2xl border p-1.5 pr-6 backdrop-blur-[24px]"
+          style={{ borderColor: f.glassBorder, background: "rgba(0,0,0,0.55)" }}
         >
-          View installation <ArrowUpRight />
+          <span
+            className="relative h-14 w-24 overflow-hidden rounded-xl"
+            style={{ background: f.glass }}
+          >
+            {judgeThumbUrl && (
+              // eslint-disable-next-line @next/next/no-img-element -- static export, small thumbnail
+              <img
+                src={judgeThumbUrl}
+                alt=""
+                className="h-full w-full object-cover opacity-80"
+              />
+            )}
+          </span>
+          <span className="flex flex-col leading-tight">
+            <span
+              className="font-mono text-[10px] uppercase tracking-[0.14em]"
+              style={{ color: f.muted }}
+            >
+              For judges
+            </span>
+            <span className="font-semibold uppercase tracking-[0.04em]">
+              Check the install
+            </span>
+          </span>
+          <ArrowUpRight />
         </Link>
       </div>
+
+      {/* Right edge: section dots and a vertical scroll cue */}
+      <nav
+        aria-label="Sections"
+        className="absolute right-10 top-1/2 z-10 hidden -translate-y-1/2 flex-col gap-1 lg:flex"
+      >
+        {SECTIONS.map((x, i) => (
+          <a
+            key={x.href}
+            href={x.href}
+            className="flex h-8 w-8 items-center justify-center"
+            aria-label={x.label}
+            aria-current={i === 0 ? "true" : undefined}
+          >
+            <span
+              className="h-2 w-2 rounded-full"
+              style={{ background: i === 0 ? f.accent : f.line }}
+            />
+          </a>
+        ))}
+      </nav>
+      <a
+        href="#start"
+        className="absolute bottom-0 right-10 z-10 hidden h-[34vh] w-16 flex-col items-center justify-between rounded-t-2xl border border-b-0 py-5 font-mono text-[11px] uppercase tracking-[0.16em] lg:flex"
+        style={{
+          borderColor: f.glassBorder,
+          background: f.glass,
+          color: f.muted,
+        }}
+      >
+        <span className="[writing-mode:vertical-rl] rotate-180">
+          Scroll to explore
+        </span>
+        <span aria-hidden="true" style={{ color: f.accent }}>
+          ↓
+        </span>
+      </a>
     </section>
   );
 }

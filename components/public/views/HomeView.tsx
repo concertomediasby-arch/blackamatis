@@ -15,34 +15,55 @@ import { storageUrl } from "@/lib/supabase/env";
 import { instagramHref } from "@/lib/format";
 import { EditPencil } from "@/components/public/EditMode";
 
-const PAGES = [
+/** Two ways in: visitors (lemon, light face) and judges (dark face). */
+const WAYS = [
   {
-    href: "/history",
-    no: "01",
-    title: "History",
-    body: "The journey from stock condition to competition ready.",
-    tone: "dark",
-  },
-  {
-    href: "/theme",
-    no: "02",
-    title: "Theme",
-    body: "The two-face concept and its design zones.",
+    key: "visit",
     tone: "light",
+    eyebrow: "For visitors",
+    title: "See the build",
+    body: "The two-face theme, the bonus ideas and how the car got here.",
+    links: [
+      {
+        href: "/theme",
+        label: "Theme",
+        note: "The two-face concept in every zone",
+      },
+      {
+        href: "/bonus",
+        label: "Bonus Point",
+        note: "Idea, process and result of each request",
+      },
+      {
+        href: "/history",
+        label: "History",
+        note: "Before and after, timeline, competitions",
+      },
+    ],
   },
   {
-    href: "/installation",
-    no: "03",
-    title: "Installation",
-    body: "System, wiring, fuses and evidence for every judge book criterion.",
+    key: "judge",
     tone: "dark",
-  },
-  {
-    href: "/bonus",
-    no: "04",
-    title: "Bonus Point",
-    body: "Bonus point requests and the ideas behind them.",
-    tone: "light",
+    eyebrow: "For judges",
+    title: "Check the install",
+    body: "Diagrams, fuses and photo evidence for every judge book criterion.",
+    links: [
+      {
+        href: "/judge",
+        label: "Judge Mode",
+        note: "Criteria, max points, evidence pack (PDF)",
+      },
+      {
+        href: "/installation/#wiring",
+        label: "Power & fuses",
+        note: "Every circuit by fuse code, checked against VW75212",
+      },
+      {
+        href: "/installation/#photo-log",
+        label: "Photo log",
+        note: "Behind the panels, each photo with what it proves",
+      },
+    ],
   },
 ] as const;
 
@@ -63,12 +84,68 @@ export function HomeView() {
   return (
     <>
       <Hero
-        darkName={v.dark_side_name}
-        lightName={v.light_side_name}
         carPhotoUrl={storageUrl(v.car_photo_path)}
         carLayout={normalizeCarLayout(v.car_photo_layout)}
         instagramUrl={instagramHref(v.instagram)}
+        classLabel={CLASS_INFO[v.class].name}
+        judgeThumbUrl={storageUrl(v.system_diagram_path)}
       />
+
+      <section
+        id="start"
+        aria-label="Ways in"
+        className="grid scroll-mt-6 grid-cols-1 gap-4 px-3 pt-8 sm:px-6 lg:grid-cols-2 lg:px-10"
+      >
+        {WAYS.map((w) => {
+          const light = w.tone === "light";
+          return (
+            <div
+              key={w.key}
+              className={`${light ? "glass-light on-light" : "glass-dark"} flex flex-col gap-8 rounded-[32px] p-6 sm:p-12`}
+            >
+              <div className="flex flex-col gap-3">
+                <span
+                  className={`eyebrow ${light ? "text-navy" : "text-amber"}`}
+                >
+                  {w.eyebrow}
+                </span>
+                <h2 className="display m-0 text-[clamp(40px,5vw,64px)] font-black leading-none">
+                  {w.title}
+                </h2>
+                <p
+                  className={`m-0 max-w-[460px] text-[16px] leading-relaxed ${light ? "text-dark-muted" : "text-muted"}`}
+                >
+                  {w.body}
+                </p>
+              </div>
+              <ul className="m-0 flex list-none flex-col p-0">
+                {w.links.map((l) => (
+                  <li key={l.href}>
+                    <Link
+                      href={l.href}
+                      className={`group flex min-h-[72px] items-center justify-between gap-4 border-t py-3 no-underline ${light ? "border-black/20" : "border-white/15"}`}
+                    >
+                      <span className="flex flex-col gap-0.5">
+                        <span className="font-display text-[28px] font-extrabold leading-tight">
+                          {l.label}
+                        </span>
+                        <span
+                          className={`text-[14px] ${light ? "text-dark-muted" : "text-muted-2"}`}
+                        >
+                          {l.note}
+                        </span>
+                      </span>
+                      <span className="flex-none transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
+                        <ArrowUpRight size={22} />
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })}
+      </section>
 
       <GlassPanel
         as="section"
@@ -121,46 +198,6 @@ export function HomeView() {
             documentation.
           </p>
         </div>
-      </section>
-
-      <section
-        aria-labelledby="explore"
-        className="px-8 sm:px-[72px] lg:px-[88px] pb-28"
-      >
-        <h2 id="explore" className="eyebrow m-0 mb-8 font-medium text-muted-2">
-          Explore the portfolio
-        </h2>
-        <ul className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4 p-0">
-          {PAGES.map((p) => (
-            <li key={p.href}>
-              <Link
-                href={p.href}
-                className={`${p.tone === "dark" ? "glass-dark" : "glass-light on-light"} group flex min-h-[300px] flex-col justify-between gap-16 rounded-[28px] p-8 no-underline`}
-              >
-                <span className="flex items-center justify-between">
-                  <span
-                    className={`font-mono text-xs ${p.tone === "dark" ? "text-amber" : "text-navy"}`}
-                  >
-                    {p.no}
-                  </span>
-                  <span className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
-                    <ArrowUpRight size={22} />
-                  </span>
-                </span>
-                <span className="flex flex-col gap-3">
-                  <span className="font-display text-[44px] font-extrabold leading-none">
-                    {p.title}
-                  </span>
-                  <span
-                    className={`text-[15px] leading-relaxed ${p.tone === "dark" ? "text-muted-2" : "text-dark-muted"}`}
-                  >
-                    {p.body}
-                  </span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
       </section>
 
       <section aria-labelledby="team" className="px-3 sm:px-6 lg:px-10">

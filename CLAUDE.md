@@ -135,9 +135,9 @@ Calm and functional, not glass: surface `#F4F2EC`, cards white with `#D9D6CC` bo
 Shared: floating glass header (wordmark, nav: History · Theme · Installation · Bonus Point · Judge Mode, `EMMA 2026 · [CATEGORY]` pill), glass footer with prev/next links. Fluid layout, max-width ~1280–1360px, works at 360px wide.
 
 ### Home `/`
-- **Hero** (inspired by a product-landing layout): huge word **AMATIS** behind a cut-out car photo (transparent PNG; silhouette until uploaded), splatter dots around the car. Left glass card: tag line + "ONE CAR. TWO FACES." + short copy. (The right card with *Choose face* swatches and *Category* chips was removed on request; the hero shows the dark face.) Bottom row: social icons, "Scroll to explore", CTA "View installation ↗". Top: glass nav pill + "Contact".
-- The hero keeps both palettes in code (dark face = prussian bg, amber word, light text; light face = lemon bg, black word, black text) but has no switch on the page.
-- Vehicle data strip (Car, Year, EMMA category, Owner, Installer), project statement, four page cards, **Team & partners** (4 people + 6 partner logos), footer with `id="contact"`.
+- **Hero** (landing page, one screen tall): the word **AMATIS** large and faint behind everything; the cut-out car photo (transparent PNG; silhouette until uploaded) on the right; bottom left the label `EMMA 2026 · <class>`, headline "One car. Two faces.", short copy and the CTA "Explore the build" (to the ways in); bottom right a card "For judges · Check the install" (system diagram thumbnail, to Judge Mode); section dots and a vertical "Scroll to explore" on the right edge. The hero keeps both palettes in code but shows the dark face (no face or category switch on the page).
+- **Ways in**, right under the hero: "For visitors · See the build" (lemon: Theme, Bonus Point, History) and "For judges · Check the install" (dark: Judge Mode, Power & fuses, Photo log).
+- Vehicle data strip (Car, Year, EMMA category, Owner, Installer), project statement, **Team & partners** (4 people + 6 partner logos), footer with `id="contact"`.
 
 ### History `/history`
 - **Before/after slider** with tabs Exterior / Dashboard / Trunk. Accessible: real `<input type="range">` plus keyboard support.
