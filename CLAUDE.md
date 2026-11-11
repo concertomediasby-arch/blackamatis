@@ -255,7 +255,7 @@ before_after(id, view, before_path, after_path)
 
 ## Editor (CMS) `/editor`
 
-Sidebar: Overview · Vehicle & Story · Components · Photo Log · Bonus Requests. Top bar: status ("Draft · unpublished changes"), **View public site**, **Save draft**, **Publish**.
+Login: passwordless one-time code by email (Supabase email OTP, `shouldCreateUser: false`; the Magic Link email template shows `{{ .Token }}` and a sign-in link). Sidebar: Overview · Vehicle & Story · Components · Photo Log · Bonus Requests. Top bar: status ("Draft · unpublished changes"), **View public site**, **Save draft**, **Publish**.
 - **Overview**: a card per public page (status, last edited by/when, Edit, Preview) + pre-event checklist + link to Judge Mode.
 - **Vehicle & Story**: vehicle fields, category/class selects, dark/light side names, statement (≤ 80 words, counter), team & links, timeline list with add/edit/reorder.
 - **Components**: list on the left (select, add, reorder), form on the right: brand, model, type-specific spec fields, photo upload (transparent PNG), PDF upload, "Show in System / Wiring diagram" checkboxes; wiring link editor for cable size and fuse per link with an inline warning when the fuse exceeds the VW75212 table for that cable.

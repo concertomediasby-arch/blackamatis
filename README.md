@@ -37,7 +37,7 @@ For a fresh project:
    ```
 3. Public build values live in `.env.production` (committed; public by design). Never commit a service-role / secret key.
 
-Editors save drafts (autosave every 10 s); only the `owner` role can **Publish**, which marks all drafts as published. Public pages fetch `published` rows in the browser (anon key + RLS), show a loading skeleton, an error state with retry, and fall back to placeholders for empty tables. Content changes never need a rebuild.
+Editors sign in with a one-time code sent by email (Supabase email OTP, existing accounts only; the Magic Link email template must include `{{ .Token }}`, see `docs/DEPLOY.md`). Editors save drafts (autosave every 10 s); only the `owner` role can **Publish**, which marks all drafts as published. Public pages fetch `published` rows in the browser (anon key + RLS), show a loading skeleton, an error state with retry, and fall back to placeholders for empty tables. Content changes never need a rebuild.
 
 ## Hosting
 
