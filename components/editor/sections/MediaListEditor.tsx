@@ -17,23 +17,31 @@ export function MediaListEditor({
   numbered,
   value,
   onChange,
+  photosOnly = false,
 }: {
   label: string;
   intro: string;
   folder: string;
   /** Show items as steps (Process). */
   numbered: boolean;
+  /** Offer only "+ Add photo" (e.g. the History slider). */
+  photosOnly?: boolean;
   value: BonusMedia[];
   onChange: (next: BonusMedia[]) => void;
 }) {
   const items = value ?? [];
-  const patch = (id: string, p: Partial<BonusMedia>) => onChange(items.map((m) => (m.id === id ? { ...m, ...p } : m)));
+  const patch = (id: string, p: Partial<BonusMedia>) =>
+    onChange(items.map((m) => (m.id === id ? { ...m, ...p } : m)));
   const move = (i: number, d: -1 | 1) => {
     const next = [...items];
     [next[i], next[i + d]] = [next[i + d], next[i]];
     onChange(next);
   };
-  const add = (kind: BonusMedia["kind"]) => onChange([...items, { id: crypto.randomUUID(), kind, path: null, url: null, caption: "" }]);
+  const add = (kind: BonusMedia["kind"]) =>
+    onChange([
+      ...items,
+      { id: crypto.randomUUID(), kind, path: null, url: null, caption: "" },
+    ]);
 
   return (
     <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-editor-border p-4">
@@ -46,30 +54,72 @@ export function MediaListEditor({
             const useLink = m.kind === "video" && !m.path && m.url != null;
             const link = m.url ?? "";
             return (
-              <li key={m.id} className="flex flex-col gap-3 rounded-xl bg-[#FAF9F5] p-3">
+              <li
+                key={m.id}
+                className="flex flex-col gap-3 rounded-xl bg-[#FAF9F5] p-3"
+              >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono text-[12px] font-semibold tracking-[0.08em]">{name.toUpperCase()}</span>
+                  <span className="font-mono text-[12px] font-semibold tracking-[0.08em]">
+                    {name.toUpperCase()}
+                  </span>
                   <div className="flex gap-1">
-                    <button type="button" className={btn.ghost} disabled={i === 0} onClick={() => move(i, -1)} aria-label={`Move ${name} up`}>
+                    <button
+                      type="button"
+                      className={btn.ghost}
+                      disabled={i === 0}
+                      onClick={() => move(i, -1)}
+                      aria-label={`Move ${name} up`}
+                    >
                       ↑
                     </button>
-                    <button type="button" className={btn.ghost} disabled={i === items.length - 1} onClick={() => move(i, 1)} aria-label={`Move ${name} down`}>
+                    <button
+                      type="button"
+                      className={btn.ghost}
+                      disabled={i === items.length - 1}
+                      onClick={() => move(i, 1)}
+                      aria-label={`Move ${name} down`}
+                    >
                       ↓
                     </button>
-                    <button type="button" className={btn.ghost} onClick={() => onChange(items.filter((x) => x.id !== m.id))} aria-label={`Remove ${name}`}>
+                    <button
+                      type="button"
+                      className={btn.ghost}
+                      onClick={() =>
+                        onChange(items.filter((x) => x.id !== m.id))
+                      }
+                      aria-label={`Remove ${name}`}
+                    >
                       ✕
                     </button>
                   </div>
                 </div>
 
                 {m.kind === "photo" ? (
-                  <UploadZone label="Photo" kind="photo" folder={folder} value={m.path} onChange={(path) => patch(m.id, { path })} />
+                  <UploadZone
+                    label="Photo"
+                    kind="photo"
+                    folder={folder}
+                    value={m.path}
+                    onChange={(path) => patch(m.id, { path })}
+                  />
                 ) : (
                   <>
-                    <div role="radiogroup" aria-label={`${name}: source`} className="flex flex-wrap gap-2">
+                    <div
+                      role="radiogroup"
+                      aria-label={`${name}: source`}
+                      className="flex flex-wrap gap-2"
+                    >
                       {[
-                        { on: !useLink, text: "Upload a file", next: { url: null } },
-                        { on: useLink, text: "Paste a link", next: { path: null, url: "" } },
+                        {
+                          on: !useLink,
+                          text: "Upload a file",
+                          next: { url: null },
+                        },
+                        {
+                          on: useLink,
+                          text: "Paste a link",
+                          next: { path: null, url: "" },
+                        },
                       ].map((o) => (
                         <button
                           key={o.text}
@@ -115,7 +165,11 @@ export function MediaListEditor({
                   maxLength={300}
                   value={m.caption}
                   onChange={(e) => patch(m.id, { caption: e.target.value })}
-                  hint={numbered ? "What happens in this step." : "What the result shows."}
+                  hint={
+                    numbered
+                      ? "What happens in this step."
+                      : "What the result shows."
+                  }
                 />
               </li>
             );
@@ -123,12 +177,22 @@ export function MediaListEditor({
         </ol>
       )}
       <div className="flex flex-wrap gap-2">
-        <button type="button" className={btn.secondary} onClick={() => add("photo")}>
+        <button
+          type="button"
+          className={btn.secondary}
+          onClick={() => add("photo")}
+        >
           + Add photo
         </button>
-        <button type="button" className={btn.secondary} onClick={() => add("video")}>
-          + Add video
-        </button>
+        {!photosOnly && (
+          <button
+            type="button"
+            className={btn.secondary}
+            onClick={() => add("video")}
+          >
+            + Add video
+          </button>
+        )}
       </div>
     </fieldset>
   );

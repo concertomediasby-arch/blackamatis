@@ -4,7 +4,8 @@ import {
   ContentFallback,
   useSiteContent,
 } from "@/components/public/ContentProvider";
-import { Placeholder } from "@/components/ui/Placeholder";
+import { PhotoSlider } from "@/components/public/PhotoSlider";
+import { normalizeMedia } from "@/lib/bonus-media";
 import { EditPencil } from "@/components/public/EditMode";
 
 export function HistoryView() {
@@ -40,26 +41,13 @@ export function HistoryView() {
       >
         <EditPencil
           href="/editor/vehicle/#f-history-photo"
-          label="History photo"
+          label="History photos"
           className="-top-5 right-8"
         />
-        <figure className="m-0 flex flex-col gap-4">
-          <Placeholder
-            path={c.vehicle.history_photo_path ?? null}
-            label="Car photo"
-            alt={
-              c.vehicle.history_photo_caption ||
-              "Black Amatis, the Honda Odyssey"
-            }
-            className="aspect-[16/9] w-full rounded-[36px] border border-white/10 sm:aspect-[21/9]"
-            sizes="100vw"
-          />
-          {c.vehicle.history_photo_caption && (
-            <figcaption className="px-5 font-mono text-[12px] uppercase tracking-[0.14em] text-muted-2 sm:px-12">
-              {c.vehicle.history_photo_caption}
-            </figcaption>
-          )}
-        </figure>
+        <PhotoSlider
+          photos={normalizeMedia(c.vehicle.history_photos)}
+          label="Photos of Black Amatis"
+        />
       </section>
     </>
   );

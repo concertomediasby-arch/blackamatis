@@ -14,6 +14,8 @@ import {
 import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
 import { PartnersEditor } from "@/components/editor/sections/PartnersEditor";
+import { MediaListEditor } from "@/components/editor/sections/MediaListEditor";
+import { normalizeMedia } from "@/lib/bonus-media";
 import {
   STATEMENT_MAX_WORDS,
   storyFormSchema,
@@ -206,34 +208,20 @@ export default function VehiclePage() {
             error={e.story?.message}
           />
         </div>
-        <div id="f-history-photo" className="flex flex-col gap-3">
-          <UploadZone
-            label="History photo"
-            kind="photo"
-            folder="vehicle"
-            value={v.history_photo_path ?? null}
-            onChange={(p) =>
+        <div id="f-history-photo">
+          <MediaListEditor
+            label="History photos (slider)"
+            intro="Photos of the car under the story, shown as a slider visitors can swipe. Landscape works best; set the crop focus on each. The caption is optional."
+            folder="history"
+            numbered={false}
+            photosOnly
+            value={normalizeMedia(v.history_photos)}
+            onChange={(list) =>
               update((c) => ({
                 ...c,
-                vehicle: { ...c.vehicle, history_photo_path: p },
+                vehicle: { ...c.vehicle, history_photos: list },
               }))
             }
-            hint="A full photo of the car (landscape works best). Shown large under the story; set the crop focus on the important part."
-          />
-          <TextField
-            label="Photo caption"
-            maxLength={140}
-            value={v.history_photo_caption ?? ""}
-            onChange={(ev) =>
-              update((c) => ({
-                ...c,
-                vehicle: {
-                  ...c.vehicle,
-                  history_photo_caption: ev.target.value,
-                },
-              }))
-            }
-            hint="Optional, e.g. where and when it was taken."
           />
         </div>
       </Card>

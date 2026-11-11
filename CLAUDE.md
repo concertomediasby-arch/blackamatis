@@ -141,7 +141,7 @@ Shared: floating glass header (wordmark, nav: History · Theme · Installation �
 
 ### History `/history`
 - No before/after slider (removed on purpose; the `before_after` table is kept but unused).
-- The headline, the story (`vehicle.story`) and one large photo of the car under it (`vehicle.history_photo_path`, crop focus, optional caption `history_photo_caption`; placeholder until uploaded). No build timeline and no competition history (both removed on purpose; the `milestones` and `competitions` tables are kept but unused).
+- The headline, the story (`vehicle.story`) and a swipeable slider of car photos under it (`vehicle.history_photos` jsonb, each with crop focus and an optional caption; swipe, drag, ← → buttons, dots and arrow keys; placeholder until uploaded). No build timeline and no competition history (both removed on purpose; the `milestones` and `competitions` tables are kept but unused).
 
 ### Theme `/theme`
 - Two-face split hero (dark glass + lemon glass cards) with the dark/light side descriptions.
@@ -232,7 +232,7 @@ Other rules used in the UI: main fuse ≤ 40 cm from each positive battery post;
 
 ```
 vehicle(id, name, model, year, category, class, event, dark_side_name, light_side_name, car_photo_path, car_photo_layout jsonb,
-        history_photo_path, history_photo_caption,
+        history_photos jsonb,
         statement, owner, installer, designer, tuner, instagram, website, updated_at)
 milestones(id, when_label, title, body, photo_path, sort)
 competitions(id, event, city, category, install_points, result, date)
