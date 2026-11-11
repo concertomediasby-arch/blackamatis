@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signOut } from "@/lib/editor/data";
 import { normPath } from "@/lib/nav";
 import { useEditor } from "./EditorProvider";
@@ -20,16 +20,37 @@ const time = (iso: string | null) => (iso ? new Date(iso).toLocaleTimeString([],
 export function EditorShell({ children }: { children: React.ReactNode }) {
   const pathname = normPath(usePathname());
   const router = useRouter();
-  const { session, dirty, unpublished, saving, lastSaved, error, save, publish } = useEditor();
+  const { session, dirty, unpublished, saving, lastSaved, error, save, publish, stateLoading, publishState } = useEditor();
+  const nothingSaved = session.mode === "supabase" && !!publishState && Object.values(publishState).every((t) => t.rows === 0);
   const [menu, setMenu] = useState(false);
 
-  const status = saving
+  // Deep links from the public site's edit pencils: /editor/vehicle/#f-statement
+  // scrolls to that section, focuses its first field and highlights it briefly.
+  useEffect(() => {
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    if (!id) return;
+    const t = setTimeout(() => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("edit-target");
+      el.querySelector<HTMLElement>("input:not([type=hidden]), textarea, select")?.focus({ preventScroll: true });
+      setTimeout(() => el.classList.remove("edit-target"), 2600);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [pathname]);
+
+  const status = stateLoading
+    ? "Checking status…"
+    : saving
     ? "Saving…"
     : dirty
       ? "Unsaved changes"
       : unpublished
         ? `Draft · unpublished changes${lastSaved ? ` · saved ${time(lastSaved)}` : ""}`
-        : "Published · up to date";
+        : nothingSaved
+          ? "Nothing saved yet · site shows placeholders"
+          : "Published · up to date";
 
   return (
     <div className="editor flex min-h-screen bg-editor text-[#14141a]">

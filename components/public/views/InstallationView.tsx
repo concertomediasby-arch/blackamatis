@@ -9,6 +9,7 @@ import { GlassPanel } from "@/components/ui/GlassPanel";
 import { checkFuse } from "@/lib/emma/fuses";
 import { isPlaceholder } from "@/lib/format";
 import type { AudioComponent, WiringLink } from "@/lib/types";
+import { EditPencil } from "@/components/public/EditMode";
 
 
 const brandModel = (c: AudioComponent) => [c.brand, c.model].filter((x) => !isPlaceholder(x)).join(" ") || "[BRAND / MODEL]";
@@ -78,7 +79,8 @@ export function InstallationView() {
       </section>
 
       <section aria-labelledby="system-diagram" className="mx-auto max-w-[1360px] px-3 pb-16 sm:px-6 lg:px-10">
-        <GlassPanel className="flex flex-col gap-7 rounded-[36px] p-5 sm:p-12">
+        <GlassPanel className="relative flex flex-col gap-7 rounded-[36px] p-5 sm:p-12">
+          <EditPencil href="/editor/components/" label="Components and system diagram" className="right-5 top-5" />
           <div className="flex flex-wrap items-end justify-between gap-5">
             <SectionHead eyebrow="System diagram" title="Signal flow" id="system-diagram">
               Source, processing, amplification and speakers. The front stage is shown as configured in the editor.
@@ -95,7 +97,8 @@ export function InstallationView() {
       </section>
 
       <section id="wiring" aria-labelledby="wiring-diagram" className="mx-auto max-w-[1360px] px-3 pb-16 sm:px-6 lg:px-10">
-        <GlassPanel className="flex flex-col gap-7 rounded-[36px] p-5 sm:p-12">
+        <GlassPanel className="relative flex flex-col gap-7 rounded-[36px] p-5 sm:p-12">
+          <EditPencil href="/editor/components/#wiring" label="Cable sizes and fuses" className="right-5 top-5" />
           <SectionHead eyebrow="Wiring diagram" title="Power & fuses" id="wiring-diagram">
             Main fuse within 40 cm of the positive battery post. Every fuse is rated by the smallest cable in its circuit (VW75212).
           </SectionHead>
@@ -175,7 +178,8 @@ export function InstallationView() {
       </section>
 
       <section id="photo-log" aria-labelledby="photo-log-title" className="mx-3 sm:mx-6 lg:mx-10">
-        <GlassPanel tone="light" className="rounded-[36px]">
+        <GlassPanel tone="light" className="relative rounded-[36px]">
+          <EditPencil href="/editor/photos/" label="Photo log" className="right-5 top-5" tone="light" />
           <div className="mx-auto flex max-w-[1280px] flex-col gap-10 px-5 py-20 sm:px-12">
             <SectionHead eyebrow="Photo log" title="Behind the panels" id="photo-log-title" tone="light">
               Every photo has a code and the judge book criterion it proves, so the work can be checked without removing a single panel.

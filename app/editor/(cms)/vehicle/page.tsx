@@ -49,7 +49,7 @@ export default function VehiclePage() {
     <form noValidate onSubmit={(ev) => ev.preventDefault()} className="flex flex-col gap-6">
       <PageTitle title="Vehicle & Story">Vehicle data, the two faces, the project statement, team and build timeline.</PageTitle>
 
-      <Card title="Vehicle">
+      <Card title="Vehicle" id="vehicle">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <TextField label="Project name" {...register("name")} error={e.name?.message} />
           <TextField label="Car" {...register("model")} error={e.model?.message} />
@@ -64,6 +64,7 @@ export default function VehiclePage() {
           </SelectField>
           <TextField label="Event" {...register("event")} error={e.event?.message} />
         </div>
+        <div id="f-car-photo">
         <UploadZone
           label="Hero car photo (transparent PNG)"
           kind="photo"
@@ -72,6 +73,7 @@ export default function VehiclePage() {
           onChange={(p) => update((c) => ({ ...c, vehicle: { ...c.vehicle, car_photo_path: p } }))}
           hint="Cut-out photo on a transparent background. Shown over the AMATIS word."
         />
+        </div>
       </Card>
 
       <div id="faces">
@@ -86,6 +88,7 @@ export default function VehiclePage() {
       </div>
 
       <Card title="Statement & story">
+        <div id="f-statement">
         <TextArea
           label="Project statement"
           {...register("statement")}
@@ -96,10 +99,13 @@ export default function VehiclePage() {
             </span>
           }
         />
-        <TextArea label="History summary" {...register("story")} error={e.story?.message} />
+        </div>
+        <div id="f-story">
+          <TextArea label="History summary" {...register("story")} error={e.story?.message} />
+        </div>
       </Card>
 
-      <Card title="Team & links">
+      <Card title="Team & links" id="team">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <TextField label="Owner" {...register("owner")} error={e.owner?.message} />
           <TextField label="Installer / workshop" {...register("installer")} error={e.installer?.message} />

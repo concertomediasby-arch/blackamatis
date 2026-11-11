@@ -5,6 +5,7 @@ import { useState } from "react";
 import { judgedGroups } from "@/lib/emma/criteria";
 import { CLASSES, CLASS_INFO, type CriterionKey, type EmmaClass } from "@/lib/emma/matrix";
 import type { SiteContent } from "@/lib/types";
+import { EditPencil } from "@/components/public/EditMode";
 
 type Props = {
   initialClass: EmmaClass;
@@ -83,7 +84,8 @@ export function JudgeBoard({ initialClass, ready, content }: Props) {
       </section>
 
       <section aria-labelledby="ready-title" className="mx-auto max-w-[1360px] px-3 pt-16 sm:px-6 lg:px-10">
-        <div className="glass-dark flex flex-col gap-4 rounded-[36px] p-6 sm:p-10">
+        <div className="glass-dark relative flex flex-col gap-4 rounded-[36px] p-6 sm:p-10">
+          <EditPencil href="/editor/#checklist" label="Evidence checklist" className="-top-5 right-8" />
           <div className="flex flex-wrap items-end justify-between gap-4">
             <h2 id="ready-title" className="eyebrow m-0 font-medium text-amber">
               Evidence ready

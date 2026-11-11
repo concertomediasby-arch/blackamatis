@@ -22,6 +22,21 @@ export type SessionResult = { kind: "ok"; session: EditorSession } | { kind: "si
 const WRITE_TABLES = CONTENT_TABLES.filter((t) => t.key !== "evidence");
 const ALL_TABLES = ["vehicle", ...WRITE_TABLES.map((t) => t.table)];
 
+/** Parts of the content that "Save draft" writes, each to its own table. */
+export type SaveKey = "vehicle" | Exclude<keyof SiteContent, "vehicle" | "evidence">;
+export const SAVE_KEYS: SaveKey[] = ["vehicle", ...(WRITE_TABLES.map((t) => t.key) as SaveKey[])];
+export const TABLE_OF: Record<SaveKey, string> = Object.fromEntries([
+  ["vehicle", "vehicle"],
+  ...WRITE_TABLES.map((t) => [t.key, t.table]),
+]) as Record<SaveKey, string>;
+
+/** Snapshot of one part of the content, used to detect what changed since the last save. */
+export const snapshotOf = (c: SiteContent, key: SaveKey) => JSON.stringify(key === "vehicle" ? c.vehicle : c[key]);
+
+/** Per-table publish state, read from the database. */
+export type TableState = { rows: number; drafts: number; last: string | null; lastBy: string | null };
+export type PublishState = Record<string, TableState>;
+
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ensureId = (id: string) => (UUID.test(id) ? id : crypto.randomUUID());
 
@@ -45,20 +60,42 @@ export async function getEditorContent(session: EditorSession): Promise<SiteCont
   return fetchEditorContent(db());
 }
 
-/** Save everything as draft. Returns the content with database ids. */
-export async function saveDraft(session: EditorSession, content: SiteContent): Promise<{ content: SiteContent; savedAt: string }> {
+/** Read how many rows and drafts each table has, and when/by whom it was last saved. */
+export async function getPublishState(session: EditorSession): Promise<PublishState | null> {
+  if (session.mode === "preview") return null;
+  const out: PublishState = {};
+  await Promise.all(
+    ALL_TABLES.map(async (table) => {
+      const { data, error } = await db().from(table).select("status, updated_at, updated_by");
+      if (error) throw new Error(`${table}: ${error.message}`);
+      const rows = (data ?? []) as { status: string; updated_at: string | null; updated_by: string | null }[];
+      const latest = rows.reduce<(typeof rows)[number] | null>((a, r) => (!a || (r.updated_at ?? "") > (a.updated_at ?? "") ? r : a), null);
+      out[table] = { rows: rows.length, drafts: rows.filter((r) => r.status === "draft").length, last: latest?.updated_at ?? null, lastBy: latest?.updated_by ?? null };
+    }),
+  );
+  return out;
+}
+
+/**
+ * Save the given parts as draft (only what changed, so untouched pages stay
+ * published). Returns the content with database ids.
+ */
+export async function saveDraft(session: EditorSession, content: SiteContent, keys: SaveKey[] = SAVE_KEYS): Promise<{ content: SiteContent; savedAt: string }> {
   const savedAt = new Date().toISOString();
   if (session.mode === "preview") return { content, savedAt };
   const client = db();
 
   const next: SiteContent = { ...content };
-  const vehicle = { ...content.vehicle, id: ensureId(content.vehicle.id), status: "draft", updated_by: session.userId, updated_at: savedAt };
-  const vr = await client.from("vehicle").upsert(vehicle);
-  if (vr.error) throw new Error(`vehicle: ${vr.error.message}`);
-  next.vehicle = { ...content.vehicle, id: vehicle.id };
+  if (keys.includes("vehicle")) {
+    const vehicle = { ...content.vehicle, id: ensureId(content.vehicle.id), status: "draft", updated_by: session.userId, updated_at: savedAt };
+    const vr = await client.from("vehicle").upsert(vehicle);
+    if (vr.error) throw new Error(`vehicle: ${vr.error.message}`);
+    next.vehicle = { ...content.vehicle, id: vehicle.id };
+  }
 
   for (const { key, table } of WRITE_TABLES) {
-    const rows = (content[key] as { id: string }[]).map((r) => ({ ...r, id: ensureId(r.id), status: "draft", updated_at: savedAt }));
+    if (!keys.includes(key as SaveKey)) continue;
+    const rows = (content[key] as { id: string }[]).map((r) => ({ ...r, id: ensureId(r.id), status: "draft", updated_by: session.userId, updated_at: savedAt }));
     if (rows.length) {
       const { error } = await client.from(table).upsert(rows);
       if (error) throw new Error(`${table}: ${error.message}`);
@@ -68,9 +105,10 @@ export async function saveDraft(session: EditorSession, content: SiteContent): P
     const { error: delErr } = ids.length ? await del.not("id", "in", `(${ids.join(",")})`) : await del.neq("id", "00000000-0000-0000-0000-000000000000");
     if (delErr) throw new Error(`${table}: ${delErr.message}`);
     (next as Record<string, unknown>)[key] = rows.map((r) => {
-      const { status: _s, updated_at: _u, ...rest } = r;
+      const { status: _s, updated_at: _u, updated_by: _b, ...rest } = r;
       void _s;
       void _u;
+      void _b;
       return rest;
     });
   }

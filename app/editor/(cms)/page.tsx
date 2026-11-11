@@ -8,26 +8,47 @@ import { saveEvidence } from "@/lib/editor/data";
 import { judgedGroups } from "@/lib/emma/criteria";
 import { CLASS_INFO, type CriterionKey } from "@/lib/emma/matrix";
 
+/** Public pages and the tables their content comes from. */
 const PAGES = [
-  { name: "Home", href: "/", edit: "/editor/vehicle" },
-  { name: "History", href: "/history", edit: "/editor/vehicle#timeline" },
-  { name: "Theme", href: "/theme", edit: "/editor/vehicle#faces" },
-  { name: "Installation", href: "/installation", edit: "/editor/components" },
-  { name: "Bonus Point", href: "/bonus", edit: "/editor/bonus" },
-  { name: "Judge Mode", href: "/judge", edit: "/editor#checklist" },
+  { name: "Home", href: "/", edit: "/editor/vehicle/", tables: ["vehicle", "team", "partners"] },
+  { name: "History", href: "/history/", edit: "/editor/vehicle/#timeline", tables: ["vehicle", "milestones", "competitions", "before_after"] },
+  { name: "Theme", href: "/theme/", edit: "/editor/vehicle/#faces", tables: ["vehicle", "theme_zones"] },
+  { name: "Installation", href: "/installation/", edit: "/editor/components/", tables: ["components", "wiring_links", "tuning", "photos", "craft_photos"] },
+  { name: "Bonus Point", href: "/bonus/", edit: "/editor/bonus/", tables: ["bonus_requests"] },
+  { name: "Judge Mode", href: "/judge/", edit: "/editor/#checklist", tables: [] },
 ];
+
+type PageStatus = { label: string; tone: "green" | "amber" | "grey"; last: string | null; lastBy: string | null };
 
 const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "—");
 
 export default function OverviewPage() {
-  const { content, update, session, dirty, unpublished, lastSaved, lastPublished } = useEditor();
+  const { content, update, session, dirty, unpublished, lastSaved, publishState, stateLoading } = useEditor();
   const cls = content.vehicle.class;
   const ready = Object.fromEntries(content.evidence.map((e) => [e.criterion_key, e.ready])) as Partial<Record<CriterionKey, boolean>>;
   const r = judgedGroups(cls, ready);
   const [err, setErr] = useState<string | null>(null);
 
-  const status = dirty || unpublished ? "Draft · unpublished changes" : lastPublished ? "Published" : "Not published yet";
   const editedBy = session.mode === "preview" ? "you (preview)" : session.email;
+  const who = (id: string | null) => (!id ? null : session.mode === "supabase" && id === session.userId ? session.email : "another editor");
+
+  const statusOf = (tables: string[]): PageStatus => {
+    if (tables.length === 0) {
+      const last = content.evidence.reduce<string | null>((a, e) => (e.updated_at && (!a || e.updated_at > a) ? e.updated_at : a), null);
+      return { label: "Live · ticks save instantly", tone: "green", last, lastBy: null };
+    }
+    if (session.mode === "preview") {
+      return { label: dirty || unpublished ? "Draft · not published yet" : "Published", tone: dirty || unpublished ? "amber" : "green", last: lastSaved, lastBy: editedBy };
+    }
+    if (stateLoading || !publishState) return { label: "Checking…", tone: "grey", last: null, lastBy: null };
+    const st = tables.map((t) => publishState[t]).filter(Boolean);
+    const latest = st.reduce<(typeof st)[number] | null>((a, x) => (x.last && (!a || !a.last || x.last > a.last) ? x : a), null);
+    const base = { last: latest?.last ?? null, lastBy: who(latest?.lastBy ?? null) };
+    if (st.some((x) => x.drafts > 0)) return { label: "Draft · not published yet", tone: "amber", ...base };
+    if (st.every((x) => x.rows === 0)) return { label: "Placeholder · nothing saved yet", tone: "grey", ...base };
+    return { label: "Published", tone: "green", ...base };
+  };
+  const DOT = { green: "bg-emerald-600", amber: "bg-amber", grey: "bg-[#B5B2BC]" };
 
   const tick = async (key: CriterionKey, value: boolean) => {
     update((c) => {
@@ -45,17 +66,19 @@ export default function OverviewPage() {
     <>
       <PageTitle title="Overview">Every public page, its status and the pre-event evidence checklist.</PageTitle>
       <ul className="m-0 mb-8 grid list-none grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4 p-0">
-        {PAGES.map((p) => (
+        {PAGES.map((p) => {
+          const st = statusOf(p.tables);
+          return (
           <li key={p.name}>
             <Card className="h-full">
               <div className="flex flex-col gap-1">
                 <h2 className="m-0 text-lg font-bold">{p.name}</h2>
                 <span className="flex items-center gap-2 text-sm text-[#4a4852]">
-                  <span aria-hidden="true" className={`h-2 w-2 rounded-full ${dirty || unpublished ? "bg-amber" : "bg-emerald-600"}`} />
-                  {status}
+                  <span aria-hidden="true" className={`h-2 w-2 rounded-full ${DOT[st.tone]}`} />
+                  {st.label}
                 </span>
                 <span className="text-[13px] text-[#55535c]">
-                  Last edited by {editedBy} · {when(lastSaved)}
+                  {st.last ? `Last edited ${st.lastBy ? `by ${st.lastBy} · ` : ""}${when(st.last)}` : "Not edited yet"}
                 </span>
               </div>
               <div className="mt-auto flex flex-wrap gap-2">
@@ -68,7 +91,8 @@ export default function OverviewPage() {
               </div>
             </Card>
           </li>
-        ))}
+          );
+        })}
       </ul>
 
       <div id="checklist">

@@ -216,3 +216,14 @@ body {
     background-position: -100% 0;
   }
 }
+
+/* Field reached from a public-page edit pencil */
+.edit-target {
+  border-radius: 16px;
+  outline: 3px solid var(--amber);
+  outline-offset: 6px;
+  background-color: rgba(254, 241, 18, 0.18);
+  transition:
+    outline-color 0.6s ease,
+    background-color 0.6s ease;
+}

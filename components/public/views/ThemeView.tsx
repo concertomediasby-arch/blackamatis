@@ -3,6 +3,7 @@
 import { ContentFallback, useSiteContent } from "@/components/public/ContentProvider";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Placeholder } from "@/components/ui/Placeholder";
+import { EditPencil } from "@/components/public/EditMode";
 
 
 export function ThemeView() {
@@ -13,7 +14,8 @@ export function ThemeView() {
   return (
     <>
       <section aria-labelledby="two-face" className="grid grid-cols-1 gap-5 px-3 pt-8 sm:px-6 md:grid-cols-2 lg:px-10">
-        <GlassPanel className="flex min-h-[560px] flex-col justify-between gap-6 rounded-[36px] px-6 py-16 sm:px-14 sm:py-24">
+        <GlassPanel className="relative flex min-h-[560px] flex-col justify-between gap-6 rounded-[36px] px-6 py-16 sm:px-14 sm:py-24">
+          <EditPencil href="/editor/vehicle/#faces" label="Dark side" className="right-5 top-5" />
           <span className="eyebrow text-amber">02 — Theme</span>
           <div className="flex flex-col gap-5">
             <span className="label text-amber">{v.dark_side_name}</span>
@@ -25,7 +27,8 @@ export function ThemeView() {
             <p className="m-0 max-w-[460px] text-[17px] leading-[1.7] text-muted">{v.dark_side_body}</p>
           </div>
         </GlassPanel>
-        <GlassPanel tone="light" className="flex min-h-[560px] flex-col justify-end gap-6 rounded-[36px] px-6 py-16 sm:px-14 sm:py-24">
+        <GlassPanel tone="light" className="relative flex min-h-[560px] flex-col justify-end gap-6 rounded-[36px] px-6 py-16 sm:px-14 sm:py-24">
+          <EditPencil href="/editor/vehicle/#faces" label="Light side" className="right-5 top-5" tone="light" />
           <div className="flex flex-col gap-5">
             <span className="label text-navy">{v.light_side_name}</span>
             <span aria-hidden="true" className="display font-black" style={{ fontSize: "clamp(64px, 8vw, 120px)", lineHeight: 0.85 }}>

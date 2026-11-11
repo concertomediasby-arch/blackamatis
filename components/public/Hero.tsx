@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowUpRight } from "@/components/ui/Arrow";
+import { EditPencil } from "./EditMode";
 import { SiteHeader } from "./SiteHeader";
 import type { EmmaClass } from "@/lib/emma/matrix";
 
@@ -78,6 +79,7 @@ type Props = {
 export function Hero({ emmaClass, darkName, lightName, carPhotoUrl, instagramUrl }: Props) {
   const [face, setFace] = useState<Face>("dark");
   const f = FACES[face];
+  const pencilTone = face === "dark" ? "dark" : "light";
   const selClass = emmaClass === "XU" ? "X" : emmaClass;
   const glassStyle = {
     background: f.glass,
@@ -110,9 +112,10 @@ export function Hero({ emmaClass, darkName, lightName, carPhotoUrl, instagramUrl
 
       <div className="relative z-10 flex flex-1 flex-wrap items-center justify-between gap-6 px-5 py-6 sm:px-8 lg:px-14">
         <div
-          className="flex max-w-[360px] flex-[1_1_260px] flex-col gap-4 rounded-[28px] border p-7 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur-[24px] backdrop-saturate-150"
+          className="relative flex max-w-[360px] flex-[1_1_260px] flex-col gap-4 rounded-[28px] border p-7 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur-[24px] backdrop-saturate-150"
           style={glassStyle}
         >
+          <EditPencil href="/editor/vehicle/#faces" label="Dark and light side names" tone={pencilTone} />
           <span className="eyebrow" style={{ color: f.accent }}>
             {face === "dark" ? darkName : lightName}
           </span>
@@ -127,6 +130,7 @@ export function Hero({ emmaClass, darkName, lightName, carPhotoUrl, instagramUrl
         </div>
 
         <div className="relative flex min-h-[340px] flex-[3_1_460px] flex-col items-center justify-center">
+          <EditPencil href="/editor/vehicle/#f-car-photo" label="Car photo" className="right-[8%] top-6" tone={pencilTone} />
           <svg aria-hidden="true" viewBox="0 0 1000 660" preserveAspectRatio="xMidYMid meet" className="absolute -inset-x-[4%] -inset-y-[6%] h-[112%] w-[108%] opacity-85" style={{ fill: f.speck }}>
             {DOTS.map((d, i) => (
               <circle key={i} cx={d.x} cy={d.y} r={d.r} />
@@ -160,9 +164,10 @@ export function Hero({ emmaClass, darkName, lightName, carPhotoUrl, instagramUrl
         </div>
 
         <div
-          className="ml-auto flex max-w-[250px] flex-[1_1_200px] flex-col items-center gap-4 rounded-[28px] border px-5 py-7 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur-[24px] backdrop-saturate-150"
+          className="relative ml-auto flex max-w-[250px] flex-[1_1_200px] flex-col items-center gap-4 rounded-[28px] border px-5 py-7 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur-[24px] backdrop-saturate-150"
           style={glassStyle}
         >
+          <EditPencil href="/editor/vehicle/#vehicle" label="EMMA class" className="-right-3 -top-3" tone={pencilTone} />
           <span id="face-label" className="text-sm font-medium">
             Choose face
           </span>
