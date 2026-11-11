@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { publishAll, saveDraft, type EditorSession } from "@/lib/editor/data";
 import type { SiteContent } from "@/lib/types";
+import { PREVIEW_EDITOR_FLAG } from "@/components/public/EditMode";
 
 const LS_KEY = "ba-editor-draft-v1";
 const AUTOSAVE_MS = 10_000;
@@ -47,6 +48,8 @@ export function EditorProvider({ session, initial, children }: { session: Editor
   useEffect(() => {
     if (session.mode !== "preview") return;
     try {
+      // Lets the public pages show their edit pencils in preview mode.
+      localStorage.setItem(PREVIEW_EDITOR_FLAG, "1");
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
         const saved = JSON.parse(raw) as { content: SiteContent; savedAt: string; publishedAt?: string; unpublished?: boolean };

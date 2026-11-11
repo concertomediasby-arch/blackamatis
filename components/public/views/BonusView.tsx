@@ -5,6 +5,7 @@ import { BonusList } from "@/components/public/BonusList";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { BONUS_ELEMENTS } from "@/lib/emma/bonus";
 import type { PublicBonusRequest } from "@/lib/types";
+import { EditPencil } from "@/components/public/EditMode";
 
 
 export function BonusView() {
@@ -52,7 +53,8 @@ export function BonusView() {
       </section>
 
       <section aria-labelledby="requests" className="mx-3 sm:mx-6 lg:mx-10">
-        <GlassPanel tone="light" className="rounded-[36px]">
+        <GlassPanel tone="light" className="relative rounded-[36px]">
+          <EditPencil href="/editor/bonus/" label="Bonus requests" className="right-5 top-5" tone="light" />
           <div className="mx-auto flex max-w-[1280px] flex-col gap-8 px-4 py-16 sm:px-12 sm:py-20">
             <div className="flex flex-col gap-3">
               <span className="eyebrow text-navy">Request list · bonus estimate</span>

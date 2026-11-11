@@ -4,6 +4,7 @@ import { ContentFallback, useSiteContent } from "@/components/public/ContentProv
 import { BeforeAfter } from "@/components/public/BeforeAfter";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Placeholder } from "@/components/ui/Placeholder";
+import { EditPencil } from "@/components/public/EditMode";
 
 
 export function HistoryView() {
@@ -13,7 +14,8 @@ export function HistoryView() {
   const ms = [...c.milestones].sort((a, b) => a.sort - b.sort);
   return (
     <>
-      <section className="mx-auto grid max-w-[1280px] grid-cols-1 items-end gap-12 px-5 pb-16 pt-24 sm:px-10 md:grid-cols-2">
+      <section className="relative mx-auto grid max-w-[1280px] grid-cols-1 items-end gap-12 px-5 pb-16 pt-24 sm:px-10 md:grid-cols-2">
+        <EditPencil href="/editor/vehicle/#f-story" label="History summary" className="right-5 top-20 sm:right-10" />
         <div className="flex flex-col gap-4">
           <span className="eyebrow text-amber">01 — History</span>
           <h1 className="display m-0 font-black" style={{ fontSize: "clamp(64px, 9vw, 128px)", lineHeight: 0.85 }}>
@@ -31,7 +33,8 @@ export function HistoryView() {
         </GlassPanel>
       </section>
 
-      <section aria-labelledby="timeline" className="mx-auto max-w-[1280px] px-5 pb-24 sm:px-10">
+      <section aria-labelledby="timeline" className="relative mx-auto max-w-[1280px] px-5 pb-24 sm:px-10">
+        <EditPencil href="/editor/vehicle/#timeline" label="Build timeline" className="right-5 top-0 sm:right-10" />
         <h2 id="timeline" className="display m-0 mb-12 text-5xl font-extrabold">
           Build timeline
         </h2>

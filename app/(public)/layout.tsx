@@ -1,4 +1,5 @@
 import { ContentProvider } from "@/components/public/ContentProvider";
+import { EditModeProvider } from "@/components/public/EditMode";
 import { Orbs } from "@/components/public/Orbs";
 import { SiteFooter } from "@/components/public/SiteFooter";
 import { SiteHeader } from "@/components/public/SiteHeader";
@@ -6,6 +7,7 @@ import { SiteHeader } from "@/components/public/SiteHeader";
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <ContentProvider>
+      <EditModeProvider>
       <div className="relative min-h-screen overflow-hidden bg-prussian">
         <a href="#main" className="sr-only-focusable pill absolute left-4 top-4 z-50 bg-lemon text-black">
           Skip to content
@@ -17,6 +19,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         </main>
         <SiteFooter />
       </div>
+      </EditModeProvider>
     </ContentProvider>
   );
 }

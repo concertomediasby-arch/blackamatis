@@ -9,6 +9,7 @@ import { Placeholder } from "@/components/ui/Placeholder";
 import { CLASS_INFO } from "@/lib/emma/matrix";
 import { storageUrl } from "@/lib/supabase/env";
 import { instagramHref } from "@/lib/format";
+import { EditPencil } from "@/components/public/EditMode";
 
 const PAGES = [
   { href: "/history", no: "01", title: "History", body: "The journey from stock condition to competition ready.", tone: "dark" },
@@ -41,7 +42,8 @@ export function HomeView() {
         instagramUrl={instagramHref(v.instagram)}
       />
 
-      <GlassPanel as="section" id="vehicle" aria-label="Vehicle data" className="mx-3 mt-8 overflow-hidden rounded-[28px] sm:mx-6 lg:mx-10">
+      <GlassPanel as="section" id="vehicle" aria-label="Vehicle data" className="relative mx-3 mt-8 overflow-hidden rounded-[28px] sm:mx-6 lg:mx-10">
+        <EditPencil href="/editor/vehicle/#vehicle" label="Vehicle data" />
         <dl className="m-0 mx-auto grid max-w-[1280px] grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
           {data.map((d) => (
             <div key={d.k} className="flex flex-col gap-2 border-b border-white/10 px-6 py-7 sm:border-b-0 sm:border-r last:border-0">
@@ -52,7 +54,8 @@ export function HomeView() {
         </dl>
       </GlassPanel>
 
-      <section aria-labelledby="statement" className="mx-auto grid max-w-[1280px] grid-cols-1 items-start gap-10 px-5 py-28 sm:px-10 md:grid-cols-2 md:gap-16">
+      <section aria-labelledby="statement" className="relative mx-auto grid max-w-[1280px] grid-cols-1 items-start gap-10 px-5 py-28 sm:px-10 md:grid-cols-2 md:gap-16">
+        <EditPencil href="/editor/vehicle/#f-statement" label="Project statement" className="right-5 top-20 sm:right-10" />
         <div className="flex flex-col gap-4">
           <span className="eyebrow text-amber">Project statement</span>
           <h2 id="statement" className="display m-0 font-extrabold" style={{ fontSize: "clamp(40px, 5vw, 64px)" }}>
@@ -97,7 +100,8 @@ export function HomeView() {
       </section>
 
       <section aria-labelledby="team" className="mx-auto max-w-[1360px] px-3 sm:px-6 lg:px-10">
-        <GlassPanel className="flex flex-col gap-8 rounded-[36px] p-6 sm:p-12">
+        <GlassPanel className="relative flex flex-col gap-8 rounded-[36px] p-6 sm:p-12">
+          <EditPencil href="/editor/vehicle/#team" label="Team" className="right-5 top-5" />
           <div className="flex max-w-[640px] flex-col gap-3">
             <span className="eyebrow text-amber">Team &amp; partners</span>
             <h2 id="team" className="display m-0 text-[clamp(40px,5vw,56px)] font-extrabold">

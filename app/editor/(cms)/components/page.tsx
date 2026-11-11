@@ -229,6 +229,7 @@ function WiringEditor() {
 
   return (
     <Card
+      id="wiring"
       title="Wiring links · cable size & fuse"
       actions={
         <button

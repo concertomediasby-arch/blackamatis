@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signOut } from "@/lib/editor/data";
 import { normPath } from "@/lib/nav";
 import { useEditor } from "./EditorProvider";
@@ -22,6 +22,22 @@ export function EditorShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { session, dirty, unpublished, saving, lastSaved, error, save, publish } = useEditor();
   const [menu, setMenu] = useState(false);
+
+  // Deep links from the public site's edit pencils: /editor/vehicle/#f-statement
+  // scrolls to that section, focuses its first field and highlights it briefly.
+  useEffect(() => {
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    if (!id) return;
+    const t = setTimeout(() => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("edit-target");
+      el.querySelector<HTMLElement>("input:not([type=hidden]), textarea, select")?.focus({ preventScroll: true });
+      setTimeout(() => el.classList.remove("edit-target"), 2600);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [pathname]);
 
   const status = saving
     ? "Saving…"

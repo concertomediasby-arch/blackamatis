@@ -76,9 +76,9 @@ function FieldNote({ id, error, hint }: { id: string; error?: string; hint?: Rea
   );
 }
 
-export function Card({ title, children, actions, className = "" }: { title?: string; children: React.ReactNode; actions?: React.ReactNode; className?: string }) {
+export function Card({ title, children, actions, className = "", id }: { title?: string; children: React.ReactNode; actions?: React.ReactNode; className?: string; id?: string }) {
   return (
-    <section className={`flex flex-col gap-5 rounded-2xl border border-editor-border bg-white p-5 sm:p-6 ${className}`}>
+    <section id={id} className={`flex flex-col gap-5 rounded-2xl border border-editor-border bg-white p-5 sm:p-6 ${className}`}>
       {(title || actions) && (
         <div className="flex flex-wrap items-center justify-between gap-3">
           {title && <h2 className="m-0 text-lg font-bold">{title}</h2>}
