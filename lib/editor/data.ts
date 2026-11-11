@@ -6,6 +6,7 @@ import { CONTENT_TABLES, fetchEditorContent } from "../supabase/content";
 import { isSupabaseConfigured } from "../supabase/env";
 import { stableUuid } from "./ids";
 import { normalizeHotspots } from "../photo";
+import { dedupeKeys } from "./components";
 import type { SiteContent } from "../types";
 
 /**
@@ -60,6 +61,15 @@ export async function getEditorContent(session: EditorSession): Promise<SiteCont
   return fetchEditorContent(db());
 }
 
+/** A save error the team can act on, instead of a raw database message. */
+export function explainDbError(table: string, message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes("duplicate key")) return `Save failed (${table}): two items use the same value that must be unique. Check the diagram keys in Components.`;
+  if (m.includes("row-level security") || m.includes("permission denied")) return `Save failed (${table}): this account may not change it. Sign in again, or ask the owner.`;
+  if (m.includes("failed to fetch") || m.includes("network")) return "Save failed: no connection. Your changes are still here; try again in a moment.";
+  return `Save failed (${table}): ${message}`;
+}
+
 /** Read how many rows and drafts each table has, and when/by whom it was last saved. */
 export async function getPublishState(session: EditorSession): Promise<PublishState | null> {
   if (session.mode === "preview") return null;
@@ -89,7 +99,7 @@ export async function saveDraft(session: EditorSession, content: SiteContent, ke
   if (keys.includes("vehicle")) {
     const vehicle = { ...content.vehicle, id: await stableUuid(content.vehicle.id), status: "draft", updated_by: session.userId, updated_at: savedAt };
     const vr = await client.from("vehicle").upsert(vehicle);
-    if (vr.error) throw new Error(`vehicle: ${vr.error.message}`);
+    if (vr.error) throw new Error(explainDbError("vehicle", vr.error.message));
     // There is one vehicle: remove any other row so the site can never show a stale copy.
     const vd = await client.from("vehicle").delete().neq("id", vehicle.id);
     if (vd.error) throw new Error(`vehicle: ${vd.error.message}`);
@@ -98,8 +108,10 @@ export async function saveDraft(session: EditorSession, content: SiteContent, ke
 
   for (const { key, table } of WRITE_TABLES) {
     if (!keys.includes(key as SaveKey)) continue;
+    // Diagram keys must be unique: a later duplicate gets a suffix ("amp" -> "amp_2").
+    const source = table === "components" ? dedupeKeys(content.components) : (content[key] as { id: string }[]);
     const rows = await Promise.all(
-      (content[key] as { id: string }[]).map(async (r) => ({
+      source.map(async (r) => ({
         ...r,
         ...(table === "components" ? { hotspots: normalizeHotspots((r as { hotspots?: unknown }).hotspots) } : {}),
         id: await stableUuid(r.id),
@@ -108,14 +120,15 @@ export async function saveDraft(session: EditorSession, content: SiteContent, ke
         updated_at: savedAt,
       })),
     );
-    if (rows.length) {
-      const { error } = await client.from(table).upsert(rows);
-      if (error) throw new Error(`${table}: ${error.message}`);
-    }
+    // Remove deleted rows first, so a new row may reuse a value (e.g. a diagram key) of a removed one.
     const ids = rows.map((r) => r.id);
     const del = client.from(table).delete();
     const { error: delErr } = ids.length ? await del.not("id", "in", `(${ids.join(",")})`) : await del.neq("id", "00000000-0000-0000-0000-000000000000");
-    if (delErr) throw new Error(`${table}: ${delErr.message}`);
+    if (delErr) throw new Error(explainDbError(table, delErr.message));
+    if (rows.length) {
+      const { error } = await client.from(table).upsert(rows);
+      if (error) throw new Error(explainDbError(table, error.message));
+    }
     (next as Record<string, unknown>)[key] = rows.map((r) => {
       const { status: _s, updated_at: _u, updated_by: _b, ...rest } = r;
       void _s;

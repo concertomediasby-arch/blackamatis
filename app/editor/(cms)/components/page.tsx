@@ -18,7 +18,14 @@ export default function ComponentsPage() {
   const { content, update } = useEditor();
   const list = [...content.components].sort((a, b) => a.sort - b.sort);
   const [selected, setSelected] = useState<string | null>(list[0]?.id ?? null);
-  const current = list.find((c) => c.id === selected) ?? null;
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  // After a save an item can get its database id; keep the same row selected.
+  const current = list.find((c) => c.id === selected) ?? (selected ? (list[selectedIndex] ?? null) : null);
+  useEffect(() => {
+    const i = list.findIndex((c) => c.id === selected);
+    if (i >= 0 && i !== selectedIndex) setSelectedIndex(i);
+    else if (i < 0 && current) setSelected(current.id);
+  }, [list, selected, selectedIndex, current]);
 
   const setList = (next: AudioComponent[]) => update((c) => ({ ...c, components: next.map((x, i) => ({ ...x, sort: i + 1 })) }));
   const move = (i: number, d: -1 | 1) => {
@@ -100,6 +107,8 @@ function ComponentEditor({ component, all, onRemove }: { component: AudioCompone
   });
   const e = formState.errors;
   const type = watch("type");
+  const keyNow = watch("key");
+  const keyTaken = !!keyNow && all.some((c) => c.id !== component.id && c.key === keyNow);
   const specs = watch("specs") ?? [];
 
   useEffect(() => {
@@ -142,7 +151,12 @@ function ComponentEditor({ component, all, onRemove }: { component: AudioCompone
     >
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <TextField label="Title" {...register("title")} error={e.title?.message} />
-        <TextField label="Diagram key" {...register("key")} error={e.key?.message} hint="Used to link the diagrams, e.g. amp_a." />
+        <TextField
+          label="Diagram key"
+          {...register("key")}
+          error={e.key?.message ?? (keyTaken ? "Another component already uses this key. Change it, or it is saved with a number added (e.g. amp_a_2)." : undefined)}
+          hint="Used to link the diagrams, e.g. amp_a."
+        />
         <SelectField
           label="Type"
           {...register("type", {
@@ -212,7 +226,7 @@ function WiringEditor() {
         <button
           type="button"
           className={btn.secondary}
-          onClick={() => setLinks((ls) => [...ls, { id: `new-${crypto.randomUUID()}`, from_key: nodes[0]?.key ?? "", to_key: nodes[1]?.key ?? "", cable_mm2: null, fuse_a: null }])}
+          onClick={() => setLinks((ls) => [...ls, { id: crypto.randomUUID(), from_key: nodes[0]?.key ?? "", to_key: nodes[1]?.key ?? "", cable_mm2: null, fuse_a: null }])}
         >
           + Add link
         </button>

@@ -30,7 +30,7 @@ export function uniqueKey(title: string, existing: readonly string[]): string {
 export function newComponent(opts: { title: string; type: ComponentType; existing: readonly AudioComponent[]; hotspots?: Hotspot[] }): AudioComponent {
   const { title, type, existing } = opts;
   return {
-    id: `new-${crypto.randomUUID()}`,
+    id: crypto.randomUUID(),
     key: uniqueKey(title, existing.map((c) => c.key)),
     title: title.trim() || "New component",
     role: ROLE_BY_TYPE[type],
@@ -47,4 +47,15 @@ export function newComponent(opts: { title: string; type: ComponentType; existin
     hotspots: opts.hotspots ?? [],
     sort: existing.length + 1,
   };
+}
+
+/** Make diagram keys unique: the first keeps its key, later duplicates get a suffix. */
+export function dedupeKeys(components: readonly AudioComponent[]): AudioComponent[] {
+  const used: string[] = [];
+  return components.map((c) => {
+    const key = (c.key || "").trim() || uniqueKey(c.title, used);
+    const next = used.includes(key) ? uniqueKey(key, used) : key;
+    used.push(next);
+    return next === c.key ? c : { ...c, key: next };
+  });
 }
