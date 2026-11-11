@@ -2,21 +2,25 @@ import { normalizeCircuit } from "./circuits";
 import { CLASS_INFO } from "./emma/matrix";
 import type { SiteContent } from "./types";
 
+export type Highlight = { key: "class" | "amps" | "circuits" | "fuses"; title: string; note: string };
+
 /**
- * Key numbers for the landing hero, counted from published data only:
- * the EMMA class, amplifiers and fused circuits on the cable diagram.
- * A number is left out when there is nothing to count yet.
+ * Key numbers for the landing hero, counted from published data only: the
+ * EMMA class, the amplifiers, circuits and fused circuits on the cable
+ * diagram. An item is left out when there is nothing to count yet.
  */
-export function homeStats(c: Pick<SiteContent, "vehicle" | "circuits" | "components">): string[] {
-  const out: string[] = [];
+export function homeHighlights(c: Pick<SiteContent, "vehicle" | "circuits" | "components">): Highlight[] {
+  const out: Highlight[] = [];
   const cls = CLASS_INFO[c.vehicle.class];
-  if (cls) out.push(cls.name.toUpperCase());
+  if (cls) out.push({ key: "class", title: cls.name, note: "EMMA 2026 class" });
   const runs = (c.circuits ?? []).map(normalizeCircuit).filter((x) => x.kind === "channel");
-  const type = (key: string | null) => c.components.find((x) => x.key === key)?.type;
-  const amps = runs.filter((x) => type(x.component_key) === "amplifier").length;
+  const comp = (key: string | null) => c.components.find((x) => x.key === key);
+  const ampRuns = runs.filter((x) => comp(x.component_key)?.type === "amplifier");
+  const ampNames = [...new Set(ampRuns.map((x) => comp(x.component_key)!.title).filter(Boolean))];
   const fused = runs.filter((x) => x.power.some((i) => i.t === "node" && (i.is_fuse || i.fuse_a != null))).length;
-  if (amps) out.push(`${amps} amplifier${amps === 1 ? "" : "s"}`);
-  if (runs.length) out.push(`${runs.length} circuit${runs.length === 1 ? "" : "s"}`);
-  if (fused) out.push(`${fused} fused circuit${fused === 1 ? "" : "s"}`);
+  const n = (k: number, one: string) => `${k} ${one}${k === 1 ? "" : "s"}`;
+  if (ampRuns.length) out.push({ key: "amps", title: n(ampRuns.length, "amplifier"), note: ampNames.join(" · ") });
+  if (runs.length) out.push({ key: "circuits", title: n(runs.length, "circuit"), note: "Every run on the cable diagram" });
+  if (fused) out.push({ key: "fuses", title: n(fused, "fused circuit"), note: "Rated by the VW75212 table" });
   return out;
 }

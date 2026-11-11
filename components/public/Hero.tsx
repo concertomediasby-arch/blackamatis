@@ -6,6 +6,7 @@ import { ArrowUpRight } from "@/components/ui/Arrow";
 import { CarPhoto } from "./CarPhoto";
 import { EditPencil } from "./EditMode";
 import type { CarPhotoLayout } from "@/lib/photo";
+import type { Highlight } from "@/lib/home-stats";
 import { SiteHeader } from "./SiteHeader";
 
 type Face = "dark" | "light";
@@ -49,17 +50,23 @@ const FACES = {
   },
 } as const;
 
-/** Deterministic splatter dots around the car. */
-const DOTS = (() => {
-  let s = 7;
-  const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
-  return Array.from({ length: 80 }, () => {
-    const x = 60 + rnd() * 900;
-    const y = 110 + rnd() * 430;
-    const r = rnd() < 0.08 ? 5 + rnd() * 3 : 1 + rnd() * 3.5;
-    return { x: Math.round(x), y: Math.round(y), r: Math.round(r * 10) / 10 };
-  });
-})();
+const ICONS: Record<Highlight["key"], React.ReactNode> = {
+  class: (
+    <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM17 6h3v1a3 3 0 0 1-3 3M7 6H4v1a3 3 0 0 0 3 3" />
+  ),
+  amps: <path d="M3 7h18v10H3zM7 7v10M11 10h6M11 14h6" />,
+  circuits: (
+    <path d="M4 6h6v4H4zM14 14h6v4h-6zM7 10v2a2 2 0 0 0 2 2h5M17 14v-2a2 2 0 0 0-2-2h-1" />
+  ),
+  fuses: <path d="M9 3h6v4H9zM9 17h6v4H9zM10 7v10M14 7v10M12 7v4" />,
+};
+
+/** Section index on the right edge: where the reader is on the landing page. */
+const SECTIONS = [
+  { href: "#top", no: "01", label: "Build" },
+  { href: "#start", no: "02", label: "Ways in" },
+  { href: "#vehicle", no: "03", label: "Details" },
+];
 
 type Props = {
   darkName: string;
@@ -67,14 +74,14 @@ type Props = {
   carPhotoUrl: string | null;
   carLayout: CarPhotoLayout;
   instagramUrl: string | null;
-  /** Key numbers from the data, e.g. "EXPERT UNLIMITED", "15 amplifiers". */
-  stats: string[];
+  /** Key numbers from the data, shown in the strip along the bottom. */
+  highlights: Highlight[];
 };
 
 /**
- * Landing hero, one screen tall: the word AMATIS across the top, the car in
- * front of its lower half, the headline bottom left with the two ways in, and
- * key numbers from the data along the bottom edge.
+ * Landing hero, one screen tall, in a product-landing layout: a three-line
+ * headline on the left, the car in front of a glass circle on the right, a
+ * section index on the right edge and a strip of key numbers at the bottom.
  */
 export function Hero({
   darkName,
@@ -82,7 +89,7 @@ export function Hero({
   carPhotoUrl,
   carLayout,
   instagramUrl,
-  stats,
+  highlights,
 }: Props) {
   // The hero shows the dark face; the light palette stays for a future switch.
   const [face] = useState<Face>("dark");
@@ -91,183 +98,262 @@ export function Hero({
 
   return (
     <section
+      id="top"
       aria-label="Hero"
       className={`relative flex min-h-[100svh] flex-col overflow-hidden ${face === "light" ? "on-light" : ""}`}
-      style={{
-        background: f.bg,
-        color: f.ink,
-        transition: "background-color .5s ease, color .5s ease",
-      }}
+      style={{ background: f.bg, color: f.ink }}
     >
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-0"
       >
         <div
-          className="orb left-[30%] top-[-120px] h-[560px] w-[560px] opacity-45 blur-[130px]"
+          className="orb right-[8%] top-[-160px] h-[620px] w-[620px] opacity-35 blur-[140px]"
           style={{ background: f.orbA }}
         />
         <div
-          className="orb bottom-[-160px] right-[-80px] h-[520px] w-[520px] opacity-80 blur-[120px]"
-          style={{ background: f.orbB }}
-        />
-        <div
-          className="orb bottom-[-200px] left-[-120px] h-[480px] w-[480px] opacity-70 blur-[120px]"
+          className="orb bottom-[-200px] left-[-120px] h-[520px] w-[520px] opacity-70 blur-[120px]"
           style={{ background: f.orbB }}
         />
       </div>
 
       <SiteHeader face={face} inHero />
 
-      {/* Word + car: the word sits high so its top half stays readable above the car. */}
-      <div
-        className="relative z-10 flex flex-1 flex-col items-center justify-center px-3 pt-4 sm:px-6 lg:px-10"
-        style={
-          {
-            "--word": "clamp(96px, min(23vw, 26vh), 420px)",
-          } as React.CSSProperties
-        }
-      >
-        <span
-          aria-hidden="true"
-          className="pointer-events-none select-none font-display font-black leading-[0.78] tracking-[-0.01em]"
-          style={{
-            fontSize: "var(--word)",
-            color: f.word,
-            transition: "color .5s ease",
-          }}
-        >
-          AMATIS
-        </span>
-        <div
-          className="relative flex w-full flex-col items-center"
-          style={{
-            marginTop: "calc(var(--word) * -0.46)",
-            maxWidth: "min(1180px, 104vh)",
-          }}
-        >
-          <EditPencil
-            href="/editor/vehicle/#f-car-photo"
-            label="Car photo"
-            className="right-[6%] top-2"
-            tone={pencilTone}
-          />
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 1000 660"
-            preserveAspectRatio="xMidYMid meet"
-            className="absolute -inset-x-[4%] -inset-y-[6%] h-[112%] w-[108%] opacity-85"
-            style={{ fill: f.speck }}
-          >
-            {DOTS.map((d, i) => (
-              <circle key={i} cx={d.x} cy={d.y} r={d.r} />
-            ))}
-          </svg>
-          {carPhotoUrl ? (
-            <CarPhoto
-              url={carPhotoUrl}
-              layout={carLayout}
-              className="max-w-[1100px]"
-            />
-          ) : (
-            <>
-              <svg
-                role="img"
-                aria-label="Honda Odyssey silhouette (car photo not uploaded yet)"
-                viewBox="0 0 810 330"
-                className="relative h-auto w-full max-w-[900px] drop-shadow-[0_40px_40px_rgba(0,0,0,0.45)]"
-              >
-                <path
-                  d="M30 255 C30 225 45 205 80 195 L190 170 L285 75 C298 62 312 58 330 58 L705 58 C735 58 750 72 756 95 L778 205 C782 225 780 250 768 258 L702 262 A62 62 0 0 0 578 262 L267 262 A62 62 0 0 0 143 262 L45 262 C35 262 30 260 30 255 Z"
-                  fill={f.car}
-                />
-                <path
-                  d="M300 80 L250 162 L420 162 L420 80 Z M436 80 L436 162 L600 162 L600 80 Z M616 80 L616 162 L738 162 L727 102 C724 88 716 80 702 80 Z"
-                  fill={f.carGlass}
-                />
-                <path
-                  d="M428 80 L428 250 M608 80 L608 250 M60 222 L770 222"
-                  stroke={f.carGlass}
-                  strokeWidth="3"
-                  fill="none"
-                />
-                <path d="M52 206 L118 196 L112 214 L56 220 Z" fill={f.light} />
-                <path
-                  d="M752 120 L770 120 L776 170 L758 170 Z"
-                  fill={f.light}
-                />
-                {[205, 640].map((cx) => (
-                  <g key={cx}>
-                    <circle cx={cx} cy="262" r="52" fill="#000" />
-                    <circle cx={cx} cy="262" r="28" fill={f.carGlass} />
-                    <circle cx={cx} cy="262" r="8" fill={f.light} />
-                  </g>
-                ))}
-              </svg>
-              <span
-                className="relative mt-2 font-mono text-[11px] tracking-[0.12em]"
-                style={{ color: f.muted }}
-              >
-                [REPLACE WITH CAR PHOTO · TRANSPARENT PNG]
-              </span>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Headline and the two ways in. */}
-      <div className="relative z-10 flex flex-wrap items-end justify-between gap-x-10 gap-y-6 px-8 pb-4 pt-3 sm:px-[72px] lg:px-[88px]">
-        <div className="relative flex max-w-[900px] flex-col gap-3">
+      <div className="relative z-10 grid flex-1 grid-cols-1 items-center gap-6 px-8 pb-4 pt-8 sm:px-[72px] lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:px-[88px]">
+        {/* Left: label, headline, copy, actions */}
+        <div className="relative flex flex-col gap-6">
           <EditPencil
             href="/editor/vehicle/#faces"
             label="Dark and light side names"
-            className="-right-12 -top-2"
+            className="-top-3 right-0 lg:right-auto lg:left-[300px]"
             tone={pencilTone}
           />
-          <span className="eyebrow" style={{ color: f.accent }}>
+          <span
+            className="self-start rounded-full border px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.16em]"
+            style={{
+              borderColor: f.glassBorder,
+              color: f.accent,
+              background: f.glass,
+            }}
+          >
             {face === "dark" ? darkName : lightName}
           </span>
           <h1
-            className="display m-0 font-black tracking-[0.01em]"
+            className="display m-0 font-black"
             style={{
-              fontSize: "clamp(40px, min(4.6vw, 7vh), 76px)",
-              lineHeight: 0.92,
+              fontSize: "clamp(48px, min(6.2vw, 10vh), 112px)",
+              lineHeight: 0.9,
             }}
           >
-            <span className="whitespace-nowrap">ONE CAR.</span>{" "}
-            <span className="whitespace-nowrap">TWO FACES.</span>
+            ONE CAR.
+            <br />
+            TWO FACES.
+            <br />
+            <span style={{ color: f.muted, opacity: 0.55 }}>BLACK AMATIS.</span>
           </h1>
+          <span aria-hidden="true" className="flex items-center gap-1">
+            <span className="h-px w-10" style={{ background: f.ink }} />
+            <span
+              className="h-1 w-1 rounded-full"
+              style={{ background: f.accent }}
+            />
+          </span>
           <p
-            className="m-0 max-w-[480px] text-[16px] leading-relaxed"
+            className="m-0 max-w-[420px] text-[17px] leading-relaxed"
             style={{ color: f.muted }}
           >
             A Honda Odyssey built for EMMA 2026. One two-face concept, carried
             from the exterior through the interior to the trunk.
           </p>
+          <div className="flex flex-wrap items-center gap-5">
+            <a
+              href="#start"
+              className="pill min-h-12 gap-3 px-6"
+              style={{ background: f.ctaBg, color: f.ctaFg }}
+            >
+              Explore the build <ArrowUpRight />
+            </a>
+            <span
+              aria-hidden="true"
+              className="hidden h-8 w-px sm:block"
+              style={{ background: f.line }}
+            />
+            <Link
+              href="/judge"
+              className="group inline-flex min-h-12 items-center gap-3 font-semibold"
+              style={{ color: f.ink }}
+            >
+              <span
+                className="flex h-11 w-11 items-center justify-center rounded-full transition-transform group-hover:scale-105"
+                style={{ background: f.ink, color: f.bg }}
+              >
+                <svg
+                  aria-hidden="true"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                </svg>
+              </span>
+              Judge Mode
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <a
-            href="#start"
-            className="pill min-h-12 px-6"
-            style={{ background: f.ctaBg, color: f.ctaFg }}
+
+        {/* Right: glass circle with the car in front */}
+        <div className="relative order-first flex min-h-[260px] items-center justify-center lg:order-none lg:min-h-0">
+          <div
+            aria-hidden="true"
+            className="absolute aspect-square w-[78%] max-w-[min(640px,62vh)] rounded-full border"
+            style={{
+              borderColor: "rgba(229,169,10,0.35)",
+              background:
+                "radial-gradient(circle at 50% 40%, rgba(229,169,10,0.18), rgba(1,20,53,0.2) 60%), repeating-linear-gradient(90deg, rgba(255,255,255,0.07) 0 1px, transparent 1px 9px)",
+              boxShadow:
+                "0 0 0 18px rgba(255,255,255,0.03), inset 0 0 80px rgba(0,0,0,0.35)",
+            }}
+          />
+          <div
+            aria-hidden="true"
+            className="absolute bottom-[12%] h-10 w-[60%] rounded-[50%] bg-black/50 blur-2xl"
+          />
+          <EditPencil
+            href="/editor/vehicle/#f-car-photo"
+            label="Car photo"
+            className="right-[6%] top-[6%]"
+            tone={pencilTone}
+          />
+          <div
+            className="relative w-full"
+            style={{ maxWidth: "min(900px, 95vh)" }}
           >
-            Explore the build <span aria-hidden="true">↓</span>
-          </a>
-          <Link
-            href="/judge"
-            className="pill min-h-12 border px-6"
-            style={{ borderColor: f.line, color: f.ink }}
-          >
-            Judge Mode <ArrowUpRight />
-          </Link>
+            {carPhotoUrl ? (
+              <CarPhoto
+                url={carPhotoUrl}
+                layout={carLayout}
+                className="max-w-none"
+              />
+            ) : (
+              <div className="flex flex-col items-center">
+                <svg
+                  role="img"
+                  aria-label="Honda Odyssey silhouette (car photo not uploaded yet)"
+                  viewBox="0 0 810 330"
+                  className="relative h-auto w-full drop-shadow-[0_40px_40px_rgba(0,0,0,0.45)]"
+                >
+                  <path
+                    d="M30 255 C30 225 45 205 80 195 L190 170 L285 75 C298 62 312 58 330 58 L705 58 C735 58 750 72 756 95 L778 205 C782 225 780 250 768 258 L702 262 A62 62 0 0 0 578 262 L267 262 A62 62 0 0 0 143 262 L45 262 C35 262 30 260 30 255 Z"
+                    fill={f.car}
+                  />
+                  <path
+                    d="M300 80 L250 162 L420 162 L420 80 Z M436 80 L436 162 L600 162 L600 80 Z M616 80 L616 162 L738 162 L727 102 C724 88 716 80 702 80 Z"
+                    fill={f.carGlass}
+                  />
+                  <path
+                    d="M52 206 L118 196 L112 214 L56 220 Z"
+                    fill={f.light}
+                  />
+                  {[205, 640].map((cx) => (
+                    <g key={cx}>
+                      <circle cx={cx} cy="262" r="52" fill="#000" />
+                      <circle cx={cx} cy="262" r="28" fill={f.carGlass} />
+                      <circle cx={cx} cy="262" r="8" fill={f.light} />
+                    </g>
+                  ))}
+                </svg>
+                <span
+                  className="relative mt-2 font-mono text-[11px] tracking-[0.12em]"
+                  style={{ color: f.muted }}
+                >
+                  [REPLACE WITH CAR PHOTO · TRANSPARENT PNG]
+                </span>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Section index on the right edge */}
+        <nav
+          aria-label="Sections"
+          className="absolute right-3 top-1/2 hidden -translate-y-1/2 flex-col items-center gap-3 sm:right-6 lg:right-10 xl:flex"
+        >
+          {SECTIONS.map((x, i) => (
+            <a
+              key={x.href}
+              href={x.href}
+              className="flex min-h-11 flex-col items-center justify-center gap-2 font-mono text-[12px]"
+              style={{
+                color: i === 0 ? f.ink : f.muted,
+                opacity: i === 0 ? 1 : 0.6,
+              }}
+            >
+              <span>{x.no}</span>
+              {i === 0 && (
+                <span
+                  aria-hidden="true"
+                  className="h-12 w-px"
+                  style={{ background: f.ink }}
+                />
+              )}
+              <span className="sr-only">{x.label}</span>
+            </a>
+          ))}
+        </nav>
       </div>
 
-      {/* Key numbers from the data, social links and the scroll cue. */}
-      <div
-        className="relative z-10 mx-3 mb-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t px-5 pt-4 sm:mx-6 sm:px-12 lg:mx-10"
-        style={{ borderColor: f.line }}
-      >
+      {/* Key numbers strip, from the data */}
+      {highlights.length > 0 && (
+        <ul
+          aria-label="Key numbers"
+          className="relative z-10 mx-3 m-0 grid list-none grid-cols-2 gap-px overflow-hidden rounded-[24px] border p-0 backdrop-blur-[24px] sm:mx-6 lg:mx-10 lg:grid-cols-4"
+          style={{ borderColor: f.glassBorder, background: f.glassBorder }}
+        >
+          {highlights.map((h) => (
+            <li
+              key={h.key}
+              className="flex items-center gap-4 px-5 py-4 sm:px-7"
+              style={{ background: "rgba(1,20,53,0.82)" }}
+            >
+              <span
+                className="flex h-11 w-11 flex-none items-center justify-center rounded-2xl border"
+                style={{ borderColor: f.glassBorder, color: f.accent }}
+              >
+                <svg
+                  aria-hidden="true"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  {ICONS[h.key]}
+                </svg>
+              </span>
+              <span className="flex min-w-0 flex-col">
+                <span className="font-semibold leading-tight">{h.title}</span>
+                <span
+                  className="truncate text-[13px]"
+                  style={{ color: f.muted }}
+                >
+                  {h.note}
+                </span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Social links and scroll cue */}
+      <div className="relative z-10 flex items-center justify-between px-5 pb-4 pt-3 sm:px-8 lg:px-14">
         <div className="flex gap-1">
           <a
             href={instagramUrl ?? "#contact"}
@@ -316,39 +402,24 @@ export function Hero({
             </svg>
           </a>
         </div>
-        {stats.length > 0 && (
-          <ul
-            aria-label="Key numbers"
-            className="m-0 grid w-full list-none grid-cols-2 gap-x-5 gap-y-1 p-0 font-mono text-[12px] tracking-[0.12em] sm:flex sm:w-auto sm:flex-wrap sm:items-center"
-          >
-            {stats.map((s, i) => (
-              <li
-                key={s}
-                className="flex items-center gap-5"
-                style={{ color: i === 0 ? f.accent : f.muted }}
-              >
-                {i > 0 && (
-                  <span aria-hidden="true" className="hidden sm:inline" style={{ color: f.line }}>
-                    ·
-                  </span>
-                )}
-                {s.toUpperCase()}
-              </li>
-            ))}
-          </ul>
-        )}
         <a
           href="#start"
-          className="hidden min-h-11 items-center gap-3 text-[13px] font-semibold sm:inline-flex"
-          style={{ color: f.ink }}
+          className="hidden min-h-11 items-center gap-3 font-mono text-[11px] uppercase tracking-[0.16em] sm:inline-flex"
+          style={{ color: f.muted }}
         >
           <span
             aria-hidden="true"
-            className="h-px w-10"
-            style={{ background: f.line }}
-          />
+            className="flex h-7 w-[18px] justify-center rounded-full border pt-1.5"
+            style={{ borderColor: f.muted }}
+          >
+            <span
+              className="h-1.5 w-px motion-safe:animate-bounce"
+              style={{ background: f.muted }}
+            />
+          </span>
           Scroll to explore
         </a>
+        <span className="w-[88px]" aria-hidden="true" />
       </div>
     </section>
   );

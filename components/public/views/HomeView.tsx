@@ -10,7 +10,7 @@ import { ArrowUpRight } from "@/components/ui/Arrow";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { CLASS_INFO } from "@/lib/emma/matrix";
-import { homeStats } from "@/lib/home-stats";
+import { homeHighlights } from "@/lib/home-stats";
 import { normalizeCarLayout } from "@/lib/photo";
 import { storageUrl } from "@/lib/supabase/env";
 import { instagramHref } from "@/lib/format";
@@ -90,7 +90,7 @@ export function HomeView() {
         carPhotoUrl={storageUrl(v.car_photo_path)}
         carLayout={normalizeCarLayout(v.car_photo_layout)}
         instagramUrl={instagramHref(v.instagram)}
-        stats={homeStats(c)}
+        highlights={homeHighlights(c)}
       />
 
       <section
