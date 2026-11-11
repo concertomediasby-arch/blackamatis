@@ -14,6 +14,7 @@ describe("circuit rows", () => {
       { id: "c1", t: "cable", name: "", awg: "0", length_cm: 30 },
     ]);
     expect(c.cables[0]).toMatchObject({ role: "speaker", to_key: null, awg: "16", length_cm: null });
-    expect(c).toMatchObject({ kind: "trunk", ground: [], wiring_hotspots: [], power_from: null });
+    expect(c).toMatchObject({ kind: "trunk", fuse_code: null, ground: [], wiring_hotspots: [], power_from: null });
+    expect(normalizeCircuit({ id: "y", fuse_code: " A7 " } as never).fuse_code).toBe("A7");
   });
 });

@@ -36,6 +36,7 @@ export function normalizeCircuit(c: Partial<Circuit> & { id: string }): Circuit 
     id: c.id,
     name: str(c.name),
     kind: c.kind === "trunk" ? "trunk" : "channel",
+    fuse_code: str(c.fuse_code).trim() || null,
     component_key: str(c.component_key) || null,
     power_from: str(c.power_from) || null,
     ground_from: str(c.ground_from) || null,

@@ -32,7 +32,7 @@ export function CableDiagram({
       targets={circuits.map((c) => ({
         id: c.id,
         title: c.name,
-        ariaLabel: `${c.name}. Open circuit: power, ground, cables and fuses`,
+        ariaLabel: `${c.fuse_code ? `${c.fuse_code} · ` : ""}${c.name}. Open circuit: power, ground, cables and fuses`,
         spots: c.wiring_hotspots,
       }))}
       size={(id) =>

@@ -309,7 +309,7 @@ export function CircuitsEditor() {
                 >
                   <span className="text-sm font-semibold">{c.name || "Untitled"}</span>
                   <span className="font-mono text-[11px] text-[#55535c]">
-                    {c.kind === "trunk" ? "MAIN RUN" : "CIRCUIT"} · {c.wiring_hotspots.length} box{c.wiring_hotspots.length === 1 ? "" : "es"}
+                    {c.kind === "trunk" ? "MAIN RUN" : c.fuse_code ? `FUSE ${c.fuse_code}` : "CIRCUIT"} · {c.wiring_hotspots.length} box{c.wiring_hotspots.length === 1 ? "" : "es"}
                   </span>
                 </button>
                 <button type="button" className={btn.ghost} disabled={i === 0} onClick={() => setList(moved(list, i, -1))} aria-label={`Move ${c.name} up`}>
@@ -345,6 +345,15 @@ export function CircuitsEditor() {
             </div>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <TextField label="Name" value={current.name} onChange={(e) => patch({ name: e.target.value })} />
+              {current.kind === "channel" && (
+                <TextField
+                  label="Fuse code"
+                  value={current.fuse_code ?? ""}
+                  onChange={(e) => patch({ fuse_code: e.target.value.trim() || null })}
+                  placeholder="e.g. A7"
+                  hint="As labelled on the distribution block: block letter + fuse number. Shown on the circuit card."
+                />
+              )}
               <SelectField label="Product (spec sheet)" value={current.component_key ?? ""} onChange={(e) => patch({ component_key: e.target.value || null })}>
                 <option value="">—</option>
                 {products.map((p) => (

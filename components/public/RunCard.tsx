@@ -143,6 +143,11 @@ export const RunCard = forwardRef<HTMLDivElement, Props>(function RunCard({ id, 
   const ground = analyseChain([...(trunkG?.ground ?? []), ...c.ground], false);
   const status = STATUS[chainStatus(power)];
   const product = components.find((x) => x.key === c.component_key);
+  const speakerKey = c.cables.find((x) => x.role === "speaker" && x.to_key)?.to_key;
+  const speaker = components.find((x) => x.key === speakerKey);
+  const block = /^([A-Z])\d/i.exec(c.fuse_code ?? "")?.[1]?.toUpperCase();
+  const eyebrow = c.kind === "trunk" ? "MAIN RUN" : c.fuse_code ? `CIRCUIT ${c.fuse_code}${block ? ` · FUSE BLOCK ${block}` : ""}` : "CIRCUIT";
+  const subtitle = [product ? [product.title, product.brand].filter(Boolean).join(" · ") : null, speaker?.title].filter(Boolean).join(" → ");
   const titleId = `${id}-title`;
 
   return (
@@ -157,11 +162,11 @@ export const RunCard = forwardRef<HTMLDivElement, Props>(function RunCard({ id, 
     >
       <div className="flex items-start gap-3">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="font-mono text-[10px] tracking-[0.14em] text-amber">{c.kind === "trunk" ? "MAIN RUN" : "CIRCUIT"}</span>
+          <span className="font-mono text-[10px] tracking-[0.14em] text-amber">{eyebrow}</span>
           <span id={titleId} className="font-display text-[28px] font-black leading-none">
             {c.name}
           </span>
-          {product && <span className="text-xs text-muted">{[product.title, product.brand].filter(Boolean).join(" · ")}</span>}
+          {subtitle && <span className="text-xs text-muted">{subtitle}</span>}
         </div>
         <button
           type="button"
