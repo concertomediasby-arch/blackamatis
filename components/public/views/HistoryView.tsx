@@ -27,7 +27,7 @@ export function HistoryView() {
         <p className="m-0 text-lg leading-[1.7] text-muted">{c.vehicle.story}</p>
       </section>
 
-      <section aria-labelledby="compare" className="mx-auto max-w-[1360px] px-3 pb-24 sm:px-6 lg:px-10">
+      <section aria-labelledby="compare" className="px-3 pb-24 sm:px-6 lg:px-10">
         <GlassPanel className="relative rounded-[36px] p-5 sm:p-12">
           <EditPencil href="/editor/history/#before-after" label="Before and after photos" className="-top-5 right-8" />
           <BeforeAfter items={c.beforeAfter} />

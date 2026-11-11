@@ -101,7 +101,7 @@ export function HomeView() {
         </ul>
       </section>
 
-      <section aria-labelledby="team" className="mx-auto max-w-[1360px] px-3 sm:px-6 lg:px-10">
+      <section aria-labelledby="team" className="px-3 sm:px-6 lg:px-10">
         <GlassPanel className="relative flex flex-col gap-8 rounded-[36px] p-6 sm:p-12">
           <EditPencil href="/editor/vehicle/#team" label="Team" className="right-5 top-5" />
           <div className="flex max-w-[640px] flex-col gap-3">

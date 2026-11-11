@@ -83,7 +83,7 @@ export function JudgeBoard({ initialClass, ready, content }: Props) {
         </div>
       </section>
 
-      <section aria-labelledby="ready-title" className="mx-auto max-w-[1360px] px-3 pt-16 sm:px-6 lg:px-10">
+      <section aria-labelledby="ready-title" className="px-3 pt-16 sm:px-6 lg:px-10">
         <div className="glass-dark relative flex flex-col gap-4 rounded-[36px] p-6 sm:p-10">
           <EditPencil href="/editor/#checklist" label="Evidence checklist" className="-top-5 right-8" />
           <div className="flex flex-wrap items-end justify-between gap-4">
@@ -109,7 +109,7 @@ export function JudgeBoard({ initialClass, ready, content }: Props) {
         </div>
       </section>
 
-      <section aria-labelledby="rules-title" className="mx-auto max-w-[1360px] px-3 pt-16 sm:px-6 lg:px-10">
+      <section aria-labelledby="rules-title" className="px-3 pt-16 sm:px-6 lg:px-10">
         <h2 id="rules-title" className="eyebrow m-0 mb-6 px-2 font-medium text-muted-2">
           Key rules
         </h2>
@@ -123,7 +123,7 @@ export function JudgeBoard({ initialClass, ready, content }: Props) {
         </ul>
       </section>
 
-      <section aria-labelledby="criteria-title" className="mx-auto max-w-[1360px] px-3 pt-16 sm:px-6 lg:px-10">
+      <section aria-labelledby="criteria-title" className="px-3 pt-16 sm:px-6 lg:px-10">
         <h2 id="criteria-title" className="sr-only">
           Criteria
         </h2>

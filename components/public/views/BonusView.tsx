@@ -34,7 +34,7 @@ export function BonusView() {
         </p>
       </section>
 
-      <section aria-labelledby="elements" className="mx-auto max-w-[1360px] px-3 pb-20 sm:px-6 lg:px-10">
+      <section aria-labelledby="elements" className="px-3 pb-20 sm:px-6 lg:px-10">
         <h2 id="elements" className="eyebrow m-0 mb-6 px-2 font-medium text-muted-2">
           Eligible elements
         </h2>

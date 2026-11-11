@@ -80,7 +80,7 @@ export function InstallationView() {
         </p>
       </section>
 
-      <section aria-labelledby="system-diagram" className="mx-auto max-w-[1360px] px-3 pb-16 sm:px-6 lg:px-10">
+      <section aria-labelledby="system-diagram" className="px-3 pb-16 sm:px-6 lg:px-10">
         <GlassPanel className="relative flex flex-col gap-7 rounded-[36px] p-5 sm:p-12">
           <EditPencil href="/editor/components/#system-image" label="System diagram" className="right-5 top-5" />
           <DiagramPanel
@@ -102,7 +102,7 @@ export function InstallationView() {
         </GlassPanel>
       </section>
 
-      <section id="wiring" aria-labelledby="wiring-diagram" className="mx-auto max-w-[1360px] px-3 pb-16 sm:px-6 lg:px-10">
+      <section id="wiring" aria-labelledby="wiring-diagram" className="px-3 pb-16 sm:px-6 lg:px-10">
         <GlassPanel className="relative flex flex-col gap-7 rounded-[36px] p-5 sm:p-12">
           <EditPencil href={c.circuits.length ? "/editor/components/#circuits" : c.vehicle.wiring_diagram_path ? "/editor/components/#wiring-image" : "/editor/components/#wiring"} label="Wiring diagram" className="right-5 top-5" />
           <DiagramPanel
@@ -148,7 +148,7 @@ export function InstallationView() {
         </GlassPanel>
       </section>
 
-      <section id="craftsmanship" aria-labelledby="craft-title" className="mx-auto max-w-[1360px] px-3 pt-16 sm:px-6 lg:px-10">
+      <section id="craftsmanship" aria-labelledby="craft-title" className="px-3 pt-16 sm:px-6 lg:px-10">
         <GlassPanel className="relative flex flex-col gap-8 rounded-[36px] p-5 sm:p-12">
           <EditPencil href="/editor/photos/#craft" label="Craftsmanship close-ups" className="right-5 top-5" />
           <SectionHead eyebrow="Craftsmanship" title="Close-up" id="craft-title">
