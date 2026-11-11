@@ -40,6 +40,7 @@ const comp = (
   in_wiring: false,
   fed_by: null,
   hotspots: [],
+  wiring_hotspots: [],
   sort: n,
   ...opts,
 });
@@ -173,6 +174,8 @@ export const PLACEHOLDER: SiteContent = {
     car_photo_layout: null,
     system_diagram_path: null,
     system_diagram_alt: "",
+    wiring_diagram_path: null,
+    wiring_diagram_alt: "",
     tuning_eq: "[EQ approach: number of bands, per-channel or global, main corrections.]",
     tuning_listening: "[Driver seat / centre / both: what the system is tuned for.]",
     tuning_measurement: "[Microphone and software used.]",

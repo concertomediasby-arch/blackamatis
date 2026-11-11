@@ -78,6 +78,7 @@ export const componentSchema = z.object({
   in_wiring: z.boolean(),
   fed_by: z.string().nullable(),
   hotspots: z.array(z.object({ x: z.number(), y: z.number(), w: z.number(), h: z.number() })).optional(),
+  wiring_hotspots: z.array(z.object({ x: z.number(), y: z.number(), w: z.number(), h: z.number() })).optional(),
   sort: z.number(),
 });
 export type ComponentForm = z.infer<typeof componentSchema>;

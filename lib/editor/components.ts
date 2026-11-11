@@ -9,6 +9,8 @@ export const ROLE_BY_TYPE: Record<ComponentType, string> = {
   battery: "POWER SOURCE",
   main_fuse: "PROTECTION",
   distribution: "DISTRIBUTION",
+  capacitor: "POWER STORAGE",
+  other: "ACCESSORY",
 };
 
 /** Diagram key from a title, unique among existing keys: "Amplifier STEG" -> "amplifier_steg", "amplifier_steg_2". */
@@ -27,7 +29,7 @@ export function uniqueKey(title: string, existing: readonly string[]): string {
 }
 
 /** A new, empty component (not yet in either diagram). */
-export function newComponent(opts: { title: string; type: ComponentType; existing: readonly AudioComponent[]; hotspots?: Hotspot[] }): AudioComponent {
+export function newComponent(opts: { title: string; type: ComponentType; existing: readonly AudioComponent[]; hotspots?: Hotspot[]; wiring_hotspots?: Hotspot[] }): AudioComponent {
   const { title, type, existing } = opts;
   return {
     id: crypto.randomUUID(),
@@ -45,6 +47,7 @@ export function newComponent(opts: { title: string; type: ComponentType; existin
     in_wiring: false,
     fed_by: null,
     hotspots: opts.hotspots ?? [],
+    wiring_hotspots: opts.wiring_hotspots ?? [],
     sort: existing.length + 1,
   };
 }

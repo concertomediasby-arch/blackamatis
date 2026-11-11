@@ -31,6 +31,9 @@ export type Vehicle = {
   /** Uploaded system diagram for the Installation page, and its text description. */
   system_diagram_path: string | null;
   system_diagram_alt: string;
+  /** Uploaded cable / wiring diagram for the Power & fuses section, and its text description. */
+  wiring_diagram_path: string | null;
+  wiring_diagram_alt: string;
   /** Tuning notes shown on the Installation page. */
   tuning_eq: string;
   tuning_listening: string;
@@ -65,6 +68,8 @@ export const COMPONENT_TYPES = [
   "battery",
   "main_fuse",
   "distribution",
+  "capacitor",
+  "other",
 ] as const;
 export type ComponentType = (typeof COMPONENT_TYPES)[number];
 
@@ -89,6 +94,8 @@ export type AudioComponent = {
   fed_by: string | null;
   /** Clickable areas on the uploaded system diagram image. */
   hotspots: Hotspot[];
+  /** Clickable areas on the uploaded wiring diagram image. */
+  wiring_hotspots: Hotspot[];
   sort: number;
 };
 

@@ -113,7 +113,12 @@ export async function saveDraft(session: EditorSession, content: SiteContent, ke
     const rows = await Promise.all(
       source.map(async (r) => ({
         ...r,
-        ...(table === "components" ? { hotspots: normalizeHotspots((r as { hotspots?: unknown }).hotspots) } : {}),
+        ...(table === "components"
+          ? {
+              hotspots: normalizeHotspots((r as { hotspots?: unknown }).hotspots),
+              wiring_hotspots: normalizeHotspots((r as { wiring_hotspots?: unknown }).wiring_hotspots),
+            }
+          : {}),
         id: await stableUuid(r.id),
         status: "draft",
         updated_by: session.userId,

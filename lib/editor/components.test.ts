@@ -13,6 +13,12 @@ describe("new components", () => {
     const c = newComponent({ title: "Subwoofer 12\"", type: "speaker", existing: [], hotspots: [{ x: 1, y: 2, w: 3, h: 4 }] });
     expect(c).toMatchObject({ key: "subwoofer_12", role: "SPEAKERS", sort: 1, in_system: false, hotspots: [{ x: 1, y: 2, w: 3, h: 4 }] });
     expect(isUuid(c.id)).toBe(true);
+    expect(c.wiring_hotspots).toEqual([]);
+  });
+
+  it("can start with a box on the wiring diagram", () => {
+    const c = newComponent({ title: "HL Ultracap", type: "capacitor", existing: [], wiring_hotspots: [{ x: 5, y: 6, w: 7, h: 8 }] });
+    expect(c).toMatchObject({ key: "hl_ultracap", role: "POWER STORAGE", hotspots: [], wiring_hotspots: [{ x: 5, y: 6, w: 7, h: 8 }] });
   });
 });
 

@@ -91,3 +91,6 @@ export function spotFromDrag(a: { x: number; y: number }, b: { x: number; y: num
   if (w < MIN_SPOT || h < MIN_SPOT) return null;
   return normalizeHotspots([{ x, y, w, h }])[0] ?? null;
 }
+
+/** Which uploaded diagram image an area belongs to: the system diagram or the cable / wiring diagram. */
+export type HotspotField = "hotspots" | "wiring_hotspots";
