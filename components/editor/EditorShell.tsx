@@ -112,7 +112,8 @@ export function EditorShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex flex-wrap items-center gap-3 border-b border-editor-border bg-white/90 px-4 py-3 backdrop-blur sm:px-8">
+        <div className="sticky top-0 z-30">
+        <header className="flex flex-wrap items-center gap-3 border-b border-editor-border bg-white/90 px-4 py-3 backdrop-blur sm:px-8">
           <button
             type="button"
             className="flex h-11 w-11 items-center justify-center rounded-xl border border-editor-border md:hidden"
@@ -157,6 +158,7 @@ export function EditorShell({ children }: { children: React.ReactNode }) {
             {error}
           </p>
         )}
+        </div>
         <main id="editor-main" className="mx-auto w-full max-w-[1200px] flex-1 px-4 py-8 sm:px-8">
           {children}
         </main>

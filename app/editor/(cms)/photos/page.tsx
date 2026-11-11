@@ -99,7 +99,7 @@ export default function PhotosPage() {
           type="button"
           className={`${btn.secondary} mt-4`}
           onClick={() =>
-            setArea_([...list, { id: `new-${crypto.randomUUID()}`, area, code: "", caption: "", proves_criterion: null, path: null, sort: list.length }])
+            setArea_([...list, { id: crypto.randomUUID(), area, code: "", caption: "", proves_criterion: null, path: null, sort: list.length }])
           }
         >
           + Add slot

@@ -4,7 +4,7 @@ export const isUuid = (id: string | null | undefined): id is string => !!id && U
 
 /**
  * Database id for a draft item. Real UUIDs pass through; any other id
- * (placeholder "vehicle", "m-12", or "new-…" for a fresh row) maps to the
+ * (placeholder "vehicle", "m-12") maps to the
  * same UUID every time, so saving an item twice updates one row instead of
  * creating a duplicate.
  */

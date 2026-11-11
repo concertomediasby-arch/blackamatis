@@ -63,7 +63,7 @@ export default function BonusEditorPage() {
     setEditing({
       isNew: true,
       req: {
-        id: `new-${crypto.randomUUID()}`,
+        id: crypto.randomUUID(),
         no,
         code: bonusCode("new", no),
         group: "new",

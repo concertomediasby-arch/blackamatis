@@ -6,7 +6,7 @@ import { useEditor } from "./EditorProvider";
 type ListKey = { [K in keyof SiteContent]: SiteContent[K] extends unknown[] ? K : never }[keyof SiteContent];
 type Item<K extends ListKey> = SiteContent[K][number];
 
-export const newId = () => `new-${crypto.randomUUID()}`;
+export const newId = () => crypto.randomUUID();
 
 /** Read and edit one list of the editor draft (e.g. "competitions"). */
 export function useList<K extends ListKey>(key: K) {
