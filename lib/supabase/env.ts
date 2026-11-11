@@ -11,6 +11,9 @@ export const STORAGE_BUCKETS = { photos: "photos", pdfs: "pdfs" } as const;
 /** Public URL for a file in a public bucket, or null. Absolute URLs pass through. */
 export function storageUrl(path: string | null | undefined, bucket: keyof typeof STORAGE_BUCKETS = "photos") {
   if (!path) return null;
+  // Strip the focus-point fragment ("#fp=x,y", see lib/photo.ts); it is not part of the file.
+  path = path.split("#")[0];
+  if (!path) return null;
   if (/^(https?:|blob:|data:)/.test(path) || path.startsWith("/")) return path;
   if (!isSupabaseConfigured) return null;
   return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKETS[bucket]}/${path}`;

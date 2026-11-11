@@ -1,6 +1,7 @@
 import type { CriterionKey, EmmaClass } from "./emma/matrix";
 import type { Execution } from "./emma/bonus";
 import type { BonusGroup, Strength } from "./emma/bonus-locations";
+import type { CarPhotoLayout } from "./photo";
 
 export type Status = "draft" | "published";
 
@@ -25,6 +26,8 @@ export type Vehicle = {
   instagram: string;
   website: string;
   car_photo_path: string | null;
+  /** Hero car position and size per screen size (see lib/photo.ts). */
+  car_photo_layout: CarPhotoLayout | null;
   /** Tuning notes shown on the Installation page. */
   tuning_eq: string;
   tuning_listening: string;

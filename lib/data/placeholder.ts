@@ -169,6 +169,7 @@ export const PLACEHOLDER: SiteContent = {
     instagram: "[@INSTAGRAM]",
     website: "",
     car_photo_path: null,
+    car_photo_layout: null,
     tuning_eq: "[EQ approach: number of bands, per-channel or global, main corrections.]",
     tuning_listening: "[Driver seat / centre / both: what the system is tuned for.]",
     tuning_measurement: "[Microphone and software used.]",

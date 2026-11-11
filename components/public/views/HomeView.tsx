@@ -7,6 +7,7 @@ import { ArrowUpRight } from "@/components/ui/Arrow";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { CLASS_INFO } from "@/lib/emma/matrix";
+import { normalizeCarLayout } from "@/lib/photo";
 import { storageUrl } from "@/lib/supabase/env";
 import { instagramHref } from "@/lib/format";
 import { EditPencil } from "@/components/public/EditMode";
@@ -39,6 +40,7 @@ export function HomeView() {
         darkName={v.dark_side_name}
         lightName={v.light_side_name}
         carPhotoUrl={storageUrl(v.car_photo_path)}
+        carLayout={normalizeCarLayout(v.car_photo_layout)}
         instagramUrl={instagramHref(v.instagram)}
       />
 
