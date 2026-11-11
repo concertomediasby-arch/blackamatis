@@ -35,13 +35,13 @@ For a fresh project:
    ```sql
    insert into public.editors (user_id, role) values ('<auth user id>', 'owner');
    ```
-3. Set the env vars in `.env.local` (local) or in the Hostinger web app settings, and restart.
+3. Public build values live in `.env.production` (committed; public by design). Never commit a service-role / secret key.
 
 Editors save drafts (autosave every 10 s); only the `owner` role can **Publish**, which marks all drafts as published. Public pages fetch `published` rows in the browser (anon key + RLS), show a loading skeleton, an error state with retry, and fall back to placeholders for empty tables. Content changes never need a rebuild.
 
 ## Hosting
 
-Hostinger **Premium** (static files) + Supabase (data, auth, storage). `next.config.ts` uses `output: 'export'`; there is no server runtime, so editor, publish and the evidence-pack PDF all run in the browser. Step-by-step guide (Indonesian): `docs/DEPLOY-HOSTINGER.md`.
+**GitHub Pages** (static files, deployed by `.github/workflows/deploy.yml` on every push to `main`) + **Supabase** (data, auth, storage). DNS for `concerto.id` is managed at Hostinger: one `CNAME blackamatis → concertomediasby-arch.github.io`. `next.config.ts` uses `output: 'export'`; there is no server runtime, so editor, publish and the evidence-pack PDF all run in the browser. Step-by-step guide (Indonesian): `docs/DEPLOY.md`.
 
 ## Structure
 
@@ -55,6 +55,7 @@ lib/diagram.ts       layered layout for system & wiring diagrams (+ tests)
 lib/supabase/        browser client, content fetch with placeholder fallback
 lib/editor/data.ts   editor reads/writes (RLS-enforced)
 lib/pdf/             evidence pack PDF (@react-pdf/renderer, in the browser)
-public/.htaccess     folder URLs, 404, HTTPS, caching for Hostinger
+public/CNAME         custom domain for GitHub Pages
+.github/workflows/   build + deploy to GitHub Pages
 supabase/migrations/ schema, RLS, storage
 ```
