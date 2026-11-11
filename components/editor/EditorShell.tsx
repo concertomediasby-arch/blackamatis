@@ -13,7 +13,6 @@ const NAV = [
   { href: "/editor/history", label: "History" },
   { href: "/editor/theme", label: "Theme" },
   { href: "/editor/components", label: "Components" },
-  { href: "/editor/tuning", label: "Tuning" },
   { href: "/editor/photos", label: "Photo Log" },
   { href: "/editor/bonus", label: "Bonus Requests" },
 ];

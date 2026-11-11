@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { competitionSchema, craftSchema, fieldErrors, partnerSchema, tuningRowSchema, wordCount, zoneSchema } from "./schemas";
+import { competitionSchema, craftSchema, fieldErrors, partnerSchema, wordCount, zoneSchema } from "./schemas";
 
 describe("editor schemas", () => {
   it("accepts a competition with or without a date", () => {
@@ -20,8 +20,7 @@ describe("editor schemas", () => {
     expect(fieldErrors(zoneSchema, { name: "Trunk", elements: Array(9).fill("x") }).elements).toBe("Max 8 elements");
   });
 
-  it("requires a driver name and a close-up caption", () => {
-    expect(fieldErrors(tuningRowSchema, { driver: "", hpf_hz: "", lpf_hz: "", slope_db: "", time_align_ms: "", eq_bands: "" }).driver).toBeTruthy();
+  it("requires a close-up caption", () => {
     expect(fieldErrors(craftSchema, { caption: "" }).caption).toBe("Add a caption");
   });
 

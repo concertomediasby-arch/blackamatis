@@ -4,7 +4,6 @@ import { ContentFallback, useSiteContent } from "@/components/public/ContentProv
 import { Craftsmanship } from "@/components/public/Craftsmanship";
 import { Diagram, type DiagramNode } from "@/components/public/Diagram";
 import { PhotoLog } from "@/components/public/PhotoLog";
-import { TargetCurve } from "@/components/public/TargetCurve";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { checkFuse } from "@/lib/emma/fuses";
 import { isPlaceholder } from "@/lib/format";
@@ -74,7 +73,7 @@ export function InstallationView() {
           </h1>
         </div>
         <p className="m-0 text-lg leading-[1.7] text-muted">
-          Signal flow, power and fuses, tuning and photo evidence for every judge book criterion. Click any product in a diagram to see its spec sheet.
+          Signal flow, power and fuses, and photo evidence for every judge book criterion. Click any product in a diagram to see its spec sheet.
         </p>
       </section>
 
@@ -110,71 +109,6 @@ export function InstallationView() {
             edgeLabels={edgeLabels}
             groundFrom={root}
           />
-        </GlassPanel>
-      </section>
-
-      <section aria-labelledby="tuning" className="mx-auto max-w-[1360px] px-3 pb-16 sm:px-6 lg:px-10">
-        <GlassPanel className="relative flex flex-col gap-8 rounded-[36px] p-5 sm:p-12">
-          <EditPencil href="/editor/tuning/" label="Tuning notes" className="right-5 top-5" />
-          <SectionHead eyebrow="Tuning notes" title="Tuning" id="tuning">
-            Target curve, crossover points and how the system was set up for the listening position.
-          </SectionHead>
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-[3fr_2fr]">
-            <div className="glass-inset rounded-3xl p-5">
-              <TargetCurve />
-            </div>
-            <div className="glass-inset overflow-x-auto rounded-3xl p-5">
-              <table className="w-full min-w-[420px] border-collapse text-sm">
-                <caption className="eyebrow pb-3 text-left text-amber">Crossover</caption>
-                <thead>
-                  <tr className="text-left font-mono text-[11px] tracking-[0.12em] text-muted-2">
-                    {["DRIVER", "HPF", "LPF", "SLOPE"].map((h) => (
-                      <th key={h} scope="col" className="border-b border-white/20 py-2.5 pr-3 font-medium">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {[...c.tuning].sort((a, b) => a.sort - b.sort).map((t) => (
-                    <tr key={t.id}>
-                      <th scope="row" className="border-b border-white/10 py-3 pr-3 text-left font-semibold">
-                        {t.driver}
-                      </th>
-                      <td className="border-b border-white/10 py-3 pr-3">{t.hpf_hz}</td>
-                      <td className="border-b border-white/10 py-3 pr-3">{t.lpf_hz}</td>
-                      <td className="border-b border-white/10 py-3">{t.slope_db}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <ul className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 p-0">
-            <li className="glass-inset flex flex-col gap-3 rounded-3xl p-6">
-              <span className="label text-amber">Time alignment</span>
-              <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-sm text-muted">
-                {[...c.tuning].sort((a, b) => a.sort - b.sort).map((t) => (
-                  <li key={t.id} className="flex justify-between gap-3">
-                    <span>{t.driver}</span>
-                    <span className="font-mono text-ink">{t.time_align_ms}</span>
-                  </li>
-                ))}
-              </ul>
-            </li>
-            <li className="glass-inset flex flex-col gap-3 rounded-3xl p-6">
-              <span className="label text-amber">EQ</span>
-              <p className="m-0 whitespace-pre-line text-sm text-muted">{c.vehicle.tuning_eq}</p>
-            </li>
-            <li className="glass-inset flex flex-col gap-3 rounded-3xl p-6">
-              <span className="label text-amber">Listening position</span>
-              <p className="m-0 whitespace-pre-line text-sm text-muted">{c.vehicle.tuning_listening}</p>
-            </li>
-            <li className="glass-inset flex flex-col gap-3 rounded-3xl p-6">
-              <span className="label text-amber">Measurement tool</span>
-              <p className="m-0 whitespace-pre-line text-sm text-muted">{c.vehicle.tuning_measurement}</p>
-            </li>
-          </ul>
         </GlassPanel>
       </section>
 

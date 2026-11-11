@@ -139,22 +139,7 @@ export const zoneSchema = z.object({
 
 export const moodSchema = z.object({ caption: text(80) });
 
-export const tuningRowSchema = z.object({
-  driver: text(40).min(1, "Add the driver name"),
-  hpf_hz: text(30),
-  lpf_hz: text(30),
-  slope_db: text(30),
-  time_align_ms: text(30),
-  eq_bands: text(60),
-});
-
 export const craftSchema = z.object({ caption: text(80).min(1, "Add a caption") });
-
-export const tuningNotesSchema = z.object({
-  tuning_eq: text(400),
-  tuning_listening: text(400),
-  tuning_measurement: text(400),
-});
 
 /** Inline field errors for a row: { field: message }. */
 export function fieldErrors(schema: z.ZodType, value: unknown): Record<string, string> {
