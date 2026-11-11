@@ -1,16 +1,31 @@
 import type { Metadata, Viewport } from "next";
-import { Big_Shoulders, Inter, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { SITE_URL } from "@/lib/supabase/env";
 import "./globals.css";
 
-const bigShoulders = Big_Shoulders({
+/**
+ * Fonts are self-hosted from @fontsource (OFL-1.1) so builds never depend on
+ * downloading from Google Fonts at build time.
+ */
+const bigShoulders = localFont({
+  src: "../node_modules/@fontsource-variable/big-shoulders/files/big-shoulders-latin-wght-normal.woff2",
   variable: "--font-big-shoulders",
-  subsets: ["latin"],
-  weight: ["700", "800", "900"],
+  weight: "100 900",
+  display: "swap",
   adjustFontFallback: false,
 });
-const inter = Inter({ variable: "--font-inter", subsets: ["latin"], weight: ["400", "500", "600", "700"] });
-const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"], weight: ["400", "500"] });
+const inter = localFont({
+  src: "../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
+  variable: "--font-inter",
+  weight: "100 900",
+  display: "swap",
+});
+const jetbrains = localFont({
+  src: "../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2",
+  variable: "--font-jetbrains",
+  weight: "100 800",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

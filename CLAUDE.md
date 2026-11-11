@@ -37,7 +37,7 @@ The car is lime green + black with gold, purple and white line art; the site pal
 - **Tailwind CSS v4** for styling, with design tokens below as CSS variables
 - **Supabase**: Postgres (content), Auth (editor login), Storage (photos, PDFs)
 - **Zod** for form/data validation, **React Hook Form** in the editor
-- `next/font` for Google Fonts, `next/image` for all photos
+- `next/font/local` with self-hosted @fontsource variable fonts (no Google Fonts fetch at build), `next/image` for all photos
 - `qrcode` package to generate the QR for the print display
 - Hosting on **GitHub Pages** (static export) + **Supabase** (data, auth, storage); DNS at Hostinger. No Vercel.
 
