@@ -5,6 +5,7 @@ import { createClient } from "../supabase/client";
 import { CONTENT_TABLES, fetchEditorContent } from "../supabase/content";
 import { isSupabaseConfigured } from "../supabase/env";
 import { stableUuid } from "./ids";
+import { normalizeMedia } from "../bonus-media";
 import { normalizeHotspots } from "../photo";
 import { dedupeKeys } from "./components";
 import type { SiteContent } from "../types";
@@ -118,7 +119,9 @@ export async function saveDraft(session: EditorSession, content: SiteContent, ke
               hotspots: normalizeHotspots((r as { hotspots?: unknown }).hotspots),
               wiring_hotspots: normalizeHotspots((r as { wiring_hotspots?: unknown }).wiring_hotspots),
             }
-          : {}),
+          : table === "bonus_requests"
+            ? { process: normalizeMedia((r as { process?: unknown }).process), result: normalizeMedia((r as { result?: unknown }).result) }
+            : {}),
         id: await stableUuid(r.id),
         status: "draft",
         updated_by: session.userId,

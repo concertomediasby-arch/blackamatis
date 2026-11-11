@@ -6,6 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { Card, Checkbox, PageTitle, SelectField, TextArea, TextField, btn } from "@/components/editor/Field";
 import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
+import { MediaListEditor } from "@/components/editor/sections/MediaListEditor";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { bonusSchema, type BonusForm } from "@/lib/editor/schemas";
 import { BONUS_MODES, DEFAULT_BONUS_MODE, EXECUTION_LABELS, estimateBonus, requestPoints, type BonusMode, type Execution } from "@/lib/emma/bonus";
@@ -20,7 +21,7 @@ import {
   type BonusGroup,
   type Strength,
 } from "@/lib/emma/bonus-locations";
-import type { BonusRequest } from "@/lib/types";
+import type { BonusMedia, BonusRequest } from "@/lib/types";
 
 const STRENGTH_STYLE: Record<Strength, string> = {
   strong: "bg-emerald-100 text-emerald-900 border-emerald-300",
@@ -71,6 +72,8 @@ export default function BonusEditorPage() {
         element: "B",
         description: "",
         photo_path: null,
+        process: [],
+        result: [],
         submit: false,
         idea: false,
         execution: 0,
@@ -262,12 +265,47 @@ function BonusDrawer({ request, isNew, onSave, onClose }: { request: BonusReques
             ))}
           </SelectField>
         </div>
-        <TextArea label="Description" rows={4} {...register("description")} error={e.description?.message} />
+        <TextArea
+          label="Idea text"
+          rows={5}
+          {...register("description")}
+          error={e.description?.message}
+          hint="Shown under Idea on the public page: what the element is, why it is special, how it fits the theme. A blank line starts a new paragraph."
+        />
         <Controller
           control={control}
           name="photo_path"
-          render={({ field }) => <UploadZone label="Photo" kind="photo" folder="bonus" value={field.value} onChange={field.onChange} />}
+          render={({ field }) => <UploadZone label="Thumbnail photo" kind="photo" folder="bonus" value={field.value} onChange={field.onChange} />}
         />
+        <Controller
+          control={control}
+          name="process"
+          render={({ field }) => (
+            <MediaListEditor
+              label="Process"
+              intro="How it was made, step by step. Each photo or video gets a caption; visitors see them as Step 01, 02, …"
+              folder="bonus/process"
+              numbered
+              value={(field.value ?? []) as BonusMedia[]}
+              onChange={field.onChange}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="result"
+          render={({ field }) => (
+            <MediaListEditor
+              label="Result"
+              intro="The finished element. Each photo or video gets a caption."
+              folder="bonus/result"
+              numbered={false}
+              value={(field.value ?? []) as BonusMedia[]}
+              onChange={field.onChange}
+            />
+          )}
+        />
+        <p className="m-0 text-[13px] text-[#55535c]">Below is for the team only; the public page shows no scores.</p>
         <div className="flex flex-wrap gap-x-6">
           <Checkbox label="Submit with the presentation" {...register("submit")} />
           <Checkbox label="Idea +1" {...register("idea")} />

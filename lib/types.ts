@@ -172,7 +172,20 @@ export type BonusRequest = {
   execution: Execution;
   /** Editor-only judgement. Never sent to public pages. */
   strength: Strength | null;
+  /** How it was made: photos and videos with a caption each, in order. */
+  process?: BonusMedia[] | null;
+  /** The finished result: photos and videos with a caption each. */
+  result?: BonusMedia[] | null;
   sort: number;
+};
+
+/** A photo or video on a bonus request. A video is an uploaded file (path) or a link (url). */
+export type BonusMedia = {
+  id: string;
+  kind: "photo" | "video";
+  path: string | null;
+  url?: string | null;
+  caption: string;
 };
 
 /** What public pages receive: no `strength`. */

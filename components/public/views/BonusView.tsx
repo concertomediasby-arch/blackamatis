@@ -57,7 +57,7 @@ export function BonusView() {
           <EditPencil href="/editor/bonus/" label="Bonus requests" className="right-5 top-5" tone="light" />
           <div className="mx-auto flex max-w-[1280px] flex-col gap-8 px-4 py-16 sm:px-12 sm:py-20">
             <div className="flex flex-col gap-3">
-              <span className="eyebrow text-navy">Request list · bonus estimate</span>
+              <span className="eyebrow text-navy">Request list</span>
               <h2 id="requests" className="display m-0 text-5xl font-extrabold">
                 Bonus requests
               </h2>
