@@ -130,6 +130,8 @@ export function HotspotEditor({ imagePath, alt }: { imagePath: string; alt: stri
             ))}
           </SelectField>
 
+          {/* Dark backdrop like the public page, so transparent diagrams stay readable. */}
+          <div className="rounded-xl bg-prussian p-3 sm:p-5">
           <div
             ref={boxRef}
             role="application"
@@ -158,7 +160,7 @@ export function HotspotEditor({ imagePath, alt }: { imagePath: string; alt: stri
               setDraft(null);
             }}
           >
-            <img src={url} alt="" draggable={false} className="block h-auto w-full rounded-lg border border-editor-border" />
+            <img src={url} alt="" draggable={false} className="block h-auto w-full rounded-lg" />
             {comps.flatMap((c) =>
               spotsOf(c).map((s, i) => {
                 const mine = c.id === selId;
@@ -270,6 +272,7 @@ export function HotspotEditor({ imagePath, alt }: { imagePath: string; alt: stri
                 )}
               </div>
             )}
+          </div>
           </div>
 
           {sel && (
