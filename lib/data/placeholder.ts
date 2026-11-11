@@ -1,4 +1,5 @@
 import type { CriterionKey } from "../emma/matrix";
+import { bonusCode } from "../emma/bonus-locations";
 import type {
   AudioComponent,
   ComponentType,
@@ -207,11 +208,40 @@ export const PLACEHOLDER: SiteContent = {
   })),
   photos,
   craft,
-  bonus: [
-    { id: id("b"), no: 1, title: "[Request title]", element: "A", description: "[Describe the element, why it is extraordinary, and how it was made.]", photo_path: null, idea: true, execution: 2 },
-    { id: id("b"), no: 2, title: "[Request title]", element: "B", description: "[Describe the element, why it is extraordinary, and how it was made.]", photo_path: null, idea: true, execution: 1 },
-    { id: id("b"), no: 3, title: "[Request title]", element: "D", description: "[Describe the element, why it is extraordinary, and how it was made.]", photo_path: null, idea: false, execution: 0 },
-  ],
+  bonus: (
+    [
+      ["lights", "A", "strong", "Tail lights with holographic audio-brand logos (Concerto Malang, STEG, Audiocircle/Zelos)"],
+      ["body", "D", "strong", "Sound-wave / heartbeat line across the bonnet (lime side)"],
+      ["body", "B/D", "strong", "Yellow stacked-bar ornament at the sills, reads like an EQ meter (confirm meaning)"],
+      ["body", "A", "strong", "Audio-brand livery on side skirts and doors (Audiocircle, STEG, Zelos)"],
+      ["lights", "B", "medium", "Custom headlights: blue projectors, purple halo, green figures inside"],
+      ["lights", "B", "medium", "Purple LED grille bars and illuminated front emblem"],
+      ["lights", "B", "medium", "Smoked tail lights with purple figures inside"],
+      ["glass", "B/D", "medium", "Wayang gunungan motif on rear quarter glass and tailgate"],
+      ["body", "B/D", "medium", "Gold wayang figure across doors and glass, both sides"],
+      ["body", "B", "medium", "Colour character illustration on the lime-side front door"],
+      ["body", "B/D", "medium", "Yellow tower / lantern ornament on the black-side tailgate"],
+      ["body", "D", "medium", "Mirrored floral / batik line art"],
+      ["body", "Overall design", "weak", "Two-face split paint, lime and black"],
+      ["rims", "—", "weak", "Multi-piece rims, polished lips, lowered stance"],
+      ["glass", "D", "weak", "EMMA Asian Finals 2026 banners on windscreen and rear glass"],
+      ["body", "—", "unlikely", "Twin exhaust tips"],
+    ] as const
+  ).map(([group, element, strength, title], i) => ({
+    id: id("b"),
+    no: i + 1,
+    code: bonusCode(group, i + 1),
+    group,
+    title,
+    element,
+    description: "[Describe the element, why it is extraordinary, and how it was made.]",
+    photo_path: null,
+    submit: false,
+    idea: false,
+    execution: 0 as const,
+    strength,
+    sort: i + 1,
+  })),
   evidence: [],
   team: [
     { id: id("tm"), role: "Owner", name: "[OWNER NAME]", line: "[One line about the owner.]", photo_path: null, sort: 1 },

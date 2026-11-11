@@ -3,6 +3,7 @@ import { CLASSES, CLASS_TOTALS, MATRIX_ROWS, columnSum, judgedKeys, maxPoints } 
 import { CRITERIA, judgedGroups } from "./criteria";
 import { FUSE_TABLE, checkFuse, maxFuseForCable } from "./fuses";
 import { estimateBonus, requestPoints } from "./bonus";
+import { LOCATION_COUNT, bonusCode, nextBonusNo } from "./bonus-locations";
 
 describe("installation matrix", () => {
   it.each(CLASSES)("column %s sums to the official total", (cls) => {
@@ -75,25 +76,56 @@ describe("fuse table (VW75212)", () => {
 });
 
 describe("bonus estimate", () => {
-  it("scores 1 for the idea plus execution", () => {
+  const req = (submit: boolean, idea = true, execution = 2) => ({ submit, idea, execution });
+
+  it("scores 1 for the idea plus execution, max 3 per request", () => {
     expect(requestPoints({ idea: true, execution: 2 })).toBe(3);
+    expect(requestPoints({ idea: true, execution: 5 })).toBe(3);
     expect(requestPoints({ idea: false, execution: 1 })).toBe(1);
     expect(requestPoints({ idea: false, execution: 0 })).toBe(0);
+    expect(requestPoints({ idea: true, execution: -1 })).toBe(1);
   });
 
-  it("caps Limited at 15 points and 20 requests", () => {
-    const reqs = Array.from({ length: 25 }, () => ({ idea: true, execution: 2 as const }));
-    const r = estimateBonus(reqs, "limited");
+  it("counts only rows ticked Submit", () => {
+    const r = estimateBonus([req(true), req(false), req(true, true, 0), req(false)], "unlimited");
+    expect(r.submitted).toBe(2);
+    expect(r.candidates).toBe(4);
+    expect(r.score).toBe(4);
+  });
+
+  it("caps Limited at 15 points and 20 submitted requests", () => {
+    const r = estimateBonus(Array.from({ length: 25 }, () => req(true)), "limited");
     expect(r.score).toBe(15);
-    expect(r.overCap).toBe(true);
-    expect(r.maxRequests).toBe(20);
+    expect(r.raw).toBe(60);
+    expect(r.overSubmitted).toBe(true);
+    expect(r.tooManyCandidates).toBe(true);
   });
 
-  it("caps Unlimited at 100 points and 50 requests", () => {
-    const reqs = Array.from({ length: 40 }, () => ({ idea: true, execution: 2 as const }));
-    const r = estimateBonus(reqs, "unlimited");
-    expect(r.raw).toBe(120);
+  it("caps Unlimited at 100 points and 50 submitted requests", () => {
+    const r = estimateBonus(Array.from({ length: 60 }, () => req(true)), "unlimited");
+    expect(r.raw).toBe(150);
     expect(r.score).toBe(100);
-    expect(r.overCap).toBe(false);
+    const under = estimateBonus(Array.from({ length: 40 }, (_, i) => req(i < 30)), "unlimited");
+    expect(under.score).toBe(90);
+    expect(under.tooManyCandidates).toBe(false);
+  });
+
+  it("flags more candidates than the class allows even when few are submitted", () => {
+    const r = estimateBonus(Array.from({ length: 21 }, () => req(false)), "limited");
+    expect(r.tooManyCandidates).toBe(true);
+    expect(r.score).toBe(0);
+  });
+});
+
+describe("bonus codes", () => {
+  it("prefixes the group and pads the number", () => {
+    expect(bonusCode("lights", 5)).toBe("L05");
+    expect(bonusCode("new", 62)).toBe("N62");
+  });
+
+  it("numbers new requests after the 61-spot catalogue", () => {
+    expect(LOCATION_COUNT).toBe(61);
+    expect(nextBonusNo([{ no: 1 }, { no: 16 }])).toBe(62);
+    expect(nextBonusNo([{ no: 62 }])).toBe(63);
   });
 });

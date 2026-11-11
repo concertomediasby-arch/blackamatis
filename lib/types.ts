@@ -1,5 +1,6 @@
 import type { CriterionKey, EmmaClass } from "./emma/matrix";
-import type { BonusElement, Execution } from "./emma/bonus";
+import type { Execution } from "./emma/bonus";
+import type { BonusGroup, Strength } from "./emma/bonus-locations";
 
 export type Status = "draft" | "published";
 
@@ -136,13 +137,24 @@ export type CraftPhoto = {
 export type BonusRequest = {
   id: string;
   no: number;
+  /** Auto code: group prefix + number, e.g. L05, N62. */
+  code: string;
+  group: BonusGroup;
   title: string;
-  element: BonusElement;
+  /** "A"–"D", a combination like "B/D", "Overall design" or "—". */
+  element: string;
   description: string;
   photo_path: string | null;
+  submit: boolean;
   idea: boolean;
   execution: Execution;
+  /** Editor-only judgement. Never sent to public pages. */
+  strength: Strength | null;
+  sort: number;
 };
+
+/** What public pages receive: no `strength`. */
+export type PublicBonusRequest = Omit<BonusRequest, "strength">;
 
 export type JudgeEvidence = {
   criterion_key: CriterionKey;

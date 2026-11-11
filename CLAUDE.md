@@ -10,6 +10,9 @@ Web portfolio for **Black Amatis**, a Honda Odyssey car-audio build in a **two-f
 The approved prototype (design canvas) is the visual reference:
 https://claude.ai/artifact/QPLWhofacbUMACm7aXsG7m
 
+### Open decision
+The car is lime green + black with gold, purple and white line art; the site palette is Prussian / amber / lemon. Do not change the design tokens until the user decides whether to switch to the car's colours.
+
 ### Working rules
 - Talk to the user in **Indonesian**. All site copy is in **English**.
 - **Never invent product specs, scores, dates or names.** Unknown values stay as visible placeholders like `[BRAND / MODEL]`, `[__ mm²]`, `[OWNER NAME]` until the editor fills them.
@@ -71,7 +74,7 @@ components/
   public/                    # Hero, SystemDiagram, WiringDiagram, SpecPopover, BeforeAfter, ...
   editor/                    # Field, UploadZone, ComponentList, ...
 lib/
-  emma/                      # matrix.ts, criteria.ts, fuses.ts, bonus.ts (rule data + helpers)
+  emma/                      # matrix.ts, criteria.ts, fuses.ts, bonus.ts, bonus-locations.ts (rule data + helpers)
   supabase/                  # client.ts, server.ts, queries.ts
   types.ts
 supabase/migrations/
@@ -159,8 +162,16 @@ Spec fields by type:
 - Distribution: Inputs, Outputs, Fuse ratings, Cable sizes, Location
 
 ### Bonus Point `/bonus`
+- Hero copy: "Our bonus requests cover the whole car: glass, lights, rims, body, cabin and trunk. Each request is worth up to 3 points: 1 for the idea, plus 1 for average or 2 for good execution."
 - Four eligible elements: A Highlight components, B Attract spectators (no noise), C Normal everyday use, D Creative presentation.
-- Request cards (photo, title, element, description) + **estimate calculator**: per request idea (+1) and execution None / Average +1 / Good +2; toggle Limited (≤ 20 requests, cap 15 pts) / Unlimited (≤ 50 requests, cap 100 pts). Label it as a personal estimate.
+- **Compact request list** inside a lemon glass panel, fully data-driven:
+  - Filter pills with counts: All · Glass · Lights · Rims & Wheels · Body · Interior · Trunk & Audio · (New, shown when it has rows).
+  - Row: photo thumb · code (auto: group prefix + number, e.g. `L05`; new ones `N62…`) · group · element A–D · name · **Submit** checkbox · **Idea +1** toggle · execution **None / Avg +1 / Good +2** · points.
+  - "Add request" appends a row to the group "New".
+- **Estimate** counts only rows ticked *Submit*, capped by class: Limited ≤ 20 requests / 15 pts, Unlimited ≤ 50 requests / 100 pts (default Unlimited). Show `SUBMITTED n / max`. Label it as a personal estimate.
+- When candidates exceed the class limit: "{n} candidates listed. {Class} allows {max} requests, so tick the strongest {max} with Submit before the presentation."
+- `strength` is editor-only and never reaches a public page (column not readable by `anon`; stripped in queries).
+- Group codes: Glass `G`, Lights `L`, Rims & Wheels `R`, Body `B`, Interior `I`, Trunk & Audio `T`, New `N`. New requests are numbered after the 61-spot location catalogue (`lib/emma/bonus-locations.ts`).
 
 ### Judge Mode `/judge`
 - Category selector E / S / M / X / X Unl → max points and judged criteria from the matrix.
@@ -222,7 +233,8 @@ wiring_links(id, from_key, to_key, cable_mm2, fuse_a)
 tuning(id, driver, hpf_hz, lpf_hz, slope_db, time_align_ms, eq_bands)
 photos(id, area, code, caption, proves_criterion, path, sort)
 craft_photos(id, category, caption, path, sort)
-bonus_requests(id, no, title, element, description, photo_path, idea boolean, execution int)
+bonus_requests(id, no, code, "group", title, element, description, photo_path, submit boolean,
+               idea boolean, execution int, strength ('strong'|'medium'|'weak'|'unlikely'), sort)
 judge_evidence(criterion_key, ready boolean, note, updated_by, updated_at)
 team(id, role, name, line, photo_path, sort)
 partners(id, name, logo_path, url, sort)
@@ -239,7 +251,7 @@ Sidebar: Overview · Vehicle & Story · Components · Photo Log · Bonus Request
 - **Vehicle & Story**: vehicle fields, category/class selects, dark/light side names, statement (≤ 80 words, counter), team & links, timeline list with add/edit/reorder.
 - **Components**: list on the left (select, add, reorder), form on the right: brand, model, type-specific spec fields, photo upload (transparent PNG), PDF upload, "Show in System / Wiring diagram" checkboxes; wiring link editor for cable size and fuse per link with an inline warning when the fuse exceeds the VW75212 table for that cable.
 - **Photo Log**: area tabs, slots with upload, caption, "Proves" select (criteria list), add slot, drag to reorder.
-- **Bonus Requests**: table + edit drawer; warn when over the Limited/Unlimited request cap.
+- **Bonus Requests**: table (code, name, group, element A–D, strength badge, photo, Submit, Edit) + drawer. "New request" offers a location picker (61-spot catalogue) or free text, element, strength, description, photo. Counter "Submitted n / max" with a warning above the class limit.
 - Every form: labels, inline Zod errors, autosave draft every 10 s, unsaved-changes guard.
 
 ## Accessibility & quality
