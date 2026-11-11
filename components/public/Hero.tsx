@@ -125,7 +125,7 @@ export function Hero({
 
       <div className="relative z-10 grid flex-1 grid-cols-1 gap-6 px-8 pb-6 pt-6 sm:px-[72px] lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:pr-[140px] lg:pl-[88px]">
         {/* Car */}
-        <div className="relative flex flex-col items-center justify-center gap-4 lg:order-2 lg:items-end">
+        <div className="relative flex flex-col items-center justify-center gap-4 lg:order-2 lg:pt-6">
           <EditPencil
             href="/editor/vehicle/#f-car-photo"
             label="Car photo"
@@ -133,8 +133,8 @@ export function Hero({
             tone={pencilTone}
           />
           <div
-            className="relative w-full lg:w-[92%]"
-            style={{ maxWidth: "min(1040px, 108vh)" }}
+            className="relative w-full lg:w-[104%] lg:-mr-[4%]"
+            style={{ maxWidth: "min(1240px, 124vh)" }}
           >
             {carPhotoUrls.length > 0 ? (
               <Carousel
