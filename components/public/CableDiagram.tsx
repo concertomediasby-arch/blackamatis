@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { normalizeCircuit } from "@/lib/circuits";
 import type { AudioComponent, Circuit } from "@/lib/types";
 import { ImageHotspots } from "./ImageHotspots";
 import { RUN_H, RUN_W, RunCard } from "./RunCard";
@@ -10,7 +11,7 @@ import { POPOVER_H, POPOVER_W, SpecPopover } from "./SpecPopover";
 export function CableDiagram({
   imageUrl,
   alt,
-  circuits,
+  circuits: rows,
   components,
 }: {
   imageUrl: string;
@@ -18,6 +19,7 @@ export function CableDiagram({
   circuits: Circuit[];
   components: AudioComponent[];
 }) {
+  const circuits = rows.map(normalizeCircuit).sort((a, b) => a.sort - b.sort);
   const [specsOf, setSpecsOf] = useState<string | null>(null);
   const byId = new Map(circuits.map((c) => [c.id, c]));
   const productOf = (c?: Circuit) =>

@@ -60,7 +60,7 @@ export function DiagramPanel({
 }) {
   const [view, setView] = useState<View>("image");
   const showImage = !!imageUrl && view === "image";
-  const runs = (circuits ?? []).filter((c) => normalizeHotspots(c.wiring_hotspots).length > 0);
+  const runs = (circuits ?? []).filter((c) => normalizeHotspots(c?.wiring_hotspots).length > 0);
   const clickable = runs.length > 0 || components.some((c) => normalizeHotspots(c[field]).length > 0);
 
   if (!imageUrl) {

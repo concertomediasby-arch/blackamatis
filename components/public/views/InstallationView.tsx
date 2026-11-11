@@ -104,7 +104,7 @@ export function InstallationView() {
 
       <section id="wiring" aria-labelledby="wiring-diagram" className="mx-auto max-w-[1360px] px-3 pb-16 sm:px-6 lg:px-10">
         <GlassPanel className="relative flex flex-col gap-7 rounded-[36px] p-5 sm:p-12">
-          <EditPencil href={c.vehicle.wiring_diagram_path ? "/editor/components/#wiring-image" : "/editor/components/#wiring"} label="Wiring diagram" className="right-5 top-5" />
+          <EditPencil href={c.circuits.length ? "/editor/components/#circuits" : c.vehicle.wiring_diagram_path ? "/editor/components/#wiring-image" : "/editor/components/#wiring"} label="Wiring diagram" className="right-5 top-5" />
           <DiagramPanel
             imageUrl={storageUrl(c.vehicle.wiring_diagram_path)}
             imageAlt={c.vehicle.wiring_diagram_alt}

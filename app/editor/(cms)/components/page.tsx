@@ -7,6 +7,7 @@ import { Card, Checkbox, PageTitle, SelectField, TextArea, TextField, btn } from
 import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
 import { DiagramImageCard } from "@/components/editor/sections/DiagramImageCard";
+import { CircuitsEditor } from "@/components/editor/sections/CircuitsEditor";
 import { componentSchema, type ComponentForm } from "@/lib/editor/schemas";
 import { ROLE_BY_TYPE, newComponent } from "@/lib/editor/components";
 import { FUSE_TABLE, checkFuse } from "@/lib/emma/fuses";
@@ -94,6 +95,7 @@ export default function ComponentsPage() {
       </div>
 
       <DiagramImageCard kind="wiring" />
+      <CircuitsEditor />
       <WiringEditor />
     </div>
   );

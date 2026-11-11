@@ -6,9 +6,10 @@ import { CONTENT_TABLES, fetchEditorContent } from "../supabase/content";
 import { isSupabaseConfigured } from "../supabase/env";
 import { stableUuid } from "./ids";
 import { normalizeMedia } from "../bonus-media";
+import { normalizeCircuit } from "../circuits";
 import { normalizeHotspots } from "../photo";
 import { dedupeKeys } from "./components";
-import type { SiteContent } from "../types";
+import type { Circuit, SiteContent } from "../types";
 
 /**
  * Editor data access, entirely in the browser. Permissions are enforced by
@@ -121,7 +122,9 @@ export async function saveDraft(session: EditorSession, content: SiteContent, ke
             }
           : table === "bonus_requests"
             ? { process: normalizeMedia((r as { process?: unknown }).process), result: normalizeMedia((r as { result?: unknown }).result) }
-            : {}),
+            : table === "circuits"
+              ? (({ id: _i, sort: _s, ...c }) => (void _i, void _s, c))(normalizeCircuit(r as Circuit))
+              : {}),
         id: await stableUuid(r.id),
         status: "draft",
         updated_by: session.userId,

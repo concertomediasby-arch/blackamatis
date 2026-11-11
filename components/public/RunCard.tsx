@@ -10,7 +10,7 @@ export const RUN_H = 600;
 const STATUS = {
   ok: { text: "✓ Fuses match VW75212", cls: "border-lemon/50 bg-lemon/10 text-lemon" },
   over: { text: "⚠ A cable is thinner than its fuse allows", cls: "border-[#FF8A65] bg-[#FF8A65]/10 text-[#FFB199]" },
-  incomplete: { text: "Some cable sizes are not filled in yet", cls: "border-white/25 bg-white/5 text-muted" },
+  incomplete: { text: "Some cable sizes or fuse ratings are not filled in yet", cls: "border-white/25 bg-white/5 text-muted" },
   empty: { text: "No fused cables in this run", cls: "border-white/25 bg-white/5 text-muted" },
 } as const;
 
@@ -19,9 +19,15 @@ export const awgLabel = (awg: string | null | undefined) => (awg ? `${awg} AWG` 
 
 function CableLine({ it }: { it: Extract<AnalysedItem, { t: "cable" }> }) {
   const c = it.check;
+  // Placeholders only where the check needs the value (fused power cables); ground shows what is known.
+  const checked = c && c.kind !== "none";
+  const parts = checked
+    ? [it.name, awgLabel(it.awg), lengthLabel(it.length_cm)]
+    : [it.name, it.awg ? awgLabel(it.awg) : null, it.length_cm != null ? lengthLabel(it.length_cm) : null];
+  const text = parts.filter(Boolean).join(" · ");
   return (
     <div className="ml-[5px] flex flex-col gap-0.5 border-l-2 border-amber/50 py-1.5 pl-4">
-      <span className="text-[12px] text-ink">{[it.name, awgLabel(it.awg), lengthLabel(it.length_cm)].filter(Boolean).join(" · ")}</span>
+      <span className="text-[12px] text-ink">{text || <span className="text-muted">Cable</span>}</span>
       {c?.kind === "distance" && (
         <span className={`font-mono text-[11px] ${c.ok === false ? "text-[#FFB199]" : c.ok ? "text-lemon" : "text-muted"}`}>
           {c.ok === false ? "⚠" : c.ok ? "✓" : ""} to the first fuse · max {c.maxCm} cm from the + post
@@ -33,20 +39,22 @@ function CableLine({ it }: { it: Extract<AnalysedItem, { t: "cable" }> }) {
             ? `⚠ on a ${c.fuseA} A fuse · this cable allows max ${c.maxA} A`
             : c.ok
               ? `✓ ${c.fuseA} A fuse · max ${c.maxA} A`
-              : `${c.fuseA} A fuse · cable size needed for the check`}
+              : c.fuseA === null
+                ? `Fuse rating needed for the check${c.maxA != null ? ` · this cable allows max ${c.maxA} A` : ""}`
+                : `${c.fuseA} A fuse · cable size needed for the check`}
         </span>
       )}
     </div>
   );
 }
 
-function Node({ label, fuse, strong }: { label: string; fuse?: number | null; strong?: boolean }) {
+function Node({ label, fuse, isFuse, strong }: { label: string; fuse?: number | null; isFuse?: boolean; strong?: boolean }) {
   return (
     <div className="flex items-start gap-3">
       <span aria-hidden="true" className={`mt-1 h-3 w-3 flex-none rounded-full ${strong ? "bg-amber" : "border-2 border-amber"}`} />
       <span className={`text-[14px] ${strong ? "font-bold" : ""}`}>
         {label}
-        {fuse != null && <span className="ml-2 rounded-full bg-amber/15 px-2 py-0.5 font-mono text-[11px] text-amber">FUSE {fuse} A</span>}
+        {(fuse != null || isFuse) && <span className="ml-2 rounded-full bg-amber/15 px-2 py-0.5 font-mono text-[11px] text-amber">FUSE {fuse != null ? `${fuse} A` : "[__ A]"}</span>}
       </span>
     </div>
   );
@@ -76,20 +84,19 @@ function Run({ title, items, shared, sharedName }: { title: string; items: Analy
                 <span className="text-[11px] text-amber">Show the full path ▾</span>
               </span>
             </button>
-            {lastShared?.t === "node" && <Node label={lastShared.label} fuse={lastShared.fuse_a} />}
+            {lastShared?.t === "node" && <Node label={lastShared.label} fuse={lastShared.fuse_a} isFuse={lastShared.is_fuse} />}
           </li>
         )}
         {visible.map((it, i) => {
-          if (folded && i === 0 && it.t === "node") return null;
           const last = (folded ? shared : 0) + i === items.length - 1;
-          return <li key={it.id}>{it.t === "node" ? <Node label={it.label} fuse={it.fuse_a} strong={last} /> : <CableLine it={it} />}</li>;
+          return <li key={it.id}>{it.t === "node" ? <Node label={it.label} fuse={it.fuse_a} isFuse={it.is_fuse} strong={last} /> : <CableLine it={it} />}</li>;
         })}
       </ol>
     </div>
   );
 }
 
-function Cables({ title, list }: { title: string; list: SideCable[] }) {
+function Cables({ title, list, products }: { title: string; list: SideCable[]; products: AudioComponent[] }) {
   if (list.length === 0) return null;
   return (
     <div className="flex flex-col gap-2">
@@ -98,7 +105,10 @@ function Cables({ title, list }: { title: string; list: SideCable[] }) {
         {list.map((c) => (
           <li key={c.id} className="flex flex-col border-b border-white/10 pb-1.5">
             <span className="text-[13px]">
-              {c.from} → {c.to}
+              {c.from} → {(() => {
+                const p = products.find((x) => x.key === c.to_key);
+                return p ? `${p.title} (${c.to})` : c.to;
+              })()}
             </span>
             <span className="text-[12px] text-muted">{[c.name, c.awg ? awgLabel(c.awg) : null, lengthLabel(c.length_cm)].filter(Boolean).join(" · ")}</span>
           </li>
@@ -166,7 +176,7 @@ export const RunCard = forwardRef<HTMLDivElement, Props>(function RunCard({ id, 
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-        <span className={`rounded-full border px-3 py-1.5 text-[12px] font-semibold ${status.cls}`}>{status.text}</span>
+        {power.length > 0 && <span className={`rounded-full border px-3 py-1.5 text-[12px] font-semibold ${status.cls}`}>{status.text}</span>}
         {product && onShowSpecs && (
           <button type="button" onClick={onShowSpecs} className="inline-flex min-h-11 cursor-pointer items-center text-[13px] font-semibold text-amber hover:text-lemon">
             Product specs →
@@ -176,9 +186,9 @@ export const RunCard = forwardRef<HTMLDivElement, Props>(function RunCard({ id, 
 
       <Run title="POWER (+)" items={power} shared={sharedP} sharedName={trunkP?.name} />
       <Run title="GROUND (−)" items={ground} shared={sharedG} sharedName={trunkG?.name} />
-      <Cables title="SIGNAL" list={c.cables.filter((x) => x.role === "signal")} />
-      <Cables title="SPEAKER" list={c.cables.filter((x) => x.role === "speaker")} />
-      <Cables title="OTHER" list={c.cables.filter((x) => x.role === "other")} />
+      <Cables title="SIGNAL" list={c.cables.filter((x) => x.role === "signal")} products={components} />
+      <Cables title="SPEAKER" list={c.cables.filter((x) => x.role === "speaker")} products={components} />
+      <Cables title="OTHER" list={c.cables.filter((x) => x.role === "other")} products={components} />
     </div>
   );
 });
