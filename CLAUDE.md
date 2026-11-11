@@ -12,8 +12,9 @@ https://claude.ai/artifact/QPLWhofacbUMACm7aXsG7m
 
 ### Hosting
 - App on **Hostinger**; data, auth and storage on **Supabase** project `black-amatis` (ref `ddxcjzykcrozxqwubexr`, region Singapore).
-- Business / Cloud plan → Node.js web app (`next build` / `next start`, SSR + Server Actions kept).
-  Single / Premium plan → static export (`output: 'export'`), browser-side data and editor. **Plan not confirmed yet.**
+- Plan: **Hostinger Premium** → static export (`output: 'export'`, `trailingSlash: true`, `images.unoptimized`). No Route Handlers, Server Actions, middleware or `revalidatePath`.
+- Public pages fetch published content in the browser (anon key + RLS) with loading skeletons and an error state. Editor is client-only (Supabase Auth). Evidence-pack PDF is built in the browser (`@react-pdf/renderer`).
+- `public/.htaccess` serves folder URLs and `404.html`. Deploy = `npm run build` and upload the contents of `out/` (see `docs/DEPLOY-HOSTINGER.md`).
 - Site lives on the subdomain `blackamatis.<domain>`. Never change existing DNS records or nameservers: another subdomain on the same domain is in use.
 - Anon/publishable key only in the browser; service-role key only on the server (Node path), never in a static build.
 - `NEXT_PUBLIC_SITE_URL` = `https://blackamatis.<domain>`; regenerate the print QR from it before printing.
@@ -52,7 +53,6 @@ Env vars (`.env.local`, never commit):
 ```
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=   # server only
 NEXT_PUBLIC_SITE_URL=        # used for the QR code
 ```
 
@@ -186,7 +186,7 @@ Spec fields by type:
 - "Evidence ready" progress bar (points with ticked evidence ÷ max). Ticks are stored per editor in the DB; on the public page they are read-only.
 - Key-rule cards: 40 cm main fuse, 7 min explanation (15 min X Unl), 3 min to show all fuses, 3 pts max per bonus request.
 - Criteria grouped (Presentation & Documentation, Electrical & Safety, Mounting & Function, Design & Craftsmanship); each row: tick, name, what judges check, evidence + link ("View in Installation · Photo log"), and a **MAX PTS** label above the number. Group header shows "NN PTS MAX".
-- Button "Download evidence pack (PDF)": generate server-side from the DB.
+- Button "Download evidence pack (PDF)": generated in the browser from the published data.
 
 ### Print QR display `/print/qr`
 A4 portrait (210×297 mm), lemon background, "SCAN TO SEE WHAT'S INSIDE.", large real QR to `NEXT_PUBLIC_SITE_URL`, a list of what's on the site, "Questions about the build? Ask us — the team is right here.", prussian footer band with URL, Instagram, installer. Use `@page { size: A4; margin: 0 }` and print colours.
@@ -250,7 +250,7 @@ before_after(id, view, before_path, after_path)
 ```
 - RLS: public `select` on all content tables; `insert/update/delete` only for authenticated editors (table `editors(user_id, role)` with `owner | editor`). Only `owner` can publish.
 - Storage buckets: `photos` (public read), `pdfs` (public read). Resize uploads to max 2400 px, WebP.
-- Draft/publish: content tables carry `status ('draft'|'published')`; public pages read only `published`. Revalidate public pages on publish (`revalidatePath`).
+- Draft/publish: content tables carry `status ('draft'|'published')`; public pages read only `published` (fetched live in the browser, so no rebuild on publish).
 
 ## Editor (CMS) `/editor`
 

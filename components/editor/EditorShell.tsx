@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { signOut } from "@/lib/editor/actions";
+import { signOut } from "@/lib/editor/data";
+import { normPath } from "@/lib/nav";
 import { useEditor } from "./EditorProvider";
 
 const NAV = [
@@ -17,7 +18,8 @@ const NAV = [
 const time = (iso: string | null) => (iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : null);
 
 export function EditorShell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  const pathname = normPath(usePathname());
+  const router = useRouter();
   const { session, dirty, unpublished, saving, lastSaved, error, save, publish } = useEditor();
   const [menu, setMenu] = useState(false);
 
@@ -71,11 +73,17 @@ export function EditorShell({ children }: { children: React.ReactNode }) {
             Open Judge Mode →
           </Link>
           {session.mode === "supabase" && (
-            <form action={signOut}>
-              <button type="submit" className="min-h-11 cursor-pointer text-left text-ink underline">
-                Sign out
-              </button>
-            </form>
+            <button
+              type="button"
+              onClick={async () => {
+                if (dirty) await save();
+                await signOut();
+                router.replace("/editor/login/");
+              }}
+              className="min-h-11 cursor-pointer text-left text-ink underline"
+            >
+              Sign out
+            </button>
           )}
         </div>
       </aside>

@@ -68,7 +68,6 @@ const CLASS_CHIPS: { k: EmmaClass; name: string }[] = [
 ];
 
 type Props = {
-  category: string;
   emmaClass: EmmaClass;
   darkName: string;
   lightName: string;
@@ -76,7 +75,7 @@ type Props = {
   instagramUrl: string | null;
 };
 
-export function Hero({ category, emmaClass, darkName, lightName, carPhotoUrl, instagramUrl }: Props) {
+export function Hero({ emmaClass, darkName, lightName, carPhotoUrl, instagramUrl }: Props) {
   const [face, setFace] = useState<Face>("dark");
   const f = FACES[face];
   const selClass = emmaClass === "XU" ? "X" : emmaClass;
@@ -107,7 +106,7 @@ export function Hero({ category, emmaClass, darkName, lightName, carPhotoUrl, in
         </span>
       </div>
 
-      <SiteHeader category={category} face={face} inHero />
+      <SiteHeader face={face} inHero />
 
       <div className="relative z-10 flex flex-1 flex-wrap items-center justify-between gap-6 px-5 py-6 sm:px-8 lg:px-14">
         <div

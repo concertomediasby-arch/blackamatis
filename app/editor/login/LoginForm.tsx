@@ -19,8 +19,7 @@ export function LoginForm() {
     setErr(null);
     const { error } = await createClient()!.auth.signInWithPassword(v);
     if (error) return setErr(error.message);
-    router.replace("/editor");
-    router.refresh();
+    router.replace("/editor/");
   });
 
   return (

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Card, PageTitle, btn } from "@/components/editor/Field";
 import { useEditor } from "@/components/editor/EditorProvider";
-import { saveEvidence } from "@/lib/editor/actions";
+import { saveEvidence } from "@/lib/editor/data";
 import { judgedGroups } from "@/lib/emma/criteria";
 import { CLASS_INFO, type CriterionKey } from "@/lib/emma/matrix";
 
@@ -37,7 +37,7 @@ export default function OverviewPage() {
         evidence: [...others, { criterion_key: key, ready: value, note: "", updated_by: editedBy, updated_at: new Date().toISOString() }],
       };
     });
-    const res = await saveEvidence(key, value);
+    const res = await saveEvidence(session, key, value);
     setErr(res.ok ? null : (res.error ?? "Could not save the tick"));
   };
 

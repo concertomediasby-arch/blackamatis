@@ -1,9 +1,16 @@
 "use client";
 
-import { createBrowserClient } from "@supabase/ssr";
+import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_ANON_KEY, SUPABASE_URL, isSupabaseConfigured } from "./env";
 
-export function createClient() {
+let client: SupabaseClient | null = null;
+
+/**
+ * Browser Supabase client (anon / publishable key only; RLS does the rest).
+ * The session is kept in localStorage. Returns null when Supabase is not configured.
+ */
+export function createClient(): SupabaseClient | null {
   if (!isSupabaseConfigured) return null;
-  return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  if (!client) client = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+  return client;
 }

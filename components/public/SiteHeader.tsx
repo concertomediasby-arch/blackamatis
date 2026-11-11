@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { NAV } from "@/lib/nav";
+import { NAV, normPath } from "@/lib/nav";
+import { useVehicleField } from "./ContentProvider";
 
 type Face = "dark" | "light";
 
@@ -11,8 +12,9 @@ type Face = "dark" | "light";
  * Floating glass header. On the home page the hero renders its own instance
  * (`inHero`) so it can follow the face toggle; the layout copy hides there.
  */
-export function SiteHeader({ category, face = "dark", inHero = false }: { category: string; face?: Face; inHero?: boolean }) {
-  const pathname = usePathname();
+export function SiteHeader({ face = "dark", inHero = false }: { face?: Face; inHero?: boolean }) {
+  const pathname = normPath(usePathname());
+  const category = useVehicleField("category") ?? "…";
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [pathname]);
 

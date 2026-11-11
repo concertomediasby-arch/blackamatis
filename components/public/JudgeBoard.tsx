@@ -4,15 +4,28 @@ import Link from "next/link";
 import { useState } from "react";
 import { judgedGroups } from "@/lib/emma/criteria";
 import { CLASSES, CLASS_INFO, type CriterionKey, type EmmaClass } from "@/lib/emma/matrix";
+import type { SiteContent } from "@/lib/types";
 
 type Props = {
   initialClass: EmmaClass;
   ready: Partial<Record<CriterionKey, boolean>>;
+  content: SiteContent;
 };
 
 /** Category selector + criteria list. Evidence ticks are read-only here (set in the editor). */
-export function JudgeBoard({ initialClass, ready }: Props) {
+export function JudgeBoard({ initialClass, ready, content }: Props) {
   const [cls, setCls] = useState<EmmaClass>(initialClass);
+  const [pdfState, setPdfState] = useState<"idle" | "busy" | "error">("idle");
+  const downloadPdf = async () => {
+    setPdfState("busy");
+    try {
+      const { downloadEvidencePack } = await import("@/lib/pdf/evidencePack");
+      await downloadEvidencePack(content, cls);
+      setPdfState("idle");
+    } catch {
+      setPdfState("error");
+    }
+  };
   const r = judgedGroups(cls, ready);
 
   const facts = [
@@ -158,10 +171,15 @@ export function JudgeBoard({ initialClass, ready }: Props) {
             </div>
           ))}
         </div>
-        <div className="mt-10 flex justify-center">
-          <a href={`/judge/evidence-pack?class=${cls}`} className="pill min-h-12 bg-amber px-7 text-prussian">
-            Download evidence pack (PDF)
-          </a>
+        <div className="mt-10 flex flex-col items-center gap-3">
+          <button type="button" onClick={() => void downloadPdf()} disabled={pdfState === "busy"} className="pill min-h-12 cursor-pointer bg-amber px-7 text-prussian disabled:opacity-60">
+            {pdfState === "busy" ? "Preparing PDF…" : "Download evidence pack (PDF)"}
+          </button>
+          {pdfState === "error" && (
+            <p role="alert" className="m-0 text-sm text-muted">
+              The PDF could not be created in this browser. Please try again.
+            </p>
+          )}
         </div>
       </section>
     </>

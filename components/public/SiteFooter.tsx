@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { prevNext } from "@/lib/nav";
+import { useVehicleField } from "./ContentProvider";
 
-export function SiteFooter({ instagram, installer }: { instagram: string; installer: string }) {
+export function SiteFooter() {
+  const instagram = useVehicleField("instagram") ?? "";
+  const installer = useVehicleField("installer") ?? "…";
   const pathname = usePathname();
   const { prev, next } = prevNext(pathname);
   return (
@@ -14,8 +17,12 @@ export function SiteFooter({ instagram, installer }: { instagram: string; instal
     >
       <span className="flex min-h-11 items-center">BLACK AMATIS · HONDA ODYSSEY</span>
       <span className="flex min-h-11 items-center gap-4">
-        <span>{instagram}</span>
-        <span aria-hidden="true">·</span>
+        {instagram && (
+          <>
+            <span>{instagram}</span>
+            <span aria-hidden="true">·</span>
+          </>
+        )}
         <span>INSTALLED BY {installer}</span>
       </span>
       <span className="flex items-center gap-6">

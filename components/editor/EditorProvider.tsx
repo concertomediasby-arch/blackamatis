@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { publishAll, saveDraft, type EditorSession } from "@/lib/editor/actions";
+import { publishAll, saveDraft, type EditorSession } from "@/lib/editor/data";
 import type { SiteContent } from "@/lib/types";
 
 const LS_KEY = "ba-editor-draft-v1";
@@ -80,7 +80,7 @@ export function EditorProvider({ session, initial, children }: { session: Editor
     setSaving(true);
     setError(null);
     try {
-      const res = await saveDraft(contentRef.current);
+      const res = await saveDraft(session, contentRef.current);
       if (session.mode === "preview") {
         persistLocal({ content: res.content, savedAt: res.savedAt, unpublished: true });
       } else {
@@ -94,12 +94,12 @@ export function EditorProvider({ session, initial, children }: { session: Editor
     } finally {
       setSaving(false);
     }
-  }, [session.mode]);
+  }, [session]);
 
   const publish = useCallback(async () => {
     if (dirty) await save();
     setSaving(true);
-    const res = await publishAll();
+    const res = await publishAll(session);
     setSaving(false);
     if (!res.ok) {
       setError(res.error ?? "Publish failed");
@@ -108,7 +108,7 @@ export function EditorProvider({ session, initial, children }: { session: Editor
     setLastPublished(res.publishedAt!);
     setUnpublished(false);
     if (session.mode === "preview") persistLocal({ publishedAt: res.publishedAt, unpublished: false });
-  }, [dirty, save, session.mode]);
+  }, [dirty, save, session]);
 
   // Autosave every 10 s while there are unsaved changes.
   useEffect(() => {

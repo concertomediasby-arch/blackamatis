@@ -1,13 +1,14 @@
 import type { NextConfig } from "next";
 
-const supabaseHost = process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname : null;
-
+/**
+ * Static export for Hostinger Premium: `npm run build` writes plain files to `out/`,
+ * which are uploaded to the subdomain's public_html. No server runtime: data, auth
+ * and storage come from Supabase in the browser.
+ */
 const nextConfig: NextConfig = {
-  images: {
-    formats: ["image/avif", "image/webp"],
-    remotePatterns: supabaseHost ? [{ protocol: "https", hostname: supabaseHost, pathname: "/storage/v1/object/public/**" }] : [],
-  },
-  experimental: { serverActions: { bodySizeLimit: "2mb" } },
+  output: "export",
+  trailingSlash: true,
+  images: { unoptimized: true },
 };
 
 export default nextConfig;
