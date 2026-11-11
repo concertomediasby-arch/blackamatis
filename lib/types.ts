@@ -133,6 +133,8 @@ export type Photo = {
   code: string;
   caption: string;
   proves_criterion: CriterionKey | null;
+  /** Diagram key of the component this photo shows (optional; used by the circuit card). */
+  component_key?: string | null;
   path: string | null;
   sort: number;
 };

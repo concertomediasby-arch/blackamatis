@@ -114,6 +114,7 @@ export const photoSchema = z.object({
   code: z.string().min(1, "Required").max(12),
   caption: text(140).min(1, "Add a caption"),
   proves_criterion: z.string().nullable(),
+  component_key: z.string().nullable().optional(),
   path: z.string().nullable(),
   sort: z.number(),
 });

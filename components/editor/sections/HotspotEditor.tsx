@@ -117,8 +117,14 @@ export function HotspotEditor({ imagePath, alt, field = "hotspots" }: { imagePat
 
       {mode === "preview" ? (
         <div className="rounded-xl bg-prussian p-3 sm:p-5">
-          <DiagramHotspots imageUrl={url} alt={alt || "Diagram"} components={comps} field={field} />
-          <p className="m-0 mt-3 text-[13px] text-muted">Preview with your current draft. Click a device to open its spec sheet.</p>
+          <DiagramHotspots
+            imageUrl={url}
+            alt={alt || "Diagram"}
+            components={comps}
+            field={field}
+            circuit={field === "wiring_hotspots" ? { links: content.wiring, photos: content.photos } : undefined}
+          />
+          <p className="m-0 mt-3 text-[13px] text-muted">Preview with your current draft. Click a device to open {field === "wiring_hotspots" ? "its circuit card" : "its spec sheet"}.</p>
         </div>
       ) : (
         <>

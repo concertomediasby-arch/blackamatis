@@ -121,6 +121,8 @@ export function InstallationView() {
             }
             components={comps}
             field="wiring_hotspots"
+            circuit={{ links: c.wiring, photos: c.photos }}
+            imageHint="Click a device to see its power path, cable and fuse"
             tabs={["Cable diagram", "Cable sizes & fuses"]}
             idPrefix="wiring"
             textList={{ title: "Power and fuses as a list", items: links.map((l) => `${titleOf(l.from_key)} to ${titleOf(l.to_key)}: ${linkLabel(l)}`) }}

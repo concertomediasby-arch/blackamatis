@@ -128,6 +128,7 @@ function ComponentEditor({ component, all, onRemove }: { component: AudioCompone
           wiring: keyChanged
             ? c.wiring.map((l) => ({ ...l, from_key: l.from_key === prev.key ? next.key : l.from_key, to_key: l.to_key === prev.key ? next.key : l.to_key }))
             : c.wiring,
+          photos: keyChanged ? c.photos.map((p) => (p.component_key === prev.key ? { ...p, component_key: next.key } : p)) : c.photos,
         };
       });
     });

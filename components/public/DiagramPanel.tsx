@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 import { normalizeHotspots, type HotspotField } from "@/lib/photo";
-import type { AudioComponent } from "@/lib/types";
+import type { AudioComponent, Photo, WiringLink } from "@/lib/types";
 import { DiagramHotspots } from "./DiagramHotspots";
 
 type View = "image" | "interactive";
@@ -33,6 +33,8 @@ export function DiagramPanel({
   tabs,
   idPrefix,
   textList,
+  circuit,
+  imageHint = "Click a device on the diagram to see its specs",
 }: {
   imageUrl: string | null;
   imageAlt: string;
@@ -48,6 +50,9 @@ export function DiagramPanel({
   idPrefix: string;
   /** The diagram as a text list for screen readers (shown with the image). */
   textList?: { title: string; items: string[] };
+  /** Open a circuit card per device instead of the spec sheet (cable diagram). */
+  circuit?: { links: WiringLink[]; photos: Photo[] };
+  imageHint?: string;
 }) {
   const [view, setView] = useState<View>("image");
   const showImage = !!imageUrl && view === "image";
@@ -86,10 +91,10 @@ export function DiagramPanel({
           <>
             {clickable && (
               <div className="flex justify-end">
-                <Hint>Click a device on the diagram to see its specs</Hint>
+                <Hint>{imageHint}</Hint>
               </div>
             )}
-            <DiagramHotspots imageUrl={imageUrl} alt={imageAlt || defaultAlt} components={components} field={field} />
+            <DiagramHotspots imageUrl={imageUrl} alt={imageAlt || defaultAlt} components={components} field={field} circuit={circuit} />
             <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted">
               <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-semibold text-amber hover:text-lemon">
                 Open full size ↗

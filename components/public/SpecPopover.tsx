@@ -17,10 +17,12 @@ type Props = {
   /** Render in the page flow (full width) instead of floating next to the card. */
   inline?: boolean;
   onClose: () => void;
+  /** Shown as "← Circuit" when the spec sheet was opened from a circuit card. */
+  onBack?: () => void;
 };
 
 /** Small glass spec panel shown next to the product card inside a diagram (not a modal). */
-export const SpecPopover = forwardRef<HTMLDivElement, Props>(function SpecPopover({ id, component: c, style, onClose, inline = false }, ref) {
+export const SpecPopover = forwardRef<HTMLDivElement, Props>(function SpecPopover({ id, component: c, style, onClose, onBack, inline = false }, ref) {
   const brandModel = [c.brand, c.model].filter((x) => !isPlaceholder(x)).join(" ") || "[BRAND / MODEL]";
   const pdf = storageUrl(c.pdf_path, "pdfs");
   const titleId = `${id}-title`;
@@ -34,6 +36,11 @@ export const SpecPopover = forwardRef<HTMLDivElement, Props>(function SpecPopove
       className={`${inline ? "relative w-full" : "absolute z-20"} flex flex-col gap-3.5 rounded-3xl border border-amber/55 p-5 text-ink shadow-[0_24px_60px_rgba(0,0,0,0.55)] backdrop-blur-[24px]`}
       style={{ ...style, width: inline ? undefined : POPOVER_W, background: "rgba(1,20,53,0.95)" }}
     >
+      {onBack && (
+        <button type="button" onClick={onBack} className="-mt-1 inline-flex min-h-11 cursor-pointer items-center self-start text-[13px] font-semibold text-amber hover:text-lemon">
+          ← Circuit
+        </button>
+      )}
       <div className="flex items-start gap-3.5">
         <Placeholder path={c.photo_path} label="Photo" alt={c.title} className="h-[72px] w-[72px] flex-none rounded-2xl text-[9px]" sizes="72px" fit="contain" />
         <div className="flex min-w-0 flex-1 flex-col gap-1">
