@@ -13,7 +13,7 @@ import { CLASSES, CLASS_INFO } from "@/lib/emma/matrix";
 
 /** Vehicle fields edited by this form (see the watch() sync below). */
 const FORM_KEYS = Object.keys(vehicleSchema.shape) as (keyof typeof vehicleSchema.shape)[];
-const newId = () => `new-${crypto.randomUUID()}`;
+const newId = () => crypto.randomUUID();
 
 export default function VehiclePage() {
   const { content, update } = useEditor();
