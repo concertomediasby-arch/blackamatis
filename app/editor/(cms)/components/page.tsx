@@ -54,6 +54,7 @@ export default function ComponentsPage() {
         in_system: false,
         in_wiring: false,
         fed_by: null,
+        hotspots: [],
         sort: n,
       },
     ]);
@@ -134,7 +135,10 @@ function ComponentEditor({ component, all, onRemove }: { component: AudioCompone
     const sub = watch((val) => {
       update((c) => {
         const prev = c.components.find((x) => x.id === component.id);
-        const next = { ...prev!, ...(val as ComponentForm) };
+        // Hotspots are drawn in the System diagram image card, not in this form: keep them.
+        const { hotspots: _h, ...formVal } = val as ComponentForm;
+        void _h;
+        const next = { ...prev!, ...formVal };
         const keyChanged = prev && prev.key !== next.key;
         return {
           ...c,

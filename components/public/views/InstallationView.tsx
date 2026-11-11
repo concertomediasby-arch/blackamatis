@@ -87,6 +87,7 @@ export function InstallationView() {
             imageAlt={c.vehicle.system_diagram_alt}
             nodes={sysNodes}
             edges={sysEdges}
+            components={comps}
             heading={
               <SectionHead eyebrow="System diagram" title="Signal flow" id="system-diagram">
                 Source, processing, amplification and speakers.

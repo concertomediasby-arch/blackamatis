@@ -14,11 +14,13 @@ type Props = {
   id: string;
   component: AudioComponent;
   style: React.CSSProperties;
+  /** Render in the page flow (full width) instead of floating next to the card. */
+  inline?: boolean;
   onClose: () => void;
 };
 
 /** Small glass spec panel shown next to the product card inside a diagram (not a modal). */
-export const SpecPopover = forwardRef<HTMLDivElement, Props>(function SpecPopover({ id, component: c, style, onClose }, ref) {
+export const SpecPopover = forwardRef<HTMLDivElement, Props>(function SpecPopover({ id, component: c, style, onClose, inline = false }, ref) {
   const brandModel = [c.brand, c.model].filter((x) => !isPlaceholder(x)).join(" ") || "[BRAND / MODEL]";
   const pdf = storageUrl(c.pdf_path, "pdfs");
   const titleId = `${id}-title`;
@@ -29,8 +31,8 @@ export const SpecPopover = forwardRef<HTMLDivElement, Props>(function SpecPopove
       role="dialog"
       aria-labelledby={titleId}
       tabIndex={-1}
-      className="absolute z-20 flex flex-col gap-3.5 rounded-3xl border border-amber/55 p-5 text-ink shadow-[0_24px_60px_rgba(0,0,0,0.55)] backdrop-blur-[24px]"
-      style={{ ...style, width: POPOVER_W, background: "rgba(1,20,53,0.95)" }}
+      className={`${inline ? "relative w-full" : "absolute z-20"} flex flex-col gap-3.5 rounded-3xl border border-amber/55 p-5 text-ink shadow-[0_24px_60px_rgba(0,0,0,0.55)] backdrop-blur-[24px]`}
+      style={{ ...style, width: inline ? undefined : POPOVER_W, background: "rgba(1,20,53,0.95)" }}
     >
       <div className="flex items-start gap-3.5">
         <Placeholder path={c.photo_path} label="Photo" alt={c.title} className="h-[72px] w-[72px] flex-none rounded-2xl text-[9px]" sizes="72px" fit="contain" />

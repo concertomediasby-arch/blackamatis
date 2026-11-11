@@ -39,6 +39,7 @@ const comp = (
   in_system: false,
   in_wiring: false,
   fed_by: null,
+  hotspots: [],
   sort: n,
   ...opts,
 });

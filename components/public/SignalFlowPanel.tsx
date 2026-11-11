@@ -1,21 +1,24 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element -- static export; the image keeps its own aspect ratio */
 import { useState } from "react";
 import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 import type { DiagramEdge } from "@/lib/diagram";
+import type { AudioComponent } from "@/lib/types";
+import { normalizeHotspots } from "@/lib/photo";
 import { Diagram, type DiagramNode } from "./Diagram";
+import { DiagramHotspots } from "./DiagramHotspots";
 
 type View = "image" | "interactive";
 
-const HINT = (
+const Hint = ({ children }: { children: React.ReactNode }) => (
   <span className="inline-flex items-center gap-2.5 rounded-full border border-lemon/35 bg-lemon/10 px-4 py-2.5 text-[13px] text-lemon">
     <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 4l7 17 2.5-7.5L21 11z" />
     </svg>
-    Click a product to see its specs
+    {children}
   </span>
 );
+const HINT = <Hint>Click a product to see its specs</Hint>;
 
 /**
  * Signal flow: the team's own system diagram image when uploaded, with the
@@ -27,17 +30,21 @@ export function SignalFlowPanel({
   nodes,
   edges,
   heading,
+  components,
 }: {
   imageUrl: string | null;
   imageAlt: string;
   nodes: DiagramNode[];
   edges: DiagramEdge[];
   heading: React.ReactNode;
+  /** All components; those with hotspots become clickable on the image. */
+  components: AudioComponent[];
 }) {
   const [view, setView] = useState<View>("image");
   const showImage = !!imageUrl && view === "image";
   const interactive = <Diagram label="Signal flow" nodes={nodes} edges={edges} columnLabels={["SOURCE", "PROCESSING", "AMPLIFICATION", "SPEAKERS"]} />;
   const titleOf = (k: string) => nodes.find((n) => n.key === k)?.title ?? k;
+  const clickable = components.some((c) => normalizeHotspots(c.hotspots).length > 0);
 
   if (!imageUrl) {
     return (
@@ -70,9 +77,16 @@ export function SignalFlowPanel({
       <div id="signal-panel" role="tabpanel" aria-labelledby={`signal-tab-${view}`} className="flex flex-col gap-4">
         {showImage ? (
           <>
-            <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="group block overflow-hidden rounded-3xl border border-white/10">
-              <img src={imageUrl} alt={imageAlt || "System diagram of Black Amatis: source, processing, amplification and speakers"} className="block h-auto w-full" />
-            </a>
+            {clickable && (
+              <div className="flex justify-end">
+                <Hint>Click a device on the diagram to see its specs</Hint>
+              </div>
+            )}
+            <DiagramHotspots
+              imageUrl={imageUrl}
+              alt={imageAlt || "System diagram of Black Amatis: source, processing, amplification and speakers"}
+              components={components}
+            />
             <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted">
               <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-semibold text-amber hover:text-lemon">
                 Open full size ↗
