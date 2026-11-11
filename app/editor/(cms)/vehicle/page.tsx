@@ -206,6 +206,36 @@ export default function VehiclePage() {
             error={e.story?.message}
           />
         </div>
+        <div id="f-history-photo" className="flex flex-col gap-3">
+          <UploadZone
+            label="History photo"
+            kind="photo"
+            folder="vehicle"
+            value={v.history_photo_path ?? null}
+            onChange={(p) =>
+              update((c) => ({
+                ...c,
+                vehicle: { ...c.vehicle, history_photo_path: p },
+              }))
+            }
+            hint="A full photo of the car (landscape works best). Shown large under the story; set the crop focus on the important part."
+          />
+          <TextField
+            label="Photo caption"
+            maxLength={140}
+            value={v.history_photo_caption ?? ""}
+            onChange={(ev) =>
+              update((c) => ({
+                ...c,
+                vehicle: {
+                  ...c.vehicle,
+                  history_photo_caption: ev.target.value,
+                },
+              }))
+            }
+            hint="Optional, e.g. where and when it was taken."
+          />
+        </div>
       </Card>
 
       <Card title="Team & links" id="team">

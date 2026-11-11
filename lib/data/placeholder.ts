@@ -171,6 +171,8 @@ export const PLACEHOLDER: SiteContent = {
     instagram: "[@INSTAGRAM]",
     website: "",
     car_photo_path: null,
+    history_photo_path: null,
+    history_photo_caption: "",
     car_photo_layout: null,
     system_diagram_path: null,
     system_diagram_alt: "",

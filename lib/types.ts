@@ -26,6 +26,9 @@ export type Vehicle = {
   instagram: string;
   website: string;
   car_photo_path: string | null;
+  /** Large photo under the story on the History page, and its caption. */
+  history_photo_path?: string | null;
+  history_photo_caption?: string;
   /** Hero car position and size per screen size (see lib/photo.ts). */
   car_photo_layout: CarPhotoLayout | null;
   /** Uploaded system diagram for the Installation page, and its text description. */
