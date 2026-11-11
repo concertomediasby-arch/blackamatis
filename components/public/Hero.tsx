@@ -67,30 +67,32 @@ type Props = {
   carPhotoUrl: string | null;
   carLayout: CarPhotoLayout;
   instagramUrl: string | null;
+  /** Key numbers from the data, e.g. "EXPERT UNLIMITED", "15 amplifiers". */
+  stats: string[];
 };
 
+/**
+ * Landing hero, one screen tall: the word AMATIS across the top, the car in
+ * front of its lower half, the headline bottom left with the two ways in, and
+ * key numbers from the data along the bottom edge.
+ */
 export function Hero({
   darkName,
   lightName,
   carPhotoUrl,
   carLayout,
   instagramUrl,
+  stats,
 }: Props) {
   // The hero shows the dark face; the light palette stays for a future switch.
   const [face] = useState<Face>("dark");
   const f = FACES[face];
   const pencilTone = face === "dark" ? "dark" : "light";
-  const glassStyle = {
-    background: f.glass,
-    borderColor: f.glassBorder,
-    transition:
-      "background-color .5s ease, color .5s ease, border-color .5s ease",
-  };
 
   return (
     <section
       aria-label="Hero"
-      className={`relative flex min-h-[860px] flex-col overflow-hidden ${face === "light" ? "on-light" : ""}`}
+      className={`relative flex min-h-[100svh] flex-col overflow-hidden ${face === "light" ? "on-light" : ""}`}
       style={{
         background: f.bg,
         color: f.ink,
@@ -115,59 +117,39 @@ export function Hero({
         />
       </div>
 
+      <SiteHeader face={face} inHero />
+
+      {/* Word + car: the word sits high so its top half stays readable above the car. */}
       <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-1/2 z-0 flex -translate-y-[46%] justify-center"
+        className="relative z-10 flex flex-1 flex-col items-center justify-center px-3 pt-4 sm:px-6 lg:px-10"
+        style={
+          {
+            "--word": "clamp(96px, min(23vw, 26vh), 420px)",
+          } as React.CSSProperties
+        }
       >
         <span
-          className="font-display font-black leading-[0.8] tracking-[-0.01em]"
+          aria-hidden="true"
+          className="pointer-events-none select-none font-display font-black leading-[0.78] tracking-[-0.01em]"
           style={{
-            fontSize: "clamp(150px, 25vw, 400px)",
+            fontSize: "var(--word)",
             color: f.word,
             transition: "color .5s ease",
           }}
         >
           AMATIS
         </span>
-      </div>
-
-      <SiteHeader face={face} inHero />
-
-      <div className="relative z-10 flex flex-1 flex-wrap items-center justify-between gap-6 px-5 py-6 sm:px-8 lg:px-14">
         <div
-          className="relative flex max-w-[360px] flex-[1_1_260px] flex-col gap-4 rounded-[28px] border p-7 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur-[24px] backdrop-saturate-150"
-          style={glassStyle}
+          className="relative flex w-full flex-col items-center"
+          style={{
+            marginTop: "calc(var(--word) * -0.46)",
+            maxWidth: "min(1180px, 104vh)",
+          }}
         >
-          <EditPencil
-            href="/editor/vehicle/#faces"
-            label="Dark and light side names"
-            tone={pencilTone}
-          />
-          <span className="eyebrow" style={{ color: f.accent }}>
-            {face === "dark" ? darkName : lightName}
-          </span>
-          <h1
-            className="display m-0 font-black tracking-[0.01em]"
-            style={{ fontSize: "clamp(44px, 4.6vw, 64px)" }}
-          >
-            ONE CAR.
-            <br />
-            TWO FACES.
-          </h1>
-          <p
-            className="m-0 text-[15px] leading-relaxed"
-            style={{ color: f.muted }}
-          >
-            A Honda Odyssey built for EMMA 2026. One two-face concept, carried
-            from the exterior through the interior to the trunk.
-          </p>
-        </div>
-
-        <div className="relative flex min-h-[340px] flex-[3_1_460px] flex-col items-center justify-center">
           <EditPencil
             href="/editor/vehicle/#f-car-photo"
             label="Car photo"
-            className="right-[8%] top-6"
+            className="right-[6%] top-2"
             tone={pencilTone}
           />
           <svg
@@ -182,14 +164,18 @@ export function Hero({
             ))}
           </svg>
           {carPhotoUrl ? (
-            <CarPhoto url={carPhotoUrl} layout={carLayout} />
+            <CarPhoto
+              url={carPhotoUrl}
+              layout={carLayout}
+              className="max-w-[1100px]"
+            />
           ) : (
             <>
               <svg
                 role="img"
                 aria-label="Honda Odyssey silhouette (car photo not uploaded yet)"
                 viewBox="0 0 810 330"
-                className="relative h-auto w-full max-w-[820px] drop-shadow-[0_40px_40px_rgba(0,0,0,0.45)]"
+                className="relative h-auto w-full max-w-[900px] drop-shadow-[0_40px_40px_rgba(0,0,0,0.45)]"
               >
                 <path
                   d="M30 255 C30 225 45 205 80 195 L190 170 L285 75 C298 62 312 58 330 58 L705 58 C735 58 750 72 756 95 L778 205 C782 225 780 250 768 258 L702 262 A62 62 0 0 0 578 262 L267 262 A62 62 0 0 0 143 262 L45 262 C35 262 30 260 30 255 Z"
@@ -229,7 +215,59 @@ export function Hero({
         </div>
       </div>
 
-      <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 px-5 pb-7 sm:px-8 lg:px-14">
+      {/* Headline and the two ways in. */}
+      <div className="relative z-10 flex flex-wrap items-end justify-between gap-x-10 gap-y-6 px-8 pb-4 pt-3 sm:px-[72px] lg:px-[88px]">
+        <div className="relative flex max-w-[900px] flex-col gap-3">
+          <EditPencil
+            href="/editor/vehicle/#faces"
+            label="Dark and light side names"
+            className="-right-12 -top-2"
+            tone={pencilTone}
+          />
+          <span className="eyebrow" style={{ color: f.accent }}>
+            {face === "dark" ? darkName : lightName}
+          </span>
+          <h1
+            className="display m-0 font-black tracking-[0.01em]"
+            style={{
+              fontSize: "clamp(40px, min(4.6vw, 7vh), 76px)",
+              lineHeight: 0.92,
+            }}
+          >
+            <span className="whitespace-nowrap">ONE CAR.</span>{" "}
+            <span className="whitespace-nowrap">TWO FACES.</span>
+          </h1>
+          <p
+            className="m-0 max-w-[480px] text-[16px] leading-relaxed"
+            style={{ color: f.muted }}
+          >
+            A Honda Odyssey built for EMMA 2026. One two-face concept, carried
+            from the exterior through the interior to the trunk.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <a
+            href="#start"
+            className="pill min-h-12 px-6"
+            style={{ background: f.ctaBg, color: f.ctaFg }}
+          >
+            Explore the build <span aria-hidden="true">↓</span>
+          </a>
+          <Link
+            href="/judge"
+            className="pill min-h-12 border px-6"
+            style={{ borderColor: f.line, color: f.ink }}
+          >
+            Judge Mode <ArrowUpRight />
+          </Link>
+        </div>
+      </div>
+
+      {/* Key numbers from the data, social links and the scroll cue. */}
+      <div
+        className="relative z-10 mx-3 mb-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t px-5 pt-4 sm:mx-6 sm:px-12 lg:mx-10"
+        style={{ borderColor: f.line }}
+      >
         <div className="flex gap-1">
           <a
             href={instagramUrl ?? "#contact"}
@@ -278,32 +316,39 @@ export function Hero({
             </svg>
           </a>
         </div>
-        <div className="hidden items-center gap-4 sm:flex">
-          <span
-            aria-hidden="true"
-            className="h-px w-20"
-            style={{ background: f.line }}
-          />
-          <a
-            href="#vehicle"
-            className="text-[13px] font-semibold"
-            style={{ color: f.ink }}
+        {stats.length > 0 && (
+          <ul
+            aria-label="Key numbers"
+            className="m-0 grid w-full list-none grid-cols-2 gap-x-5 gap-y-1 p-0 font-mono text-[12px] tracking-[0.12em] sm:flex sm:w-auto sm:flex-wrap sm:items-center"
           >
-            Scroll to explore
-          </a>
+            {stats.map((s, i) => (
+              <li
+                key={s}
+                className="flex items-center gap-5"
+                style={{ color: i === 0 ? f.accent : f.muted }}
+              >
+                {i > 0 && (
+                  <span aria-hidden="true" className="hidden sm:inline" style={{ color: f.line }}>
+                    ·
+                  </span>
+                )}
+                {s.toUpperCase()}
+              </li>
+            ))}
+          </ul>
+        )}
+        <a
+          href="#start"
+          className="hidden min-h-11 items-center gap-3 text-[13px] font-semibold sm:inline-flex"
+          style={{ color: f.ink }}
+        >
           <span
             aria-hidden="true"
-            className="h-px w-20"
+            className="h-px w-10"
             style={{ background: f.line }}
           />
-        </div>
-        <Link
-          href="/installation"
-          className="pill min-h-12"
-          style={{ background: f.ctaBg, color: f.ctaFg }}
-        >
-          View installation <ArrowUpRight />
-        </Link>
+          Scroll to explore
+        </a>
       </div>
     </section>
   );
