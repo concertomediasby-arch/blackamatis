@@ -32,11 +32,15 @@ export function Carousel<T extends Slide>({
   const trackRef = useRef<HTMLUListElement>(null);
   const [index, setIndex] = useState(0);
   const n = slides.length;
+  // Cut-outs over the hero: slides sit on top of each other and slide/fade, so
+  // nothing is clipped (the car may be scaled past its box).
+  const stacked = variant === "bare";
+  const swipe = useRef<{ x: number; y: number } | null>(null);
 
   // Follow the slide in view while the visitor swipes.
   useEffect(() => {
     const el = trackRef.current;
-    if (!el) return;
+    if (!el || stacked) return;
     const onScroll = () =>
       setIndex(
         Math.max(
@@ -49,13 +53,16 @@ export function Carousel<T extends Slide>({
       );
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
-  }, [n]);
+  }, [n, stacked]);
 
   const go = useCallback(
     (i: number) => {
-      const el = trackRef.current;
-      if (!el) return;
       const to = Math.max(0, Math.min(n - 1, i));
+      const el = trackRef.current;
+      if (stacked || !el) {
+        setIndex(to);
+        return;
+      }
       const reduce =
         typeof window !== "undefined" &&
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -65,7 +72,7 @@ export function Carousel<T extends Slide>({
       });
       setIndex(to);
     },
-    [n],
+    [n, stacked],
   );
 
   // Mouse drag for desktops without a trackpad.
@@ -100,37 +107,86 @@ export function Carousel<T extends Slide>({
       }}
     >
       <div className="relative">
-        <ul
-          ref={trackRef}
-          tabIndex={n > 1 ? 0 : -1}
-          aria-label={`${label}, ${n} photo${n === 1 ? "" : "s"}${n > 1 ? ". Use the arrow keys to move." : ""}`}
-          className={`m-0 flex list-none snap-x snap-mandatory overflow-x-auto overscroll-x-contain p-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
-            variant === "framed" ? "rounded-[36px] border border-white/10" : ""
-          }`}
-          style={{ cursor: n > 1 ? "grab" : undefined }}
-          onPointerDown={(e) => {
-            if (e.pointerType !== "mouse" || n < 2) return;
-            drag.current = { x: e.clientX, left: trackRef.current!.scrollLeft };
-            trackRef.current!.style.scrollSnapType = "none";
-          }}
-          onPointerMove={(e) => {
-            const d = drag.current;
-            if (d) trackRef.current!.scrollLeft = d.left - (e.clientX - d.x);
-          }}
-          onPointerUp={endDrag}
-          onPointerLeave={endDrag}
-        >
-          {slides.map((s, i) => (
-            <li
-              key={s.id}
-              className="w-full flex-none snap-center snap-always"
-              aria-roledescription="slide"
-              aria-label={`${i + 1} of ${n}`}
-            >
-              {renderSlide(s, i)}
-            </li>
-          ))}
-        </ul>
+        {stacked ? (
+          <ul
+            tabIndex={n > 1 ? 0 : -1}
+            aria-label={`${label}, ${n} photo${n === 1 ? "" : "s"}${n > 1 ? ". Use the arrow keys or swipe to move." : ""}`}
+            className="m-0 grid list-none p-0 [touch-action:pan-y]"
+            style={{ cursor: n > 1 ? "grab" : undefined }}
+            onPointerDown={(e) => {
+              if (n > 1) swipe.current = { x: e.clientX, y: e.clientY };
+            }}
+            onPointerUp={(e) => {
+              const st = swipe.current;
+              swipe.current = null;
+              if (!st) return;
+              const dx = e.clientX - st.x;
+              if (
+                Math.abs(dx) > 40 &&
+                Math.abs(dx) > Math.abs(e.clientY - st.y)
+              )
+                go(index + (dx < 0 ? 1 : -1));
+            }}
+            onPointerCancel={() => (swipe.current = null)}
+          >
+            {slides.map((s, i) => {
+              const off = i - index;
+              return (
+                <li
+                  key={s.id}
+                  aria-roledescription="slide"
+                  aria-label={`${i + 1} of ${n}`}
+                  aria-hidden={off !== 0}
+                  className="[grid-area:1/1] motion-safe:transition-[opacity,transform] motion-safe:duration-500 motion-safe:ease-out"
+                  style={{
+                    opacity: off === 0 ? 1 : 0,
+                    transform: `translateX(${off === 0 ? 0 : off < 0 ? -8 : 8}%)`,
+                    pointerEvents: off === 0 ? undefined : "none",
+                  }}
+                >
+                  {renderSlide(s, i)}
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <ul
+            ref={trackRef}
+            tabIndex={n > 1 ? 0 : -1}
+            aria-label={`${label}, ${n} photo${n === 1 ? "" : "s"}${n > 1 ? ". Use the arrow keys to move." : ""}`}
+            className={`m-0 flex list-none snap-x snap-mandatory overflow-x-auto overscroll-x-contain p-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+              variant === "framed"
+                ? "rounded-[36px] border border-white/10"
+                : ""
+            }`}
+            style={{ cursor: n > 1 ? "grab" : undefined }}
+            onPointerDown={(e) => {
+              if (e.pointerType !== "mouse" || n < 2) return;
+              drag.current = {
+                x: e.clientX,
+                left: trackRef.current!.scrollLeft,
+              };
+              trackRef.current!.style.scrollSnapType = "none";
+            }}
+            onPointerMove={(e) => {
+              const d = drag.current;
+              if (d) trackRef.current!.scrollLeft = d.left - (e.clientX - d.x);
+            }}
+            onPointerUp={endDrag}
+            onPointerLeave={endDrag}
+          >
+            {slides.map((s, i) => (
+              <li
+                key={s.id}
+                className="w-full flex-none snap-center snap-always"
+                aria-roledescription="slide"
+                aria-label={`${i + 1} of ${n}`}
+              >
+                {renderSlide(s, i)}
+              </li>
+            ))}
+          </ul>
+        )}
 
         {n > 1 &&
           (["prev", "next"] as const).map((d) => (
@@ -140,8 +196,14 @@ export function Carousel<T extends Slide>({
               aria-label={d === "prev" ? "Previous photo" : "Next photo"}
               disabled={d === "prev" ? index === 0 : index === n - 1}
               onClick={() => go(index + (d === "prev" ? -1 : 1))}
-              className={`absolute top-1/2 flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border text-ink backdrop-blur-md transition-opacity disabled:pointer-events-none disabled:opacity-0 ${arrow} ${
-                d === "prev" ? "left-2 sm:left-6" : "right-2 sm:right-6"
+              className={`absolute top-1/2 flex h-11 w-11 -translate-y-1/2 sm:h-12 sm:w-12 cursor-pointer items-center justify-center rounded-full border text-ink backdrop-blur-md transition-opacity disabled:pointer-events-none disabled:opacity-0 ${arrow} ${
+                variant === "bare"
+                  ? d === "prev"
+                    ? "-left-1 sm:left-0"
+                    : "-right-1 sm:right-0"
+                  : d === "prev"
+                    ? "left-2 sm:left-6"
+                    : "right-2 sm:right-6"
               }`}
             >
               <span aria-hidden="true">{d === "prev" ? "←" : "→"}</span>
