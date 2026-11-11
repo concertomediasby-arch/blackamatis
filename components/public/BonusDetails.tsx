@@ -1,14 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
-import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 import { normalizeMedia, youtubeId } from "@/lib/bonus-media";
 import { splitPhoto } from "@/lib/photo";
 import { storageUrl } from "@/lib/supabase/env";
 import type { BonusMedia, PublicBonusRequest } from "@/lib/types";
 
-type Tab = "idea" | "process" | "result";
+export type BonusTab = "idea" | "process" | "result";
 
 /** One photo or video with its caption. Process items are numbered as steps. */
 function MediaItem({ m, step, name }: { m: BonusMedia; step?: number; name: string }) {
@@ -85,46 +83,29 @@ function MediaGrid({ items, steps, name, empty }: { items: BonusMedia[]; steps: 
   );
 }
 
-/** Idea · Process · Result for one bonus request, shown under its row. */
-export function BonusDetails({ request: r, id }: { request: PublicBonusRequest; id: string }) {
-  const [tab, setTab] = useState<Tab>("idea");
-  const process = normalizeMedia(r.process);
-  const result = normalizeMedia(r.result);
+/** Idea, Process or Result of one bonus request, shown under its row (the row's buttons pick which). */
+export function BonusDetails({ request: r, id, tab }: { request: PublicBonusRequest; id: string; tab: BonusTab }) {
   const name = r.title || r.code;
   const paragraphs = r.description.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
-  const count = (n: number) => (n ? ` · ${n}` : "");
+  const label = { idea: "Idea", process: "Process", result: "Result" }[tab];
 
   return (
-    <div id={id} className="col-span-full flex flex-col gap-5 border-t border-black/15 pt-4">
-      <SegmentedTabs
-        options={[
-          { key: "idea", label: "Idea" },
-          { key: "process", label: `Process${count(process.length)}` },
-          { key: "result", label: `Result${count(result.length)}` },
-        ]}
-        value={tab}
-        onChange={setTab}
-        label={`${name}: details`}
-        tone="light"
-        mode="tabs"
-        idPrefix={id}
-      />
-      <div id={`${id}-panel`} role="tabpanel" aria-labelledby={`${id}-tab-${tab}`} className="min-h-[60px]">
-        {tab === "idea" &&
-          (paragraphs.length ? (
-            <div className="flex max-w-[760px] flex-col gap-3 text-[16px] leading-[1.7]">
-              {paragraphs.map((p, i) => (
-                <p key={i} className="m-0 whitespace-pre-line">
-                  {p}
-                </p>
-              ))}
-            </div>
-          ) : (
-            <p className="m-0 font-mono text-[12px] tracking-[0.08em] text-dark-muted">[IDEA NOT WRITTEN YET]</p>
-          ))}
-        {tab === "process" && <MediaGrid items={process} steps name={name} empty="NO PROCESS PHOTOS OR VIDEOS YET" />}
-        {tab === "result" && <MediaGrid items={result} steps={false} name={name} empty="NO RESULT PHOTOS OR VIDEOS YET" />}
-      </div>
-    </div>
+    <section id={id} aria-label={`${name}: ${label}`} className="col-span-full flex flex-col gap-4 border-t border-black/15 pt-4">
+      <span className="eyebrow text-navy">{label}</span>
+      {tab === "idea" &&
+        (paragraphs.length ? (
+          <div className="flex max-w-[760px] flex-col gap-3 text-[16px] leading-[1.7]">
+            {paragraphs.map((p, i) => (
+              <p key={i} className="m-0 whitespace-pre-line">
+                {p}
+              </p>
+            ))}
+          </div>
+        ) : (
+          <p className="m-0 font-mono text-[12px] tracking-[0.08em] text-dark-muted">[IDEA NOT WRITTEN YET]</p>
+        ))}
+      {tab === "process" && <MediaGrid items={normalizeMedia(r.process)} steps name={name} empty="NO PROCESS PHOTOS OR VIDEOS YET" />}
+      {tab === "result" && <MediaGrid items={normalizeMedia(r.result)} steps={false} name={name} empty="NO RESULT PHOTOS OR VIDEOS YET" />}
+    </section>
   );
 }

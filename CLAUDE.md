@@ -172,12 +172,11 @@ Spec fields by type:
 ### Bonus Point `/bonus`
 - Hero copy: "Our bonus requests cover the whole car: glass, lights, rims, body, cabin and trunk. Each request is worth up to 3 points: 1 for the idea, plus 1 for average or 2 for good execution."
 - Four eligible elements: A Highlight components, B Attract spectators (no noise), C Normal everyday use, D Creative presentation.
-- **Compact request list** inside a lemon glass panel, fully data-driven:
+- **Request list** inside a lemon glass panel, a read-only showcase (no scores, Submit ticks or estimate on the public page; those stay in the editor):
   - Filter pills with counts: All · Glass · Lights · Rims & Wheels · Body · Interior · Trunk & Audio · (New, shown when it has rows).
-  - Row: photo thumb · code (auto: group prefix + number, e.g. `L05`; new ones `N62…`) · group · element A–D · name · **Submit** checkbox · **Idea +1** toggle · execution **None / Avg +1 / Good +2** · points.
-  - "Add request" appends a row to the group "New".
-- **Estimate** counts only rows ticked *Submit*, capped by class: Limited ≤ 20 requests / 15 pts, Unlimited ≤ 50 requests / 100 pts (default Unlimited). Show `SUBMITTED n / max`. Label it as a personal estimate.
-- When candidates exceed the class limit: "{n} candidates listed. {Class} allows {max} requests, so tick the strongest {max} with Submit before the presentation."
+  - Row: photo thumb · code (auto: group prefix + number, e.g. `L05`; new ones `N62…`) · group · element A–D · name · buttons **Idea · Process · Result**.
+  - Each button opens a panel under the row: **Idea** = text (`description`); **Process** = numbered photos/videos, each with a caption (`process` jsonb); **Result** = photos/videos with captions (`result` jsonb). Videos: uploaded file or link (YouTube plays inline, other links open in a new tab).
+- Editor › Bonus Requests keeps the class limits: Limited ≤ 20 requests / 15 pts, Unlimited ≤ 50 requests / 100 pts, with "Submitted n / max".
 - `strength` is editor-only and never reaches a public page (column not readable by `anon`; stripped in queries).
 - Group codes: Glass `G`, Lights `L`, Rims & Wheels `R`, Body `B`, Interior `I`, Trunk & Audio `T`, New `N`. New requests are numbered after the 61-spot location catalogue (`lib/emma/bonus-locations.ts`).
 
@@ -242,7 +241,7 @@ tuning(id, driver, hpf_hz, lpf_hz, slope_db, time_align_ms, eq_bands, sort)
 photos(id, area, code, caption, proves_criterion, path, sort)
 craft_photos(id, category, caption, path, sort)
 bonus_requests(id, no, code, "group", title, element, description, photo_path, submit boolean,
-               idea boolean, execution int, strength ('strong'|'medium'|'weak'|'unlikely'), sort)
+               idea boolean, execution int, strength ('strong'|'medium'|'weak'|'unlikely'), process jsonb, result jsonb, sort)
 judge_evidence(criterion_key, ready boolean, note, updated_by, updated_at)
 team(id, role, name, line, photo_path, sort)
 moodboard_items(id, caption, path, sort)
