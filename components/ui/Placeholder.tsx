@@ -17,7 +17,7 @@ export function Placeholder({ path, label, alt, className = "", tone = "dark", s
   if (url) {
     return (
       <div className={`relative overflow-hidden ${className}`}>
-        <Image src={url} alt={alt ?? label} fill sizes={sizes} className={fit === "cover" ? "object-cover" : "object-contain"} />
+        <Image src={url} alt={alt ?? label} fill sizes={sizes} unoptimized={/^(blob:|data:)/.test(url)} className={fit === "cover" ? "object-cover" : "object-contain"} />
       </div>
     );
   }

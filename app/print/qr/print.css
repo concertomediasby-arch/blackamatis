@@ -1,0 +1,139 @@
+@page {
+  size: A4;
+  margin: 0;
+}
+.print-shell {
+  min-height: 100vh;
+  padding: 32px 16px;
+  background: #1b1b22;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.print-btn {
+  min-height: 44px;
+  padding: 0 24px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--lemon);
+  color: #000;
+  font-weight: 600;
+  cursor: pointer;
+}
+.a4 {
+  width: 210mm;
+  height: 297mm;
+  max-width: 100%;
+  background: #fef112;
+  color: #000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.a4-body {
+  flex: 1;
+  padding: 18mm 16mm 10mm;
+  display: flex;
+  flex-direction: column;
+  gap: 8mm;
+}
+.a4-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.a4-word {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 22pt;
+  letter-spacing: 0.08em;
+}
+.a4-pill {
+  font-family: var(--font-mono);
+  font-size: 10pt;
+  letter-spacing: 0.12em;
+  border: 1.5px solid #000;
+  border-radius: 999px;
+  padding: 2mm 4mm;
+}
+.a4-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10pt;
+  letter-spacing: 0.16em;
+  color: #00006a;
+}
+.a4-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 64pt;
+  line-height: 0.88;
+}
+.a4-qr-row {
+  display: grid;
+  grid-template-columns: 92mm 1fr;
+  gap: 10mm;
+  align-items: center;
+}
+.a4-qr {
+  width: 92mm;
+  height: 92mm;
+  padding: 6mm;
+  background: #fff;
+  border-radius: 6mm;
+}
+.a4-qr svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.a4-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4mm;
+  font-size: 14pt;
+  font-weight: 600;
+}
+.a4-list li::before {
+  content: "→ ";
+  color: #00006a;
+}
+.a4-ask {
+  margin: auto 0 0;
+  font-size: 16pt;
+  line-height: 1.4;
+}
+.a4-foot {
+  background: #000231;
+  color: #f2f0e6;
+  padding: 7mm 16mm;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4mm;
+  font-family: var(--font-mono);
+  font-size: 10pt;
+  letter-spacing: 0.1em;
+}
+@media print {
+  .print-shell {
+    padding: 0;
+    background: none;
+    display: block;
+  }
+  .print-btn {
+    display: none;
+  }
+  .a4 {
+    box-shadow: none;
+    max-width: none;
+  }
+}
