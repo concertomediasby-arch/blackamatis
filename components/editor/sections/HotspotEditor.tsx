@@ -6,7 +6,7 @@ import { DiagramHotspots } from "@/components/public/DiagramHotspots";
 import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 import { newComponent } from "@/lib/editor/components";
 import { isPlaceholder } from "@/lib/format";
-import { normalizeHotspots, spotFromDrag, type Hotspot } from "@/lib/photo";
+import { normalizeHotspots, spotFromDrag, type Hotspot, type HotspotField } from "@/lib/photo";
 import { TYPE_LABELS } from "@/lib/specs";
 import { storageUrl } from "@/lib/supabase/env";
 import { COMPONENT_TYPES, type AudioComponent, type ComponentType } from "@/lib/types";
@@ -18,11 +18,11 @@ type Menu = { compId: string; index: number };
 type Mode = "mark" | "preview";
 
 /**
- * Mark where each component sits on the uploaded system diagram.
+ * Mark where each component sits on an uploaded diagram image (system or wiring).
  * Drag a box over a device, then choose (or create) its component in the menu
  * that opens on the box. "Preview" shows the diagram exactly as visitors get it.
  */
-export function HotspotEditor({ imagePath, alt }: { imagePath: string; alt: string }) {
+export function HotspotEditor({ imagePath, alt, field = "hotspots" }: { imagePath: string; alt: string; field?: HotspotField }) {
   const uid = useId();
   const { content, update } = useEditor();
   const comps = [...content.components].sort((a, b) => a.sort - b.sort);
@@ -35,7 +35,7 @@ export function HotspotEditor({ imagePath, alt }: { imagePath: string; alt: stri
   const menuRef = useRef<HTMLDivElement>(null);
   const url = storageUrl(imagePath);
   const sel = comps.find((c) => c.id === selId) ?? null;
-  const spotsOf = (c: AudioComponent | null | undefined) => (c ? normalizeHotspots(c.hotspots) : []);
+  const spotsOf = (c: AudioComponent | null | undefined) => (c ? normalizeHotspots(c[field]) : []);
 
   useEffect(() => {
     if (menu) menuRef.current?.querySelector<HTMLElement>("select, input")?.focus();
@@ -43,7 +43,7 @@ export function HotspotEditor({ imagePath, alt }: { imagePath: string; alt: stri
 
   const setComponents = (fn: (cs: AudioComponent[]) => AudioComponent[]) => update((c) => ({ ...c, components: fn(c.components) }));
   const setSpots = (id: string, spots: Hotspot[]) =>
-    setComponents((cs) => cs.map((x) => (x.id === id ? { ...x, hotspots: normalizeHotspots(spots) } : x)));
+    setComponents((cs) => cs.map((x) => (x.id === id ? { ...x, [field]: normalizeHotspots(spots) } : x)));
 
   /** Move one area to another component; returns its new position there. */
   const moveSpot = (m: Menu, toId: string): Menu => {
@@ -55,7 +55,7 @@ export function HotspotEditor({ imagePath, alt }: { imagePath: string; alt: stri
     const newIndex = spotsOf(to).length;
     setComponents((cs) =>
       cs.map((x) =>
-        x.id === m.compId ? { ...x, hotspots: spotsOf(x).filter((_, j) => j !== m.index) } : x.id === toId ? { ...x, hotspots: [...spotsOf(x), spot] } : x,
+        x.id === m.compId ? { ...x, [field]: spotsOf(x).filter((_, j) => j !== m.index) } : x.id === toId ? { ...x, [field]: [...spotsOf(x), spot] } : x,
       ),
     );
     setSelId(toId);
@@ -66,8 +66,8 @@ export function HotspotEditor({ imagePath, alt }: { imagePath: string; alt: stri
     const from = comps.find((c) => c.id === m.compId);
     const spot = spotsOf(from)[m.index];
     if (!spot) return;
-    const c = newComponent({ title, type, existing: comps, hotspots: [spot] });
-    setComponents((cs) => [...cs.map((x) => (x.id === m.compId ? { ...x, hotspots: spotsOf(x).filter((_, j) => j !== m.index) } : x)), c]);
+    const c = newComponent({ title, type, existing: comps, [field]: [spot] });
+    setComponents((cs) => [...cs.map((x) => (x.id === m.compId ? { ...x, [field]: spotsOf(x).filter((_, j) => j !== m.index) } : x)), c]);
     setSelId(c.id);
     setMenu({ compId: c.id, index: 0 });
     setCreating(null);
@@ -117,7 +117,7 @@ export function HotspotEditor({ imagePath, alt }: { imagePath: string; alt: stri
 
       {mode === "preview" ? (
         <div className="rounded-xl bg-prussian p-3 sm:p-5">
-          <DiagramHotspots imageUrl={url} alt={alt || "System diagram"} components={comps} />
+          <DiagramHotspots imageUrl={url} alt={alt || "Diagram"} components={comps} field={field} />
           <p className="m-0 mt-3 text-[13px] text-muted">Preview with your current draft. Click a device to open its spec sheet.</p>
         </div>
       ) : (

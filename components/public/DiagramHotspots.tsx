@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { popoverPosition } from "@/lib/diagram";
 import { isPlaceholder } from "@/lib/format";
-import { normalizeHotspots } from "@/lib/photo";
+import { normalizeHotspots, type HotspotField } from "@/lib/photo";
 import type { AudioComponent } from "@/lib/types";
 import { POPOVER_H, POPOVER_W, SpecPopover } from "./SpecPopover";
 
@@ -14,11 +14,22 @@ const FLOAT_MIN_WIDTH = 760;
 type Spot = { id: string; component: AudioComponent; x: number; y: number; w: number; h: number };
 
 /**
- * The team's system diagram image with a clickable area over each device.
+ * The team's diagram image (system or wiring) with a clickable area over each device.
  * A click opens that component's spec sheet; Esc, the × button or a second
  * click closes it, and focus returns to the device.
  */
-export function DiagramHotspots({ imageUrl, alt, components }: { imageUrl: string; alt: string; components: AudioComponent[] }) {
+export function DiagramHotspots({
+  imageUrl,
+  alt,
+  components,
+  field = "hotspots",
+}: {
+  imageUrl: string;
+  alt: string;
+  components: AudioComponent[];
+  /** Which areas to use: the system diagram's or the wiring diagram's. */
+  field?: HotspotField;
+}) {
   const uid = useId().replace(/:/g, "");
   const boxRef = useRef<HTMLDivElement>(null);
   const popRef = useRef<HTMLDivElement>(null);
@@ -26,7 +37,7 @@ export function DiagramHotspots({ imageUrl, alt, components }: { imageUrl: strin
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [open, setOpen] = useState<string | null>(null);
 
-  const spots: Spot[] = components.flatMap((c) => normalizeHotspots(c.hotspots).map((s, i) => ({ id: `${c.id}-${i}`, component: c, ...s })));
+  const spots: Spot[] = components.flatMap((c) => normalizeHotspots(c[field]).map((s, i) => ({ id: `${c.id}-${i}`, component: c, ...s })));
 
   useEffect(() => {
     const el = boxRef.current;
