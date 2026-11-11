@@ -17,6 +17,8 @@ export const SPEC_FIELDS: Record<ComponentType, string[]> = {
   battery: ["Type", "Capacity (Ah)", "CCA", "Location", "Positive cable"],
   main_fuse: ["Fuse type", "Rating", "Distance to + post", "Cable size", "Cover"],
   distribution: ["Inputs", "Outputs", "Fuse ratings", "Cable sizes", "Location"],
+  capacitor: ["Type", "Capacity", "Voltage", "Fuse", "Mounting location"],
+  other: ["Type", "Rating", "Fuse", "Mounting location"],
 };
 
 export const TYPE_LABELS: Record<ComponentType, string> = {
@@ -27,6 +29,8 @@ export const TYPE_LABELS: Record<ComponentType, string> = {
   battery: "Battery",
   main_fuse: "Main fuse",
   distribution: "Distribution",
+  capacitor: "Capacitor / power bank",
+  other: "Other (relay, LED, …)",
 };
 
 const UNIT_PLACEHOLDERS: Record<string, string> = {

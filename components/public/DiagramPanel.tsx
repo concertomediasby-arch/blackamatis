@@ -2,10 +2,8 @@
 
 import { useState } from "react";
 import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
-import type { DiagramEdge } from "@/lib/diagram";
+import { normalizeHotspots, type HotspotField } from "@/lib/photo";
 import type { AudioComponent } from "@/lib/types";
-import { normalizeHotspots } from "@/lib/photo";
-import { Diagram, type DiagramNode } from "./Diagram";
 import { DiagramHotspots } from "./DiagramHotspots";
 
 type View = "image" | "interactive";
@@ -21,30 +19,39 @@ const Hint = ({ children }: { children: React.ReactNode }) => (
 const HINT = <Hint>Click a product to see its specs</Hint>;
 
 /**
- * Signal flow: the team's own system diagram image when uploaded, with the
- * interactive diagram (spec sheets per product) as a second tab.
+ * A diagram section on the Installation page: the team's own diagram image when
+ * uploaded (devices clickable), with the generated interactive diagram as a second tab.
  */
-export function SignalFlowPanel({
+export function DiagramPanel({
   imageUrl,
   imageAlt,
-  nodes,
-  edges,
+  defaultAlt,
   heading,
+  interactive,
   components,
+  field,
+  tabs,
+  idPrefix,
+  textList,
 }: {
   imageUrl: string | null;
   imageAlt: string;
-  nodes: DiagramNode[];
-  edges: DiagramEdge[];
+  defaultAlt: string;
   heading: React.ReactNode;
-  /** All components; those with hotspots become clickable on the image. */
+  /** The generated diagram (spec sheets per product). */
+  interactive: React.ReactNode;
+  /** All components; those with areas in `field` are clickable on the image. */
   components: AudioComponent[];
+  field: HotspotField;
+  /** Tab labels: [image, generated diagram]. */
+  tabs: [string, string];
+  idPrefix: string;
+  /** The diagram as a text list for screen readers (shown with the image). */
+  textList?: { title: string; items: string[] };
 }) {
   const [view, setView] = useState<View>("image");
   const showImage = !!imageUrl && view === "image";
-  const interactive = <Diagram label="Signal flow" nodes={nodes} edges={edges} columnLabels={["SOURCE", "PROCESSING", "AMPLIFICATION", "SPEAKERS"]} />;
-  const titleOf = (k: string) => nodes.find((n) => n.key === k)?.title ?? k;
-  const clickable = components.some((c) => normalizeHotspots(c.hotspots).length > 0);
+  const clickable = components.some((c) => normalizeHotspots(c[field]).length > 0);
 
   if (!imageUrl) {
     return (
@@ -64,17 +71,17 @@ export function SignalFlowPanel({
         {heading}
         <SegmentedTabs
           options={[
-            { key: "image", label: "System diagram" },
-            { key: "interactive", label: "Specs per product" },
+            { key: "image", label: tabs[0] },
+            { key: "interactive", label: tabs[1] },
           ]}
           value={view}
           onChange={setView}
-          label="Signal flow view"
+          label={`${tabs[0]} view`}
           mode="tabs"
-          idPrefix="signal"
+          idPrefix={idPrefix}
         />
       </div>
-      <div id="signal-panel" role="tabpanel" aria-labelledby={`signal-tab-${view}`} className="flex flex-col gap-4">
+      <div id={`${idPrefix}-panel`} role="tabpanel" aria-labelledby={`${idPrefix}-tab-${view}`} className="flex flex-col gap-4">
         {showImage ? (
           <>
             {clickable && (
@@ -82,11 +89,7 @@ export function SignalFlowPanel({
                 <Hint>Click a device on the diagram to see its specs</Hint>
               </div>
             )}
-            <DiagramHotspots
-              imageUrl={imageUrl}
-              alt={imageAlt || "System diagram of Black Amatis: source, processing, amplification and speakers"}
-              components={components}
-            />
+            <DiagramHotspots imageUrl={imageUrl} alt={imageAlt || defaultAlt} components={components} field={field} />
             <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted">
               <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-semibold text-amber hover:text-lemon">
                 Open full size ↗
@@ -95,14 +98,12 @@ export function SignalFlowPanel({
                 See the spec sheet of each product →
               </button>
             </div>
-            {edges.length > 0 && (
+            {textList && textList.items.length > 0 && (
               <div className="sr-only">
-                <h3>Signal flow as a list</h3>
+                <h3>{textList.title}</h3>
                 <ul>
-                  {edges.map((e) => (
-                    <li key={`${e.from}>${e.to}`}>
-                      {titleOf(e.from)} to {titleOf(e.to)}
-                    </li>
+                  {textList.items.map((t) => (
+                    <li key={t}>{t}</li>
                   ))}
                 </ul>
               </div>

@@ -3,7 +3,7 @@
 import { ContentFallback, useSiteContent } from "@/components/public/ContentProvider";
 import { Craftsmanship } from "@/components/public/Craftsmanship";
 import { Diagram, type DiagramNode } from "@/components/public/Diagram";
-import { SignalFlowPanel } from "@/components/public/SignalFlowPanel";
+import { DiagramPanel } from "@/components/public/DiagramPanel";
 import { storageUrl } from "@/lib/supabase/env";
 import { PhotoLog } from "@/components/public/PhotoLog";
 import { GlassPanel } from "@/components/ui/GlassPanel";
@@ -62,6 +62,7 @@ export function InstallationView() {
   const wirEdges = links.map((l) => ({ from: l.from_key, to: l.to_key }));
   const edgeLabels = Object.fromEntries(links.filter((l) => parents.has(l.to_key)).map((l) => [`${l.from_key}>${l.to_key}`, linkLabel(l)]));
   const root = wir.find((x) => x.type === "battery")?.key;
+  const titleOf = (k: string) => comps.find((x) => x.key === k)?.title ?? k;
 
   return (
     <>
@@ -82,12 +83,16 @@ export function InstallationView() {
       <section aria-labelledby="system-diagram" className="mx-auto max-w-[1360px] px-3 pb-16 sm:px-6 lg:px-10">
         <GlassPanel className="relative flex flex-col gap-7 rounded-[36px] p-5 sm:p-12">
           <EditPencil href="/editor/components/#system-image" label="System diagram" className="right-5 top-5" />
-          <SignalFlowPanel
+          <DiagramPanel
             imageUrl={storageUrl(c.vehicle.system_diagram_path)}
             imageAlt={c.vehicle.system_diagram_alt}
-            nodes={sysNodes}
-            edges={sysEdges}
+            defaultAlt="System diagram of Black Amatis: source, processing, amplification and speakers"
+            interactive={<Diagram label="Signal flow" nodes={sysNodes} edges={sysEdges} columnLabels={["SOURCE", "PROCESSING", "AMPLIFICATION", "SPEAKERS"]} />}
             components={comps}
+            field="hotspots"
+            tabs={["System diagram", "Specs per product"]}
+            idPrefix="signal"
+            textList={{ title: "Signal flow as a list", items: sysEdges.map((e) => `${titleOf(e.from)} to ${titleOf(e.to)}`) }}
             heading={
               <SectionHead eyebrow="System diagram" title="Signal flow" id="system-diagram">
                 Source, processing, amplification and speakers.
@@ -99,17 +104,31 @@ export function InstallationView() {
 
       <section id="wiring" aria-labelledby="wiring-diagram" className="mx-auto max-w-[1360px] px-3 pb-16 sm:px-6 lg:px-10">
         <GlassPanel className="relative flex flex-col gap-7 rounded-[36px] p-5 sm:p-12">
-          <EditPencil href="/editor/components/#wiring" label="Cable sizes and fuses" className="right-5 top-5" />
-          <SectionHead eyebrow="Wiring diagram" title="Power & fuses" id="wiring-diagram">
-            Main fuse within 40 cm of the positive battery post. Every fuse is rated by the smallest cable in its circuit (VW75212).
-          </SectionHead>
-          <Diagram
-            label="Power and fuses"
-            nodes={wirNodes}
-            edges={wirEdges}
-            columnLabels={["POWER", "PROTECTION", "DISTRIBUTION", "CONSUMERS"]}
-            edgeLabels={edgeLabels}
-            groundFrom={root}
+          <EditPencil href={c.vehicle.wiring_diagram_path ? "/editor/components/#wiring-image" : "/editor/components/#wiring"} label="Wiring diagram" className="right-5 top-5" />
+          <DiagramPanel
+            imageUrl={storageUrl(c.vehicle.wiring_diagram_path)}
+            imageAlt={c.vehicle.wiring_diagram_alt}
+            defaultAlt="Cable diagram of Black Amatis: battery, main fuses, distribution and every powered component"
+            interactive={
+              <Diagram
+                label="Power and fuses"
+                nodes={wirNodes}
+                edges={wirEdges}
+                columnLabels={["POWER", "PROTECTION", "DISTRIBUTION", "CONSUMERS"]}
+                edgeLabels={edgeLabels}
+                groundFrom={root}
+              />
+            }
+            components={comps}
+            field="wiring_hotspots"
+            tabs={["Cable diagram", "Cable sizes & fuses"]}
+            idPrefix="wiring"
+            textList={{ title: "Power and fuses as a list", items: links.map((l) => `${titleOf(l.from_key)} to ${titleOf(l.to_key)}: ${linkLabel(l)}`) }}
+            heading={
+              <SectionHead eyebrow="Wiring diagram" title="Power & fuses" id="wiring-diagram">
+                Main fuse within 40 cm of the positive battery post. Every fuse is rated by the smallest cable in its circuit (VW75212).
+              </SectionHead>
+            }
           />
         </GlassPanel>
       </section>

@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { Card, Checkbox, PageTitle, SelectField, TextArea, TextField, btn } from "@/components/editor/Field";
 import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
-import { SystemDiagramImage } from "@/components/editor/sections/SystemDiagramImage";
+import { DiagramImageCard } from "@/components/editor/sections/DiagramImageCard";
 import { componentSchema, type ComponentForm } from "@/lib/editor/schemas";
 import { ROLE_BY_TYPE, newComponent } from "@/lib/editor/components";
 import { FUSE_TABLE, checkFuse } from "@/lib/emma/fuses";
@@ -51,7 +51,7 @@ export default function ComponentsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageTitle title="Components">Products shown in the system and wiring diagrams, with their spec sheets.</PageTitle>
-      <SystemDiagramImage />
+      <DiagramImageCard kind="system" />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[300px_1fr]">
         <Card title="List" className="self-start">
           <ol className="m-0 flex list-none flex-col gap-1.5 p-0">
@@ -93,6 +93,7 @@ export default function ComponentsPage() {
         )}
       </div>
 
+      <DiagramImageCard kind="wiring" />
       <WiringEditor />
     </div>
   );
@@ -115,9 +116,10 @@ function ComponentEditor({ component, all, onRemove }: { component: AudioCompone
     const sub = watch((val) => {
       update((c) => {
         const prev = c.components.find((x) => x.id === component.id);
-        // Hotspots are drawn in the System diagram image card, not in this form: keep them.
-        const { hotspots: _h, ...formVal } = val as ComponentForm;
+        // Hotspots are drawn in the diagram image cards, not in this form: keep them.
+        const { hotspots: _h, wiring_hotspots: _w, ...formVal } = val as ComponentForm;
         void _h;
+        void _w;
         const next = { ...prev!, ...formVal };
         const keyChanged = prev && prev.key !== next.key;
         return {
