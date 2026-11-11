@@ -242,7 +242,7 @@ export type MoodItem = {
 
 /** One step of a power or ground run: a part (node, optionally a fuse) or a cable between parts. */
 export type ChainItem =
-  | { id: string; t: "node"; label: string; fuse_a?: number | null }
+  | { id: string; t: "node"; label: string; fuse_a?: number | null; /** A fuse, even when its rating is not filled in yet. */ is_fuse?: boolean }
   | { id: string; t: "cable"; name: string; awg: string | null; length_cm: number | null };
 
 /** A cable outside the power/ground run: RCA signal, speaker cable or anything else. */
@@ -251,6 +251,8 @@ export type SideCable = {
   role: "signal" | "speaker" | "other";
   from: string;
   to: string;
+  /** Product at the far end (e.g. the speaker), shown with its name. */
+  to_key?: string | null;
   name: string;
   awg: string | null;
   length_cm: number | null;

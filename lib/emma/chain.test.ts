@@ -37,5 +37,9 @@ describe("a power run", () => {
   it("reports unknown gauges and leaves ground runs unchecked", () => {
     expect(chainStatus(analyseChain([node("Fuse", 200), cable(null, 30)]))).toBe("incomplete");
     expect(chainStatus(analyseChain([node("Battery −"), cable("0", 500)], false))).toBe("empty");
+    // A fuse without its rating does not inherit the bigger fuse before it.
+    const led = analyseChain([node("Main", 200), cable("0", 30), { id: "f", t: "node", label: "Fuse", fuse_a: null, is_fuse: true }, cable("16", null)]);
+    expect(led.filter((i) => i.t === "cable").map((i) => i.check)[1]).toEqual({ kind: "fuse", fuseA: null, maxA: 15, ok: null });
+    expect(chainStatus(led)).toBe("incomplete");
   });
 });
