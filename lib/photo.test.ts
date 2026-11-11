@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { heroTransform, normalizeCarLayout, objectPosition, splitPhoto, withFocus } from "./photo";
+import { heroTransform, normalizeCarLayout, normalizeHotspots, objectPosition, splitPhoto, spotFromDrag, withFocus } from "./photo";
 
 describe("photo focus point", () => {
   it("reads the focus fragment and strips it from the path", () => {
@@ -41,5 +41,19 @@ describe("hero car layout", () => {
 
   it("builds the CSS transform", () => {
     expect(heroTransform({ x: -10, y: 5, scale: 120 })).toBe("translate(-10%, 5%) scale(1.2)");
+  });
+});
+
+
+describe("diagram hotspots", () => {
+  it("drops invalid entries and keeps areas inside the image", () => {
+    expect(normalizeHotspots(null)).toEqual([]);
+    expect(normalizeHotspots([{ x: 10, y: 20, w: 5, h: 5 }, { x: "a" }, null])).toEqual([{ x: 10, y: 20, w: 5, h: 5 }]);
+    expect(normalizeHotspots([{ x: 98, y: -5, w: 30, h: 0.2 }])).toEqual([{ x: 98, y: 0, w: 2, h: 1 }]);
+  });
+
+  it("builds an area from a drag in any direction", () => {
+    expect(spotFromDrag({ x: 40, y: 50 }, { x: 30, y: 35 })).toEqual({ x: 30, y: 35, w: 10, h: 15 });
+    expect(spotFromDrag({ x: 40, y: 50 }, { x: 40.5, y: 51 })).toBeNull();
   });
 });

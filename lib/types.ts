@@ -1,7 +1,7 @@
 import type { CriterionKey, EmmaClass } from "./emma/matrix";
 import type { Execution } from "./emma/bonus";
 import type { BonusGroup, Strength } from "./emma/bonus-locations";
-import type { CarPhotoLayout } from "./photo";
+import type { CarPhotoLayout, Hotspot } from "./photo";
 
 export type Status = "draft" | "published";
 
@@ -87,6 +87,8 @@ export type AudioComponent = {
   in_wiring: boolean;
   /** For the signal-flow diagram: which node feeds this one. */
   fed_by: string | null;
+  /** Clickable areas on the uploaded system diagram image. */
+  hotspots: Hotspot[];
   sort: number;
 };
 

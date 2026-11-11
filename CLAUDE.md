@@ -151,7 +151,7 @@ Shared: floating glass header (wordmark, nav: History · Theme · Installation �
 
 ### Installation `/installation`
 In this order:
-1. **System diagram — Signal flow**: if the team uploaded their own diagram image (editor › Components › *System diagram image*, `vehicle.system_diagram_path` + `system_diagram_alt`), it is shown first with *Open full size*; the interactive diagram below stays as a second tab (*Specs per product*). The interactive diagram: Head Unit → DSP → Amplifier A / Amplifier B → Tweeter, Midrange, Midbass (from Amp A) and Subwoofer (from Amp B). Default front stage is 3-way; it must be data-driven.
+1. **System diagram — Signal flow**: if the team uploaded their own diagram image (editor › Components › *System diagram image*, `vehicle.system_diagram_path` + `system_diagram_alt`), it is shown first with *Open full size*; the interactive diagram below stays as a second tab (*Specs per product*). Devices on the image are clickable: in the editor, pick a component and drag a box over it (several boxes per component allowed; stored in `components.hotspots` as % of the image); a click opens that component's spec popover (beside the device on wide screens, below the image on phones). The interactive diagram: Head Unit → DSP → Amplifier A / Amplifier B → Tweeter, Midrange, Midbass (from Amp A) and Subwoofer (from Amp B). Default front stage is 3-way; it must be data-driven.
 2. **Wiring diagram — Power & fuses**: Main Battery → Main Fuse (≤ 40 cm from + post) → Distribution → Amp A, Amp B, DSP, Head Unit; dashed line to Chassis Ground. Cable size labels on links, `[__ mm²] · [__ A]` on each output.
 3. **Photo log — "Behind the panels"** (lemon glass): area tabs Engine Bay, Doors, Dashboard, Trunk, Under Floor; each photo has a code (`EB-01`), caption and a "✓ proves: <criterion>" pill.
 4. **Craftsmanship close-up**: tabs Wiring, Head Unit, Amplifiers, Speakers, Other Components; 3 close-ups + "What to look at" checklist; note "M: 2 pts · X: 10 pts per category".
@@ -235,7 +235,7 @@ vehicle(id, name, model, year, category, class, event, dark_side_name, light_sid
         statement, owner, installer, designer, tuner, instagram, website, updated_at)
 milestones(id, when_label, title, body, photo_path, sort)
 competitions(id, event, city, category, install_points, result, date)
-components(id, key, title, role, type, brand, model, specs jsonb, photo_path, pdf_path,
+components(id, key, title, role, type, brand, model, specs jsonb, photo_path, pdf_path, hotspots jsonb,
            in_system boolean, in_wiring boolean, sort)
 wiring_links(id, from_key, to_key, cable_mm2, fuse_a)
 tuning(id, driver, hpf_hz, lpf_hz, slope_db, time_align_ms, eq_bands, sort)

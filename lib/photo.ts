@@ -56,3 +56,38 @@ export function normalizeCarLayout(v: unknown): CarPhotoLayout {
 }
 
 export const heroTransform = (l: HeroLayout) => `translate(${l.x}%, ${l.y}%) scale(${l.scale / 100})`;
+
+/** A clickable area on the system diagram image, in percent of the image size. */
+export type Hotspot = { x: number; y: number; w: number; h: number };
+
+const MIN_SPOT = 1;
+
+/** Accepts anything from the database and returns valid areas inside the image. */
+export function normalizeHotspots(v: unknown): Hotspot[] {
+  if (!Array.isArray(v)) return [];
+  const out: Hotspot[] = [];
+  for (const raw of v) {
+    if (!raw || typeof raw !== "object") continue;
+    const o = raw as Record<string, unknown>;
+    const n = (k: string) => (typeof o[k] === "number" && Number.isFinite(o[k]) ? (o[k] as number) : NaN);
+    let x = n("x"), y = n("y"), w = n("w"), h = n("h");
+    if ([x, y, w, h].some(Number.isNaN)) continue;
+    x = clamp(x, 0, 100 - MIN_SPOT);
+    y = clamp(y, 0, 100 - MIN_SPOT);
+    w = clamp(w, MIN_SPOT, 100 - x);
+    h = clamp(h, MIN_SPOT, 100 - y);
+    const r = (v: number) => Math.round(v * 10) / 10;
+    out.push({ x: r(x), y: r(y), w: r(w), h: r(h) });
+  }
+  return out;
+}
+
+/** Rectangle from two corner points (any drag direction), or null when too small. */
+export function spotFromDrag(a: { x: number; y: number }, b: { x: number; y: number }): Hotspot | null {
+  const x = clamp(Math.min(a.x, b.x), 0, 100);
+  const y = clamp(Math.min(a.y, b.y), 0, 100);
+  const w = clamp(Math.abs(a.x - b.x), 0, 100 - x);
+  const h = clamp(Math.abs(a.y - b.y), 0, 100 - y);
+  if (w < MIN_SPOT || h < MIN_SPOT) return null;
+  return normalizeHotspots([{ x, y, w, h }])[0] ?? null;
+}
