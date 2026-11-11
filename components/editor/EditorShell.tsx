@@ -20,7 +20,8 @@ const time = (iso: string | null) => (iso ? new Date(iso).toLocaleTimeString([],
 export function EditorShell({ children }: { children: React.ReactNode }) {
   const pathname = normPath(usePathname());
   const router = useRouter();
-  const { session, dirty, unpublished, saving, lastSaved, error, save, publish } = useEditor();
+  const { session, dirty, unpublished, saving, lastSaved, error, save, publish, stateLoading, publishState } = useEditor();
+  const nothingSaved = session.mode === "supabase" && !!publishState && Object.values(publishState).every((t) => t.rows === 0);
   const [menu, setMenu] = useState(false);
 
   // Deep links from the public site's edit pencils: /editor/vehicle/#f-statement
@@ -39,13 +40,17 @@ export function EditorShell({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(t);
   }, [pathname]);
 
-  const status = saving
+  const status = stateLoading
+    ? "Checking status…"
+    : saving
     ? "Saving…"
     : dirty
       ? "Unsaved changes"
       : unpublished
         ? `Draft · unpublished changes${lastSaved ? ` · saved ${time(lastSaved)}` : ""}`
-        : "Published · up to date";
+        : nothingSaved
+          ? "Nothing saved yet · site shows placeholders"
+          : "Published · up to date";
 
   return (
     <div className="editor flex min-h-screen bg-editor text-[#14141a]">
