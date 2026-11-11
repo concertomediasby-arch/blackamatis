@@ -26,6 +26,8 @@ export type Vehicle = {
   instagram: string;
   website: string;
   car_photo_path: string | null;
+  /** More cut-out car photos for the landing hero slider (after car_photo_path), in order. */
+  hero_photos?: BonusMedia[] | null;
   /** Photos of the car under the story on the History page (slider), in order. */
   history_photos?: BonusMedia[] | null;
   /** Hero car position and size per screen size (see lib/photo.ts). */

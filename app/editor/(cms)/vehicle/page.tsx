@@ -152,6 +152,20 @@ export default function VehiclePage() {
             }))
           }
         />
+        <MediaListEditor
+          label="More car photos (hero slider)"
+          intro="Extra cut-out photos (transparent PNG) of the car, e.g. other angles. Visitors swipe through them on the landing page after the photo above. They use the same position & size."
+          folder="vehicle"
+          numbered={false}
+          photosOnly
+          value={normalizeMedia(v.hero_photos)}
+          onChange={(list) =>
+            update((c) => ({
+              ...c,
+              vehicle: { ...c.vehicle, hero_photos: list },
+            }))
+          }
+        />
       </Card>
 
       <div id="faces">

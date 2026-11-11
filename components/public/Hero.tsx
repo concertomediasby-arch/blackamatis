@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ArrowUpRight } from "@/components/ui/Arrow";
 import { CarPhoto } from "./CarPhoto";
+import { Carousel } from "./PhotoSlider";
 import { EditPencil } from "./EditMode";
 import type { CarPhotoLayout } from "@/lib/photo";
 import { SiteHeader } from "./SiteHeader";
@@ -58,7 +59,8 @@ const SECTIONS = [
 
 type Props = {
   classLabel: string;
-  carPhotoUrl: string | null;
+  /** Cut-out car photos: the main one first, then the extra hero photos. */
+  carPhotoUrls: string[];
   carLayout: CarPhotoLayout;
   instagramUrl: string | null;
   /** Thumbnail for the judges' card (e.g. the system diagram). */
@@ -72,7 +74,7 @@ type Props = {
  */
 export function Hero({
   classLabel,
-  carPhotoUrl,
+  carPhotoUrls,
   carLayout,
   instagramUrl,
   judgeThumbUrl,
@@ -134,11 +136,25 @@ export function Hero({
             className="relative w-full lg:w-[92%]"
             style={{ maxWidth: "min(1040px, 108vh)" }}
           >
-            {carPhotoUrl ? (
-              <CarPhoto
-                url={carPhotoUrl}
-                layout={carLayout}
-                className="max-w-none"
+            {carPhotoUrls.length > 0 ? (
+              <Carousel
+                variant="bare"
+                label="Photos of the car"
+                showCaption={false}
+                footerClassName="justify-end"
+                slides={carPhotoUrls.map((url, i) => ({
+                  id: `${i}-${url}`,
+                  url,
+                }))}
+                renderSlide={(sl) => (
+                  <div className="pointer-events-none select-none px-[2%]">
+                    <CarPhoto
+                      url={sl.url}
+                      layout={carLayout}
+                      className="max-w-none"
+                    />
+                  </div>
+                )}
               />
             ) : (
               <svg

@@ -11,6 +11,7 @@ import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { CLASS_INFO } from "@/lib/emma/matrix";
 import { normalizeCarLayout } from "@/lib/photo";
+import { normalizeMedia } from "@/lib/bonus-media";
 import { storageUrl } from "@/lib/supabase/env";
 import { instagramHref } from "@/lib/format";
 import { EditPencil } from "@/components/public/EditMode";
@@ -84,7 +85,12 @@ export function HomeView() {
   return (
     <>
       <Hero
-        carPhotoUrl={storageUrl(v.car_photo_path)}
+        carPhotoUrls={[
+          v.car_photo_path,
+          ...normalizeMedia(v.hero_photos).map((m) => m.path),
+        ]
+          .map((p) => storageUrl(p))
+          .filter((u): u is string => !!u)}
         carLayout={normalizeCarLayout(v.car_photo_layout)}
         instagramUrl={instagramHref(v.instagram)}
         classLabel={CLASS_INFO[v.class].name}
