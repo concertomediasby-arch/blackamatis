@@ -47,10 +47,36 @@ Supabase Dashboard → project **black-amatis** → **Authentication → URL Con
 - **Site URL**: `https://blackamatis.concerto.id`
 - **Redirect URLs**: `https://blackamatis.concerto.id/**`
 
-### 8. Akun tim
+### 8. Template email kode login
+Login editor memakai **kode sekali pakai lewat email** (tanpa password). Supaya kodenya muncul di email:
+
+Supabase Dashboard → **Authentication → Emails → Templates → Magic Link**:
+
+- **Subject**: `Black Amatis editor login code`
+- **Body** (ganti seluruh isinya):
+
+```html
+<h2>Black Amatis · Editor</h2>
+<p>Your login code:</p>
+<p style="font-size:28px;font-weight:bold;letter-spacing:6px">{{ .Token }}</p>
+<p>Or <a href="{{ .ConfirmationURL }}">click here to sign in</a>.</p>
+<p>The code expires in 1 hour. If you did not request it, ignore this email.</p>
+```
+
+Klik **Save**. Disarankan juga: **Authentication → Sign In / Providers → matikan "Allow new users to sign up"**,
+supaya hanya akun yang dibuat lewat dashboard yang bisa login.
+
+### 9. Akun tim
 **Authentication → Users → Add user → Create new user** untuk setiap anggota tim (centang *Auto Confirm User*).
+Password boleh diisi acak: login memakai kode email, bukan password.
 Beri tahu developer email-email tersebut beserta perannya (`owner` boleh Publish, `editor` hanya menyimpan draft),
 supaya ditambahkan ke tabel `editors`.
+
+### Cara login editor
+1. Buka `https://blackamatis.concerto.id/editor/login/`, isi email, klik **Send login code**.
+2. Buka email dari Supabase, ketik kodenya, klik **Sign in** (atau klik link di email).
+3. Kode berlaku 1 jam. Kalau tidak masuk, cek folder Spam, atau klik **Send a new code** setelah 60 detik.
+   Layanan email bawaan Supabase membatasi jumlah email per jam; kalau muncul pesan *Too many emails sent*, tunggu beberapa menit.
 
 ---
 
