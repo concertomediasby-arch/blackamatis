@@ -45,7 +45,7 @@ export function PartnersEditor() {
                 onChange={(ev) => partners.patch(p.id, { url: ev.target.value || null })}
                 error={e.url}
               />
-              <UploadZone label="Logo" kind="photo" folder="partners" value={p.logo_path} onChange={(path) => partners.patch(p.id, { logo_path: path })} />
+              <UploadZone label="Logo" kind="photo" focusable={false} folder="partners" value={p.logo_path} onChange={(path) => partners.patch(p.id, { logo_path: path })} />
             </li>
           );
         })}

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { objectPosition, splitPhoto } from "@/lib/photo";
 import { storageUrl } from "@/lib/supabase/env";
 
 type Props = {
@@ -13,11 +14,12 @@ type Props = {
 
 /** Shows the uploaded photo, or a dashed placeholder with its label until one is uploaded. */
 export function Placeholder({ path, label, alt, className = "", tone = "dark", sizes = "(max-width: 768px) 100vw, 50vw", fit = "cover" }: Props) {
+  const { focus } = splitPhoto(path);
   const url = storageUrl(path);
   if (url) {
     return (
       <div className={`relative overflow-hidden ${className}`}>
-        <Image src={url} alt={alt ?? label} fill sizes={sizes} unoptimized={/^(blob:|data:)/.test(url)} className={fit === "cover" ? "object-cover" : "object-contain"} />
+        <Image src={url} alt={alt ?? label} fill sizes={sizes} unoptimized={/^(blob:|data:)/.test(url)} className={fit === "cover" ? "object-cover" : "object-contain"} style={fit === "cover" ? { objectPosition: objectPosition(focus) } : undefined} />
       </div>
     );
   }

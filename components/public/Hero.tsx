@@ -1,10 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowUpRight } from "@/components/ui/Arrow";
+import { CarPhoto } from "./CarPhoto";
 import { EditPencil } from "./EditMode";
+import type { CarPhotoLayout } from "@/lib/photo";
 import { SiteHeader } from "./SiteHeader";
 import type { EmmaClass } from "@/lib/emma/matrix";
 
@@ -73,10 +74,11 @@ type Props = {
   darkName: string;
   lightName: string;
   carPhotoUrl: string | null;
+  carLayout: CarPhotoLayout;
   instagramUrl: string | null;
 };
 
-export function Hero({ emmaClass, darkName, lightName, carPhotoUrl, instagramUrl }: Props) {
+export function Hero({ emmaClass, darkName, lightName, carPhotoUrl, carLayout, instagramUrl }: Props) {
   const [face, setFace] = useState<Face>("dark");
   const f = FACES[face];
   const pencilTone = face === "dark" ? "dark" : "light";
@@ -137,9 +139,7 @@ export function Hero({ emmaClass, darkName, lightName, carPhotoUrl, instagramUrl
             ))}
           </svg>
           {carPhotoUrl ? (
-            <div className="relative aspect-[810/330] w-full max-w-[820px]">
-              <Image src={carPhotoUrl} alt="Black Amatis, Honda Odyssey" fill priority sizes="(max-width: 768px) 100vw, 820px" className="object-contain drop-shadow-[0_40px_40px_rgba(0,0,0,0.45)]" />
-            </div>
+            <CarPhoto url={carPhotoUrl} layout={carLayout} />
           ) : (
             <>
               <svg role="img" aria-label="Honda Odyssey silhouette (car photo not uploaded yet)" viewBox="0 0 810 330" className="relative h-auto w-full max-w-[820px] drop-shadow-[0_40px_40px_rgba(0,0,0,0.45)]">

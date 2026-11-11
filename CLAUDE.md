@@ -231,7 +231,7 @@ Other rules used in the UI: main fuse ≤ 40 cm from each positive battery post;
 ## Data model (Supabase)
 
 ```
-vehicle(id, name, model, year, category, class, event, dark_side_name, light_side_name,
+vehicle(id, name, model, year, category, class, event, dark_side_name, light_side_name, car_photo_path, car_photo_layout jsonb,
         statement, owner, installer, designer, tuner, instagram, website, updated_at)
 milestones(id, when_label, title, body, photo_path, sort)
 competitions(id, event, city, category, install_points, result, date)
@@ -264,6 +264,7 @@ Login: passwordless one-time code by email (Supabase email OTP, `shouldCreateUse
 - No tuning section (removed on purpose from the Installation page and the editor; the `tuning` table and `vehicle.tuning_*` columns are kept but unused).
 - **Photo Log**: area tabs, slots with upload, caption, "Proves" select (criteria list), add slot, drag to reorder; craftsmanship close-ups (3 per category).
 - **Vehicle & Story** also edits partner logos (name, logo, optional link).
+- Photo positioning: every cropped photo has a **crop focus** (click the important point; stored as `#fp=x,y` on the photo path, applied as `object-position`). The hero car photo has its own **position & size** per screen (desktop / phone; drag or sliders with a live preview), stored in `vehicle.car_photo_layout`.
 - Public pages show a pencil on each editable section for signed-in editors (Edit mode bar can hide them); a pencil deep-links to the editor field.
 - **Bonus Requests**: table (code, name, group, element A–D, strength badge, photo, Submit, Edit) + drawer. "New request" offers a location picker (61-spot catalogue) or free text, element, strength, description, photo. Counter "Submitted n / max" with a warning above the class limit.
 - Every form: labels, inline Zod errors, autosave draft every 10 s, unsaved-changes guard.

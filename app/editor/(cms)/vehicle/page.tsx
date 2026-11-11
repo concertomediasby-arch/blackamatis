@@ -7,9 +7,12 @@ import { Card, PageTitle, SelectField, TextArea, TextField, btn } from "@/compon
 import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
 import { PartnersEditor } from "@/components/editor/sections/PartnersEditor";
-import { STATEMENT_MAX_WORDS, storyFormSchema, wordCount, type StoryForm } from "@/lib/editor/schemas";
+import { STATEMENT_MAX_WORDS, storyFormSchema, vehicleSchema, wordCount, type StoryForm } from "@/lib/editor/schemas";
+import { CarPositioner } from "@/components/editor/CarPositioner";
 import { CLASSES, CLASS_INFO } from "@/lib/emma/matrix";
 
+/** Vehicle fields edited by this form (see the watch() sync below). */
+const FORM_KEYS = Object.keys(vehicleSchema.shape) as (keyof typeof vehicleSchema.shape)[];
 const newId = () => `new-${crypto.randomUUID()}`;
 
 export default function VehiclePage() {
@@ -34,12 +37,10 @@ export default function VehiclePage() {
   useEffect(() => {
     const sub = watch((val) => {
       const { milestones, team: t, ...formVehicle } = val as StoryForm & Record<string, unknown>;
-      // The form only edits fields; the row id and database bookkeeping stay as stored.
-      const { id: _id, status: _st, updated_at: _ua, updated_by: _ub, ...vehicle } = formVehicle;
-      void _id;
-      void _st;
-      void _ua;
-      void _ub;
+      // Copy only the fields this form edits. Everything else on the vehicle (row id,
+      // car photo, its position, bookkeeping) is changed elsewhere and must not be
+      // overwritten by the form's initial values.
+      const vehicle = Object.fromEntries(FORM_KEYS.filter((k) => k in formVehicle).map((k) => [k, formVehicle[k]]));
       update((c) => ({
         ...c,
         vehicle: { ...c.vehicle, ...vehicle },
@@ -79,8 +80,14 @@ export default function VehiclePage() {
           value={v.car_photo_path}
           onChange={(p) => update((c) => ({ ...c, vehicle: { ...c.vehicle, car_photo_path: p } }))}
           hint="Cut-out photo on a transparent background. Shown over the AMATIS word."
+          focusable={false}
         />
         </div>
+        <CarPositioner
+          path={v.car_photo_path}
+          layout={v.car_photo_layout}
+          onChange={(l) => update((c) => ({ ...c, vehicle: { ...c.vehicle, car_photo_layout: l } }))}
+        />
       </Card>
 
       <div id="faces">
