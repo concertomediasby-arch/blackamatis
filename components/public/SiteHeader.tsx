@@ -29,14 +29,14 @@ export function SiteHeader({ face = "dark", inHero = false }: { face?: Face; inH
 
   return (
     <header
-      className={`relative z-30 mx-3 mt-5 rounded-[32px] border px-3 py-2.5 pl-5 shadow-[0_20px_60px_rgba(0,0,0,0.3)] backdrop-blur-[24px] backdrop-saturate-150 transition-colors duration-500 sm:mx-6 lg:mx-10 ${shell}`}
+      className={`relative z-30 mx-3 mt-5 rounded-[36px] border px-3 py-3 pl-5 shadow-[0_20px_60px_rgba(0,0,0,0.3)] backdrop-blur-[24px] backdrop-saturate-150 transition-colors duration-500 sm:mx-6 lg:mx-10 lg:py-3.5 lg:pl-7 lg:pr-4 ${shell}`}
     >
       <div className="flex items-center justify-between gap-3">
-        <Link href="/" className="flex min-h-11 items-center font-display text-[22px] font-extrabold tracking-[0.08em]">
+        <Link href="/" className="flex min-h-11 items-center font-display text-[24px] font-extrabold tracking-[0.08em] lg:text-[28px]">
           BLACK AMATIS
         </Link>
 
-        <nav aria-label="Main menu" className="hidden items-center gap-1 lg:flex">
+        <nav aria-label="Main menu" className="hidden items-center gap-1.5 lg:flex">
           {NAV.map((n) => {
             const on = pathname === n.href;
             return (
@@ -44,7 +44,7 @@ export function SiteHeader({ face = "dark", inHero = false }: { face?: Face; inH
                 key={n.href}
                 href={n.href}
                 aria-current={on ? "page" : undefined}
-                className={`pill px-4 font-semibold ${on ? linkActive : linkIdle}`}
+                className={`pill min-h-12 px-5 text-[15px] font-semibold xl:text-[16px] ${on ? linkActive : linkIdle}`}
               >
                 {n.label}
               </Link>
@@ -54,12 +54,12 @@ export function SiteHeader({ face = "dark", inHero = false }: { face?: Face; inH
 
         <div className="flex items-center gap-2">
           {inHero ? (
-            <a href="#contact" className={`pill ${light ? "bg-black text-lemon" : "bg-amber text-prussian"}`}>
+            <a href="#contact" className={`pill min-h-12 px-6 text-[15px] xl:text-[16px] ${light ? "bg-black text-lemon" : "bg-amber text-prussian"}`}>
               Contact
             </a>
           ) : (
             <span
-              className={`hidden min-h-11 items-center rounded-full border px-4 font-mono text-xs tracking-[0.12em] sm:inline-flex ${
+              className={`hidden min-h-12 items-center rounded-full border px-5 font-mono text-[13px] tracking-[0.12em] sm:inline-flex ${
                 light ? "border-black/30" : "border-white/15 bg-white/10"
               }`}
             >

@@ -15,6 +15,7 @@ import { normalizeMedia } from "@/lib/bonus-media";
 import { storageUrl } from "@/lib/supabase/env";
 import { instagramHref } from "@/lib/format";
 import { EditPencil } from "@/components/public/EditMode";
+import { PartnerLogo } from "@/components/public/PartnerLogo";
 
 /** Two ways in: visitors (lemon, light face) and judges (dark face). */
 const WAYS = [
@@ -260,16 +261,7 @@ export function HomeView() {
             <span className="eyebrow text-muted-2">Supported by</span>
             <ul className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3 p-0">
               {c.partners.map((p) => {
-                const box = (
-                  <Placeholder
-                    path={p.logo_path}
-                    label={p.name.replace(/^\[|\]$/g, "")}
-                    alt={p.name}
-                    fit="contain"
-                    className="h-[88px] rounded-[18px] bg-white/5"
-                    sizes="200px"
-                  />
-                );
+                const box = <PartnerLogo partner={p} />;
                 return (
                   <li key={p.id}>
                     {p.url ? (
