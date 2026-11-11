@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { homeHighlights } from "./home-stats";
+import { heroCallouts, homeHighlights } from "./home-stats";
 
 const comp = (key: string, title: string, type: string) => ({ key, title, type }) as never;
 const run = (id: string, kind: string, component_key: string | null, fuse: boolean) =>
@@ -22,5 +22,17 @@ describe("landing key numbers", () => {
 
   it("shows only the class when there are no circuits yet", () => {
     expect(homeHighlights({ vehicle: { class: "X" } as never, components: [], circuits: [] }).map((h) => h.title)).toEqual(["Expert"]);
+  });
+});
+
+describe("hero callouts", () => {
+  it("names the two faces and adds counts only when there are any", () => {
+    const vehicle = { class: "XU", dark_side_name: "Night", light_side_name: "Day" } as never;
+    expect(heroCallouts({ vehicle }, []).map((c) => [c.title, c.note])).toEqual([
+      ["Light side", "Day"],
+      ["Dark side", "Night"],
+    ]);
+    const hl = homeHighlights({ vehicle, components: [comp("a", "Aurum", "amplifier")], circuits: [run("x", "channel", "a", true)] });
+    expect(heroCallouts({ vehicle }, hl).map((c) => c.title)).toEqual(["Light side", "1 amplifier", "1 circuit", "Dark side"]);
   });
 });
