@@ -81,12 +81,10 @@ export function DiagramHotspots({ imageUrl, alt, components }: { imageUrl: strin
               aria-label={`${s.component.title}${bm ? `, ${bm}` : ""}. Open spec sheet`}
               title={s.component.title}
               onClick={() => (on ? close() : setOpen(s.id))}
-              // No box on click or hover; only keyboard focus shows the global focus ring.
-              className="group absolute cursor-pointer rounded-lg bg-transparent"
+              // Invisible: no box or dot. Only keyboard focus shows the global focus ring.
+              className="absolute cursor-pointer rounded-lg bg-transparent"
               style={{ left: `${s.x}%`, top: `${s.y}%`, width: `${s.w}%`, height: `${s.h}%` }}
-            >
-              <span aria-hidden="true" className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-amber shadow-[0_0_0_2px_rgba(0,2,49,0.8)] motion-safe:animate-pulse" />
-            </button>
+            />
           );
         })}
         {active && pos && (
