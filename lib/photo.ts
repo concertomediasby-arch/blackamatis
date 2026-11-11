@@ -39,7 +39,8 @@ export const LAYOUT_LIMITS = { offset: 50, minScale: 50, maxScale: 200 } as cons
 export const DEFAULT_HERO_LAYOUT: HeroLayout = { x: 0, y: 0, scale: 100 };
 export const DEFAULT_CAR_LAYOUT: CarPhotoLayout = { desktop: DEFAULT_HERO_LAYOUT, mobile: DEFAULT_HERO_LAYOUT };
 
-function normalizeOne(v: unknown): HeroLayout {
+/** Accepts anything from the database and returns a safe offset/size (also used for partner logos). */
+export function normalizeLayout(v: unknown): HeroLayout {
   const o = (v && typeof v === "object" ? v : {}) as Partial<Record<keyof HeroLayout, unknown>>;
   const num = (x: unknown, d: number) => (typeof x === "number" && Number.isFinite(x) ? x : d);
   return {
@@ -52,7 +53,7 @@ function normalizeOne(v: unknown): HeroLayout {
 /** Accepts anything from the database and returns a safe layout. */
 export function normalizeCarLayout(v: unknown): CarPhotoLayout {
   const o = (v && typeof v === "object" ? v : {}) as Partial<Record<keyof CarPhotoLayout, unknown>>;
-  return { desktop: normalizeOne(o.desktop), mobile: normalizeOne(o.mobile) };
+  return { desktop: normalizeLayout(o.desktop), mobile: normalizeLayout(o.mobile) };
 }
 
 export const heroTransform = (l: HeroLayout) => `translate(${l.x}%, ${l.y}%) scale(${l.scale / 100})`;

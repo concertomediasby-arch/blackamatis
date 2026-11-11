@@ -1,7 +1,7 @@
 import type { CriterionKey, EmmaClass } from "./emma/matrix";
 import type { Execution } from "./emma/bonus";
 import type { BonusGroup, Strength } from "./emma/bonus-locations";
-import type { CarPhotoLayout, Hotspot } from "./photo";
+import type { CarPhotoLayout, HeroLayout, Hotspot } from "./photo";
 
 export type Status = "draft" | "published";
 
@@ -228,6 +228,8 @@ export type Partner = {
   name: string;
   logo_path: string | null;
   url: string | null;
+  /** Position & size of the logo in its box (see lib/photo.ts › HeroLayout). */
+  logo_layout?: HeroLayout | null;
   sort: number;
 };
 

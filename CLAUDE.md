@@ -249,7 +249,7 @@ bonus_requests(id, no, code, "group", title, element, description, photo_path, s
 judge_evidence(criterion_key, ready boolean, note, updated_by, updated_at)
 team(id, role, name, line, photo_path, sort)
 moodboard_items(id, caption, path, sort)
-partners(id, name, logo_path, url, sort)
+partners(id, name, logo_path, url, logo_layout jsonb, sort)
 before_after(id, view, before_path, after_path)
 circuits(id, name, kind ('trunk'|'channel'), component_key, power_from, ground_from,
          power jsonb, ground jsonb, cables jsonb, wiring_hotspots jsonb, sort)
@@ -268,7 +268,7 @@ Login: passwordless one-time code by email (Supabase email OTP, `shouldCreateUse
 - **Theme**: two sides (photo + up to 5 points each); motifs (photo, motifs with meaning, click the photo to place each number); theme zones (name, photo, up to 8 theme elements each); sketches & moodboard (up to 8 images, first one large).
 - No tuning section (removed on purpose from the Installation page and the editor; the `tuning` table and `vehicle.tuning_*` columns are kept but unused).
 - **Photo Log**: area tabs, slots with upload, caption, "Proves" select (criteria list), add slot, drag to reorder; craftsmanship close-ups (3 per category).
-- **Vehicle & Story** also edits partner logos (name, logo, optional link).
+- **Vehicle & Story** also edits partner logos (name, logo, optional link, and the logo's position & size in its box: sliders with a live preview, stored in `partners.logo_layout`).
 - Photo positioning: every cropped photo has a **crop focus** (click the important point; stored as `#fp=x,y` on the photo path, applied as `object-position`). The hero car photo has its own **position & size** per screen (desktop / phone; drag or sliders with a live preview), stored in `vehicle.car_photo_layout`.
 - Public pages show a pencil on each editable section for signed-in editors (Edit mode bar can hide them); a pencil deep-links to the editor field.
 - **Bonus Requests**: table (code, name, group, element A–D, strength badge, photo, Submit, Edit) + drawer. "New request" offers a location picker (61-spot catalogue) or free text, element, strength, description, photo. Counter "Submitted n / max" with a warning above the class limit.
