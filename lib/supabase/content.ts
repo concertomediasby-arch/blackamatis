@@ -10,7 +10,7 @@ export const CONTENT_TABLES: { key: ListKey; table: string; order?: string }[] =
   { key: "competitions", table: "competitions", order: "date" },
   { key: "components", table: "components", order: "sort" },
   { key: "wiring", table: "wiring_links" },
-  { key: "tuning", table: "tuning" },
+  { key: "tuning", table: "tuning", order: "sort" },
   { key: "photos", table: "photos", order: "sort" },
   { key: "craft", table: "craft_photos", order: "sort" },
   { key: "bonus", table: "bonus_requests", order: "sort" },
@@ -19,6 +19,7 @@ export const CONTENT_TABLES: { key: ListKey; table: string; order?: string }[] =
   { key: "partners", table: "partners", order: "sort" },
   { key: "beforeAfter", table: "before_after" },
   { key: "zones", table: "theme_zones", order: "sort" },
+  { key: "moodboard", table: "moodboard_items", order: "sort" },
 ];
 
 /** Columns the public may read; `strength` on bonus requests is editor-only. */
@@ -31,6 +32,11 @@ const NO_STATUS = new Set(["judge_evidence"]);
 
 export class ContentError extends Error {}
 
+/** Empty database columns fall back to the placeholder value instead of showing "null". */
+function withoutNulls<T extends object>(row: T): Partial<T> {
+  return Object.fromEntries(Object.entries(row).filter(([, v]) => v !== null)) as Partial<T>;
+}
+
 /**
  * Published content for public pages (anon key + RLS). A table with no published
  * rows falls back to the placeholder content; a network or permission error throws.
@@ -40,7 +46,7 @@ export async function fetchPublishedContent(db: SupabaseClient): Promise<SiteCon
 
   const vehicle = await db.from("vehicle").select("*").eq("status", "published").limit(1).maybeSingle();
   if (vehicle.error) throw new ContentError(vehicle.error.message);
-  if (vehicle.data) out.vehicle = { ...PLACEHOLDER.vehicle, ...vehicle.data };
+  if (vehicle.data) out.vehicle = { ...PLACEHOLDER.vehicle, ...withoutNulls(vehicle.data) };
 
   await Promise.all(
     CONTENT_TABLES.map(async ({ key, table, order }) => {
@@ -63,7 +69,7 @@ export async function fetchEditorContent(db: SupabaseClient): Promise<SiteConten
   const out: SiteContent = { ...PLACEHOLDER, evidence: [] };
   const v = await db.from("vehicle").select("*").order("updated_at", { ascending: false }).limit(1).maybeSingle();
   if (v.error) throw new ContentError(v.error.message);
-  if (v.data) out.vehicle = { ...PLACEHOLDER.vehicle, ...v.data };
+  if (v.data) out.vehicle = { ...PLACEHOLDER.vehicle, ...withoutNulls(v.data) };
   await Promise.all(
     CONTENT_TABLES.map(async ({ key, table, order }) => {
       let q = db.from(table).select("*");

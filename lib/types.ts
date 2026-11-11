@@ -25,6 +25,10 @@ export type Vehicle = {
   instagram: string;
   website: string;
   car_photo_path: string | null;
+  /** Tuning notes shown on the Installation page. */
+  tuning_eq: string;
+  tuning_listening: string;
+  tuning_measurement: string;
   updated_at: string | null;
 };
 
@@ -96,6 +100,7 @@ export type TuningRow = {
   slope_db: string;
   time_align_ms: string;
   eq_bands: string;
+  sort: number;
 };
 
 export const PHOTO_AREAS = [
@@ -189,11 +194,20 @@ export type BeforeAfter = {
 };
 
 export type ThemeZone = {
+  id: string;
+  sort: number;
   key: "exterior" | "interior" | "trunk";
   name: string;
   criterion: string;
   photo_path: string | null;
   elements: string[];
+};
+
+export type MoodItem = {
+  id: string;
+  caption: string;
+  path: string | null;
+  sort: number;
 };
 
 export type SiteContent = {
@@ -211,4 +225,5 @@ export type SiteContent = {
   partners: Partner[];
   beforeAfter: BeforeAfter[];
   zones: ThemeZone[];
+  moodboard: MoodItem[];
 };

@@ -6,10 +6,17 @@ import { Placeholder } from "@/components/ui/Placeholder";
 import { EditPencil } from "@/components/public/EditMode";
 
 
+/** First image large; if an odd number of small ones remains, the last spans two columns. */
+function moodSpan(i: number, n: number) {
+  if (i === 0) return "col-span-2 row-span-2";
+  return (n - 1) % 2 === 1 && i === n - 1 && n > 1 ? "col-span-2" : "";
+}
+
 export function ThemeView() {
   const state = useSiteContent();
   if (state.status !== "ready") return <ContentFallback state={state} />;
   const c = state.content;
+  const mood = [...c.moodboard].sort((a, b) => a.sort - b.sort);
   const v = c.vehicle;
   return (
     <>
@@ -41,7 +48,8 @@ export function ThemeView() {
         </GlassPanel>
       </section>
 
-      <section id="zones" aria-labelledby="zones-title">
+      <section id="zones" aria-labelledby="zones-title" className="relative">
+        <EditPencil href="/editor/theme/#zones" label="Theme zones" className="right-5 top-20 sm:right-10" />
         <div className="mx-auto flex max-w-[1280px] flex-col gap-4 px-5 pb-12 pt-24 sm:px-10">
           <h2 id="zones-title" className="display m-0 text-5xl font-extrabold">
             The theme in every zone
@@ -69,17 +77,19 @@ export function ThemeView() {
       </section>
 
       <section aria-labelledby="moodboard" className="mx-3 sm:mx-6 lg:mx-10">
-        <GlassPanel tone="light" className="rounded-[36px]">
+        <GlassPanel tone="light" className="relative rounded-[36px]">
+          <EditPencil href="/editor/theme/#moodboard" label="Sketches and moodboard" className="right-5 top-5" tone="light" />
           <div className="mx-auto flex max-w-[1280px] flex-col gap-8 px-5 py-20 sm:px-12">
             <h2 id="moodboard" className="display m-0 text-5xl font-extrabold">
               Sketches &amp; moodboard
             </h2>
-            <div className="grid auto-rows-[180px] grid-cols-2 gap-4 md:grid-cols-4">
-              <Placeholder label="Concept sketch" tone="light" className="col-span-2 row-span-2 rounded-2xl" />
-              <Placeholder label="Reference" tone="light" className="rounded-2xl" />
-              <Placeholder label="Reference" tone="light" className="rounded-2xl" />
-              <Placeholder label="Render / mockup" tone="light" className="col-span-2 rounded-2xl" />
-            </div>
+            <ul className="m-0 grid list-none auto-rows-[180px] grid-cols-2 gap-4 p-0 md:grid-cols-4">
+              {mood.map((m, i) => (
+                <li key={m.id} className={moodSpan(i, mood.length)}>
+                  <Placeholder path={m.path} label={m.caption || "Moodboard image"} alt={m.caption} tone="light" className="h-full rounded-2xl" sizes="(max-width: 768px) 100vw, 50vw" />
+                </li>
+              ))}
+            </ul>
           </div>
         </GlassPanel>
       </section>
