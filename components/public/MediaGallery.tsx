@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useSwipe } from "@/lib/use-swipe";
 import { Placeholder } from "@/components/ui/Placeholder";
 import type { BonusMedia } from "@/lib/types";
 import { PlayIcon, VideoPlayer, VideoStill } from "./MediaPlayer";
@@ -34,6 +35,8 @@ export function MediaGallery({
     (d: -1 | 1) => setOpen((i) => (i == null ? i : (i + d + n) % n)),
     [n],
   );
+  // Swipe the open photo (or drag with the mouse) to the next / previous one.
+  const swipe = useSwipe(() => go(1), () => go(-1), n > 1);
 
   useEffect(() => {
     if (open == null) return;
@@ -144,7 +147,7 @@ export function MediaGallery({
                 ✕
               </button>
             </div>
-            <div className="relative w-full max-w-[1200px]">
+            <div className="relative w-full max-w-[1200px] select-none" {...swipe}>
               {cur.kind === "photo" ? (
                 <Placeholder
                   path={cur.path?.split("#")[0] ?? null}
