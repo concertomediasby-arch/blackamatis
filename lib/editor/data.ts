@@ -131,6 +131,8 @@ export async function saveDraft(session: EditorSession, content: SiteContent, ke
                 // A request without a strength loads as "" (empty text columns are filled); store it as null.
                 strength: (r as { strength?: string | null }).strength || null,
               }
+            : table === "theme_zones"
+              ? { media: normalizeMedia((r as { media?: unknown }).media) }
             : table === "circuits"
               ? (({ id: _i, sort: _s, ...c }) => (void _i, void _s, c))(normalizeCircuit(r as Circuit))
               : {}),

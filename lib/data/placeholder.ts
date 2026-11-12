@@ -283,9 +283,9 @@ export const PLACEHOLDER: SiteContent = {
     { id: id("ba"), view: "trunk", before_path: null, after_path: null },
   ],
   zones: [
-    { id: id("z"), sort: 1, key: "exterior", name: "Exterior", criterion: "Overall design of vehicle", photo_path: null, elements: ["[Theme element 1]", "[Theme element 2]", "[Theme element 3]"] },
-    { id: id("z"), sort: 2, key: "interior", name: "Interior", criterion: "Design of interior", photo_path: null, elements: ["[Theme element 1]", "[Theme element 2]", "[Theme element 3]"] },
-    { id: id("z"), sort: 3, key: "trunk", name: "Trunk", criterion: "Design of trunk", photo_path: null, elements: ["[Theme element 1]", "[Theme element 2]", "[Theme element 3]"] },
+    { id: id("z"), sort: 1, key: "exterior", name: "Exterior", criterion: "Overall design of vehicle", photo_path: null, media: [], elements: ["[Theme element 1]", "[Theme element 2]", "[Theme element 3]"] },
+    { id: id("z"), sort: 2, key: "interior", name: "Interior", criterion: "Design of interior", photo_path: null, media: [], elements: ["[Theme element 1]", "[Theme element 2]", "[Theme element 3]"] },
+    { id: id("z"), sort: 3, key: "trunk", name: "Trunk", criterion: "Design of trunk", photo_path: null, media: [], elements: ["[Theme element 1]", "[Theme element 2]", "[Theme element 3]"] },
   ],
   circuits: [],
   moodboard: ["Concept sketch", "Reference", "Reference", "Render / mockup"].map((caption, i) => ({ id: id("mb"), caption, path: null, sort: i + 1 })),

@@ -15,17 +15,20 @@ export function VideoPlayer({
   m,
   title,
   autoPlay = false,
+  muted = false,
 }: {
   m: BonusMedia;
   title: string;
   autoPlay?: boolean;
+  /** Start without sound (visitors can turn it on). */
+  muted?: boolean;
 }) {
   const yt = youtubeId(m.url);
   const file = storageUrl(m.path);
   if (yt)
     return (
       <iframe
-        src={`https://www.youtube-nocookie.com/embed/${yt}${autoPlay ? "?autoplay=1" : ""}`}
+        src={`https://www.youtube-nocookie.com/embed/${yt}${[autoPlay && "autoplay=1", muted && "mute=1"].filter(Boolean).length ? `?${[autoPlay && "autoplay=1", muted && "mute=1"].filter(Boolean).join("&")}` : ""}`}
         title={title}
         loading="lazy"
         allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen"
@@ -38,6 +41,10 @@ export function VideoPlayer({
       <video
         src={file}
         controls
+        muted={muted}
+        ref={(el) => {
+          if (el && muted) el.muted = el.defaultMuted = true;
+        }}
         playsInline
         autoPlay={autoPlay}
         preload="metadata"
