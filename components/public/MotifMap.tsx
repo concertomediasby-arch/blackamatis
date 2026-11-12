@@ -67,7 +67,7 @@ export function MotifMap({
               aria-label={d === "prev" ? "Previous photo" : "Next photo"}
               disabled={d === "prev" ? shown === 0 : shown === count - 1}
               onClick={() => setShown((x) => x + (d === "prev" ? -1 : 1))}
-              className={`absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/25 bg-black/45 text-ink backdrop-blur-md hover:bg-black/65 disabled:pointer-events-none disabled:opacity-0 ${d === "prev" ? "left-3" : "right-3"}`}
+              className={`absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-black/15 text-ink opacity-50 backdrop-blur-sm hover:bg-black/45 hover:opacity-100 focus-visible:opacity-100 disabled:pointer-events-none disabled:opacity-0 ${d === "prev" ? "left-3" : "right-3"}`}
             >
               <span aria-hidden="true">{d === "prev" ? "←" : "→"}</span>
             </button>

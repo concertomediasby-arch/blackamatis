@@ -93,7 +93,7 @@ export function Carousel<T extends Slide>({
 
   const arrow =
     variant === "framed"
-      ? "border-white/25 bg-black/45 hover:bg-black/65"
+      ? "border-white/10 bg-black/15 opacity-50 hover:bg-black/45 hover:opacity-100 focus-visible:opacity-100"
       : "border-white/20 bg-[rgba(1,20,53,0.55)] hover:bg-[rgba(1,20,53,0.8)]";
 
   return (
