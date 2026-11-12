@@ -1,5 +1,7 @@
 "use client";
 
+import { PageHeader } from "@/components/public/PageHeader";
+import { pageLayoutOf } from "@/lib/page-layout";
 import {
   ContentFallback,
   useSiteContent,
@@ -109,23 +111,16 @@ export function InstallationView() {
 
   return (
     <>
-      <section className="px-8 sm:px-[72px] lg:px-[88px] grid grid-cols-1 items-end gap-12 pb-16 pt-24 md:grid-cols-2">
-        <div className="flex flex-col gap-4">
-          <span className="eyebrow text-amber">03 — Installation</span>
-          <h1
-            className="display m-0 font-black"
-            style={{ fontSize: "clamp(64px, 9vw, 128px)", lineHeight: 0.85 }}
-          >
-            Behind
-            <br />
-            the panels.
-          </h1>
-        </div>
-        <p className="m-0 max-w-[620px] text-lg leading-[1.7] text-muted md:justify-self-end">
-          Signal flow, power and fuses, and photo evidence for every judge book
-          criterion. Click any product in a diagram to see its spec sheet.
-        </p>
-      </section>
+      <PageHeader
+        page="installation"
+        layout={pageLayoutOf(c.vehicle, "installation")}
+      >
+        <EditPencil
+          href="/editor/vehicle/#page-layouts"
+          label="Page layout"
+          className="right-5 top-20 sm:right-10"
+        />
+      </PageHeader>
 
       <section
         aria-labelledby="system-diagram"

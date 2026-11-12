@@ -3,27 +3,23 @@
 import { Card, PageTitle, TextField, btn } from "@/components/editor/Field";
 import { RowActions } from "@/components/editor/RowActions";
 import { UploadZone } from "@/components/editor/UploadZone";
-import { moveItem, newId, useList } from "@/components/editor/useList";
-import { fieldErrors, moodSchema, zoneSchema } from "@/lib/editor/schemas";
+import { useList } from "@/components/editor/useList";
+import { fieldErrors, zoneSchema } from "@/lib/editor/schemas";
 import {
   MotifsEditor,
   TwoSidesEditor,
 } from "@/components/editor/sections/ThemeExtrasEditor";
 
 const MAX_ELEMENTS = 8;
-const MAX_MOOD = 8;
 
 export default function ThemeEditorPage() {
   const zones = useList("zones");
-  const mood = useList("moodboard");
-  const moodSorted = [...mood.items].sort((a, b) => a.sort - b.sort);
 
   return (
     <div className="flex flex-col gap-6">
       <PageTitle title="Theme">
-        The two sides, the motifs and their meaning, the theme in every zone and
-        the sketches behind it. The side names and descriptions are edited in
-        Vehicle &amp; Story.
+        The two sides, the motifs and their meaning, and the theme in every
+        zone. The side names and descriptions are edited in Vehicle &amp; Story.
       </PageTitle>
 
       <TwoSidesEditor />
@@ -117,72 +113,6 @@ export default function ThemeEditorPage() {
             );
           })}
         </div>
-      </Card>
-
-      <Card
-        title="Sketches & moodboard"
-        id="moodboard"
-        actions={
-          <button
-            type="button"
-            className={btn.secondary}
-            disabled={mood.items.length >= MAX_MOOD}
-            onClick={() =>
-              mood.setItems((xs) => [
-                ...xs,
-                { id: newId(), caption: "", path: null, sort: xs.length + 1 },
-              ])
-            }
-          >
-            + Add image
-          </button>
-        }
-      >
-        <p className="m-0 text-sm text-[#4a4852]">
-          The first image is shown large on the Theme page. Up to {MAX_MOOD}{" "}
-          images.
-        </p>
-        <ol className="m-0 grid list-none grid-cols-1 gap-4 p-0 lg:grid-cols-2">
-          {moodSorted.map((m, i) => {
-            const e = fieldErrors(moodSchema, m);
-            return (
-              <li
-                key={m.id}
-                className="flex flex-col gap-3 rounded-xl border border-editor-border p-4"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-bold">
-                    {i === 0 ? "Image 1 · large" : `Image ${i + 1}`}
-                  </span>
-                  <RowActions
-                    index={i}
-                    count={moodSorted.length}
-                    label={`image ${i + 1}`}
-                    onMove={(to) =>
-                      mood.setItems(() => moveItem(moodSorted, i, to))
-                    }
-                    onRemove={() => mood.remove(m.id)}
-                  />
-                </div>
-                <UploadZone
-                  label="Sketch, reference or render"
-                  kind="photo"
-                  folder="moodboard"
-                  value={m.path}
-                  onChange={(p) => mood.patch(m.id, { path: p })}
-                />
-                <TextField
-                  label="Caption"
-                  value={m.caption}
-                  onChange={(ev) =>
-                    mood.patch(m.id, { caption: ev.target.value })
-                  }
-                  error={e.caption}
-                />
-              </li>
-            );
-          })}
-        </ol>
       </Card>
     </div>
   );

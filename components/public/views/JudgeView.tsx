@@ -1,5 +1,8 @@
 "use client";
 
+import { PageHeader } from "@/components/public/PageHeader";
+import { pageLayoutOf } from "@/lib/page-layout";
+import { EditPencil } from "@/components/public/EditMode";
 import {
   ContentFallback,
   useSiteContent,
@@ -16,24 +19,13 @@ export function JudgeView() {
   ) as Partial<Record<CriterionKey, boolean>>;
   return (
     <>
-      <section className="px-8 sm:px-[72px] lg:px-[88px] grid grid-cols-1 items-end gap-12 pb-16 pt-24 md:grid-cols-2">
-        <div className="flex flex-col gap-4">
-          <span className="eyebrow text-amber">05 — Judge Mode</span>
-          <h1
-            className="display m-0 font-black"
-            style={{ fontSize: "clamp(64px, 9vw, 128px)", lineHeight: 0.85 }}
-          >
-            Every criterion.
-            <br />
-            Every proof.
-          </h1>
-        </div>
-        <p className="m-0 max-w-[620px] text-lg leading-[1.7] text-muted md:justify-self-end">
-          A quick reference for the judges. Each criterion from the EMMA Install
-          Judge Book 2026 is linked to the evidence for Black Amatis, so it can
-          be checked without removing a single panel.
-        </p>
-      </section>
+      <PageHeader page="judge" layout={pageLayoutOf(c.vehicle, "judge")}>
+        <EditPencil
+          href="/editor/vehicle/#page-layouts"
+          label="Page layout"
+          className="right-5 top-20 sm:right-10"
+        />
+      </PageHeader>
       <JudgeBoard initialClass={c.vehicle.class} ready={ready} content={c} />
     </>
   );

@@ -4,7 +4,8 @@ import {
   ContentFallback,
   useSiteContent,
 } from "@/components/public/ContentProvider";
-import { HistoryHeader } from "@/components/public/HistoryHeader";
+import { PageHeader } from "@/components/public/PageHeader";
+import { pageLayoutOf } from "@/lib/page-layout";
 import { MediaGallery } from "@/components/public/MediaGallery";
 import { PhotoSlider } from "@/components/public/PhotoSlider";
 import { normalizeMedia } from "@/lib/bonus-media";
@@ -16,13 +17,17 @@ export function HistoryView() {
   const c = state.content;
   return (
     <>
-      <HistoryHeader story={c.vehicle.story} layout={c.vehicle.history_layout}>
+      <PageHeader
+        page="history"
+        text={c.vehicle.story}
+        layout={pageLayoutOf(c.vehicle, "history")}
+      >
         <EditPencil
           href="/editor/vehicle/#f-story"
           label="History summary"
           className="right-5 top-20 sm:right-10"
         />
-      </HistoryHeader>
+      </PageHeader>
       <section
         aria-label="The car"
         className="relative px-3 pb-24 sm:px-6 lg:px-10"

@@ -132,22 +132,25 @@ Calm and functional, not glass: surface `#F4F2EC`, cards white with `#D9D6CC` bo
 
 ## Public pages
 
+**Page layouts** (editor › Vehicle & Story › Page layouts, one tab per page): History, Installation, Bonus Point and Judge Mode share one `PageHeader` (eyebrow, two-line headline, intro text) whose placement the team sets per page: text beside / under the headline, block left / centre / spread, top / bottom line-up, gap, text width and page margin, with a live preview at 1440 px and Reset to the page default. Phones always stack. History is stored in `vehicle.history_layout`, the others in `vehicle.page_layouts` (`{installation, bonus, judge}`). Defaults: History left; the others spread (headline left, text right), as before. Home (landing hero) and Theme (two-face cards) have their own layouts.
+
 Shared: floating glass header (wordmark, nav: History · Theme · Installation · Bonus Point · Judge Mode, `EMMA 2026 · [CATEGORY]` pill), glass footer with prev/next links. Fluid layout, max-width ~1280–1360px, works at 360px wide.
 
 ### Home `/`
 - **Hero** (landing page, one screen tall): the word **AMATIS** large and faint behind everything; the cut-out car photo (transparent PNG; silhouette until uploaded) on the right, swipeable when there are more (`vehicle.hero_photos` after `car_photo_path`, same position & size; buttons, dots and counter under the car); bottom left the label `EMMA 2026 · <class>`, headline "One car. Two faces.", short copy and the CTA "Explore the build" (to the ways in); bottom right a card "For judges · Check the install" (system diagram thumbnail, to Judge Mode); section dots and a vertical "Scroll to explore" on the right edge. The hero keeps both palettes in code but shows the dark face (no face or category switch on the page).
 - **Ways in**, right under the hero: "For visitors · See the build" (lemon: Theme, Bonus Point, History) and "For judges · Check the install" (dark: Judge Mode, Power & fuses, Photo log).
-- Vehicle data strip (Car, Year, EMMA category, Owner, Installer), project statement, **Team & partners** (4 people + 6 partner logos), footer with `id="contact"`.
+- The hero text is editable in **editor › Vehicle & Story › Landing page** (`vehicle.home` jsonb: eyebrow, headline with one line per line break, short copy, button text; empty = default, eyebrow default `EMMA 2026 · <class>`), which also turns the vehicle data strip on or off.
+- Vehicle data strip (Car, Year, EMMA category, Owner, Installer; empty fields are hidden, a category that only repeats the class name shows once), project statement, **Team & partners** (4 people + 6 partner logos), footer with `id="contact"`.
 
 ### History `/history`
 - No before/after slider (removed on purpose; the `before_after` table is kept but unused).
-- The headline and story are placed by **History layout** (editor › Vehicle & Story; `vehicle.history_layout` jsonb: story beside / under the headline, block left / centre / spread, top / bottom line-up, gap, story width, page margin; live preview at 1440 px; phones always stack). The headline, the story (`vehicle.story`, one paragraph per line) and a swipeable slider under it (`vehicle.history_photos` jsonb; each slide a photo or a video: uploaded file or YouTube link, each with crop focus and an optional caption; swipe, drag, ← → buttons, dots and arrow keys; placeholder until uploaded). Photos show whole (contain, 16:9 frame, 4:3 on phones, max 78vh); each has **Position & size** (sliders with live preview, stored as `layout` on the photo item). Under the slider, a **gallery of square tiles** (`vehicle.history_gallery` jsonb, photos or videos with optional caption) filling the row edge to edge (2 per row on phones, 3 on tablets, 6 on wide screens); a tile opens a lightbox (previous / next, Esc). No build timeline and no competition history (both removed on purpose; the `milestones` and `competitions` tables are kept but unused).
+- The headline and story are placed by **Page layouts › History** (see *Page layouts* below; stored in `vehicle.history_layout`). The headline, the story (`vehicle.story`, one paragraph per line) and a swipeable slider under it (`vehicle.history_photos` jsonb; each slide a photo or a video: uploaded file or YouTube link, each with crop focus and an optional caption; swipe, drag, ← → buttons, dots and arrow keys; placeholder until uploaded). Photos show whole (contain, 16:9 frame, 4:3 on phones, max 78vh); each has **Position & size** (sliders with live preview, stored as `layout` on the photo item). Under the slider, a **gallery of square tiles** (`vehicle.history_gallery` jsonb, photos or videos with optional caption) filling the row edge to edge (2 per row on phones, 3 on tablets, 6 on wide screens); a tile opens a lightbox (previous / next, Esc). No build timeline and no competition history (both removed on purpose; the `milestones` and `competitions` tables are kept but unused).
 
 ### Theme `/theme`
 - Two-face split hero (dark glass + lemon glass cards): per side the name, description, up to 5 short points (`vehicle.dark_side_points` / `light_side_points`) and a photo (`dark_side_photo_path` / `light_side_photo_path`).
-- **Motifs & meaning**: one car photo (`vehicle.motif_photo_path`) with numbered points (`vehicle.motifs` jsonb: title, meaning, x/y in %); a point or its list row opens the motif's meaning. Text comes from the team only.
+- **Motifs & meaning**: one car photo (`vehicle.motif_photo_path`) with numbered points (`vehicle.motifs` jsonb: title, meaning, x/y in %); a point or its list row opens the motif's meaning. Text comes from the team only. The section is hidden until at least one motif has a name or a meaning.
 - "The theme in every zone": Exterior / Interior / Trunk cards mapped to judge criteria *Overall design*, *Design of interior*, *Design of trunk*.
-- Sketches & moodboard grid.
+- No sketches & moodboard grid (removed on purpose; the `moodboard_items` table is kept but unused).
 - No palette/material section (removed on purpose).
 
 ### Installation `/installation`
@@ -236,7 +239,7 @@ Other rules used in the UI: main fuse ≤ 40 cm from each positive battery post;
 
 ```
 vehicle(id, name, model, year, category, class, event, dark_side_name, light_side_name, car_photo_path, car_photo_layout jsonb,
-        history_photos jsonb, history_gallery jsonb, history_layout jsonb, hero_photos jsonb, dark_side_photo_path, light_side_photo_path, dark_side_points jsonb,
+        history_photos jsonb, history_gallery jsonb, history_layout jsonb, page_layouts jsonb, home jsonb, hero_photos jsonb, dark_side_photo_path, light_side_photo_path, dark_side_points jsonb,
         light_side_points jsonb, motif_photo_path, motifs jsonb,
         statement, owner, installer, designer, tuner, instagram, website, updated_at)
 milestones(id, when_label, title, body, photo_path, sort)
@@ -268,7 +271,7 @@ Login: passwordless one-time code by email (Supabase email OTP, `shouldCreateUse
 - **Vehicle & Story**: vehicle fields, category/class selects, dark/light side names, statement (≤ 80 words, counter), team & links (no timeline: removed on purpose).
 - **Components**: list on the left (select, add, reorder), form on the right: brand, model, type-specific spec fields, photo upload (transparent PNG), PDF upload, "Show in System / Wiring diagram" checkboxes; wiring link editor for cable size and fuse per link with an inline warning when the fuse exceeds the VW75212 table for that cable.
 - No History section in the editor: the History page shows only the story, edited in Vehicle & Story.
-- **Theme**: two sides (photo + up to 5 points each); motifs (photo, motifs with meaning, click the photo to place each number); theme zones (name, photo, up to 8 theme elements each); sketches & moodboard (up to 8 images, first one large).
+- **Theme**: two sides (photo + up to 5 points each); motifs (photo, motifs with meaning, click the photo to place each number); theme zones (name, photo, up to 8 theme elements each). No moodboard (removed on purpose).
 - No tuning section (removed on purpose from the Installation page and the editor; the `tuning` table and `vehicle.tuning_*` columns are kept but unused).
 - **Photo Log**: area tabs, slots with upload, caption, "Proves" select (criteria list), add slot, drag to reorder; craftsmanship close-ups (3 per category).
 - **Vehicle & Story** also edits partner logos (name, logo, optional link, and the logo's position & size in its box: sliders with a live preview, stored in `partners.logo_layout`).

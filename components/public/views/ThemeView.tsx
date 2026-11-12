@@ -10,12 +10,6 @@ import { EditPencil } from "@/components/public/EditMode";
 import { MotifMap } from "@/components/public/MotifMap";
 import { normalizeMotifs, normalizePoints } from "@/lib/theme";
 
-/** First image large; if an odd number of small ones remains, the last spans two columns. */
-function moodSpan(i: number, n: number) {
-  if (i === 0) return "col-span-2 row-span-2";
-  return (n - 1) % 2 === 1 && i === n - 1 && n > 1 ? "col-span-2" : "";
-}
-
 /** Short points under a side's description. */
 function SidePoints({
   points,
@@ -47,8 +41,8 @@ export function ThemeView() {
   const state = useSiteContent();
   if (state.status !== "ready") return <ContentFallback state={state} />;
   const c = state.content;
-  const mood = [...c.moodboard].sort((a, b) => a.sort - b.sort);
   const v = c.vehicle;
+  const motifs = normalizeMotifs(v.motifs);
   return (
     <>
       <section
@@ -129,36 +123,36 @@ export function ThemeView() {
         </GlassPanel>
       </section>
 
-      <section
-        id="motifs"
-        aria-labelledby="motifs-title"
-        className="relative px-3 pt-16 sm:px-6 lg:px-10"
-      >
-        <GlassPanel className="relative flex flex-col gap-8 rounded-[36px] p-5 sm:p-12">
-          <EditPencil
-            href="/editor/theme/#motifs"
-            label="Motifs"
-            className="right-5 top-5"
-          />
-          <div className="flex max-w-[680px] flex-col gap-3">
-            <span className="eyebrow text-amber">Motifs &amp; meaning</span>
-            <h2
-              id="motifs-title"
-              className="display m-0 text-[clamp(40px,5vw,56px)] font-extrabold"
-            >
-              Every line has a reason
-            </h2>
-            <p className="m-0 leading-[1.7] text-muted">
-              Click a number on the car to see what the motif is and why it is
-              there.
-            </p>
-          </div>
-          <MotifMap
-            photo={v.motif_photo_path ?? null}
-            motifs={normalizeMotifs(v.motifs)}
-          />
-        </GlassPanel>
-      </section>
+      {/* Hidden until the team has written at least one motif (editor › Theme › Motifs). */}
+      {motifs.some((m) => m.title.trim() || m.meaning.trim()) && (
+        <section
+          id="motifs"
+          aria-labelledby="motifs-title"
+          className="relative px-3 pt-16 sm:px-6 lg:px-10"
+        >
+          <GlassPanel className="relative flex flex-col gap-8 rounded-[36px] p-5 sm:p-12">
+            <EditPencil
+              href="/editor/theme/#motifs"
+              label="Motifs"
+              className="right-5 top-5"
+            />
+            <div className="flex max-w-[680px] flex-col gap-3">
+              <span className="eyebrow text-amber">Motifs &amp; meaning</span>
+              <h2
+                id="motifs-title"
+                className="display m-0 text-[clamp(40px,5vw,56px)] font-extrabold"
+              >
+                Every line has a reason
+              </h2>
+              <p className="m-0 leading-[1.7] text-muted">
+                Click a number on the car to see what the motif is and why it is
+                there.
+              </p>
+            </div>
+            <MotifMap photo={v.motif_photo_path ?? null} motifs={motifs} />
+          </GlassPanel>
+        </section>
+      )}
 
       <section id="zones" aria-labelledby="zones-title" className="relative">
         <EditPencil
@@ -204,36 +198,6 @@ export function ThemeView() {
             </li>
           ))}
         </ul>
-      </section>
-
-      <section aria-labelledby="moodboard" className="mx-3 sm:mx-6 lg:mx-10">
-        <GlassPanel tone="light" className="relative rounded-[36px]">
-          <EditPencil
-            href="/editor/theme/#moodboard"
-            label="Sketches and moodboard"
-            className="right-5 top-5"
-            tone="light"
-          />
-          <div className="flex flex-col gap-8 px-5 py-20 sm:px-12">
-            <h2 id="moodboard" className="display m-0 text-5xl font-extrabold">
-              Sketches &amp; moodboard
-            </h2>
-            <ul className="m-0 grid list-none auto-rows-[180px] grid-cols-2 gap-4 p-0 md:grid-cols-4">
-              {mood.map((m, i) => (
-                <li key={m.id} className={moodSpan(i, mood.length)}>
-                  <Placeholder
-                    path={m.path}
-                    label={m.caption || "Moodboard image"}
-                    alt={m.caption}
-                    tone="light"
-                    className="h-full rounded-2xl"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
-                </li>
-              ))}
-            </ul>
-          </div>
-        </GlassPanel>
       </section>
     </>
   );
