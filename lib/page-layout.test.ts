@@ -67,6 +67,8 @@ describe("themeLayoutOf", () => {
             headline: 300,
             padding: 4,
             dark_photo: { scale: 130, x: 5 },
+            leading: 10,
+            tracking: 12,
           },
         },
       }),
@@ -78,6 +80,8 @@ describe("themeLayoutOf", () => {
       headline: 160,
       padding: 16,
       dark_photo: { x: 5, y: 0, scale: 130 },
+      leading: 70,
+      tracking: 12,
     });
     expect(
       themeLayoutOf({ page_layouts: { theme: { photo: "huge" } } }).photo,

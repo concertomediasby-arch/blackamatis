@@ -96,7 +96,8 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
   const k = layout.headline / 100;
   const headline = {
     fontSize: `clamp(${64 * k}px, ${8 * k}vw, ${120 * k}px)`,
-    lineHeight: 0.85,
+    lineHeight: layout.leading / 100,
+    letterSpacing: `${layout.tracking / 100}em`,
   };
   return (
     <section
@@ -106,6 +107,7 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
           "--tm": `${layout.margin}px`,
           "--tg": `${layout.gap}px`,
           "--tp": `${layout.padding}px`,
+          "--th": `${layout.spacing}px`,
         } as React.CSSProperties
       }
       className="grid grid-cols-1 gap-[var(--tg)] px-3 pt-8 sm:px-6 md:grid-cols-2 md:px-[var(--tm)]"
@@ -117,7 +119,7 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
           className="right-5 top-5"
         />
         <span className="eyebrow text-amber">02 — Theme</span>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-[var(--th)]">
           <span className="label text-amber">{v.dark_side_name}</span>
           <h1 id="two-face" className="display m-0 font-black" style={headline}>
             TWO
@@ -150,7 +152,7 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
           className="right-5 top-5"
           tone="light"
         />
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-[var(--th)]">
           <span className="label text-navy">{v.light_side_name}</span>
           <span
             aria-hidden="true"

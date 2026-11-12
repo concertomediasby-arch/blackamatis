@@ -104,11 +104,27 @@ function ThemeLayoutFields() {
       };
     });
   const sliders: {
-    k: "margin" | "gap" | "padding" | "headline";
+    k:
+      | "margin"
+      | "gap"
+      | "padding"
+      | "headline"
+      | "leading"
+      | "tracking"
+      | "spacing";
     label: string;
     unit: string;
+    step?: number;
   }[] = [
     { k: "headline", label: "Headline size", unit: "%" },
+    { k: "leading", label: "Headline line spacing", unit: "%", step: 1 },
+    { k: "tracking", label: "Headline letter spacing", unit: "", step: 1 },
+    {
+      k: "spacing",
+      label: "Space above & below the headline",
+      unit: "px",
+      step: 2,
+    },
     { k: "padding", label: "Space inside the cards", unit: "px" },
     { k: "margin", label: "Page margin (left / right)", unit: "px" },
     { k: "gap", label: "Space between the cards", unit: "px" },
@@ -144,14 +160,15 @@ function ThemeLayoutFields() {
                 type="range"
                 min={min}
                 max={max}
-                step={4}
+                step={x.step ?? 4}
                 value={t[x.k]}
                 onChange={(e) => set({ [x.k]: Number(e.target.value) })}
                 className="accent-prussian"
               />
               <span className="text-right font-mono text-[12px]">
-                {t[x.k]}
-                {x.unit === "%" ? "%" : " px"}
+                {x.k === "tracking"
+                  ? `${(t.tracking / 100).toFixed(2)} em`
+                  : `${t[x.k]}${x.unit === "%" ? "%" : " px"}`}
               </span>
             </label>
           );
@@ -235,10 +252,10 @@ export function PageLayoutsEditor() {
     <Card title="Page layouts" id="page-layouts">
       <p className="m-0 text-sm text-[#4a4852]">
         Where the headline and the intro text sit, set per page. For Theme:
-        headline size, space inside and between the two side cards, page margin,
-        photo height and each photo&apos;s position &amp; size. Settings apply
-        from tablet width; phones always stack. The preview shows a 1440 px wide
-        screen.
+        headline size and spacing, space inside and between the two side cards,
+        page margin, photo height and each photo&apos;s position &amp; size.
+        Settings apply from tablet width; phones always stack. The preview shows
+        a 1440 px wide screen.
       </p>
       <SegmentedTabs
         options={TABS}

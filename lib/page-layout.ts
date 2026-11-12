@@ -111,6 +111,12 @@ export type ThemeLayout = {
   photo: "large" | "medium" | "short";
   /** Size of the big headline in each card, % of the default. */
   headline: number;
+  /** Headline line spacing, % of the font size (85 = tight, as designed). */
+  leading: number;
+  /** Headline letter spacing, 1/100 em (0 = as designed). */
+  tracking: number;
+  /** Space above and below the headline, px. */
+  spacing: number;
   /** Space between the card's content and its edge, px (top and bottom a third more). */
   padding: number;
   /** Position & size of each side's photo in its frame. */
@@ -122,6 +128,9 @@ export const THEME_LAYOUT_LIMITS = {
   margin: [0, 200],
   gap: [8, 96],
   headline: [50, 160],
+  leading: [70, 140],
+  tracking: [-6, 30],
+  spacing: [0, 64],
   padding: [16, 96],
 } as const;
 
@@ -131,6 +140,9 @@ export const DEFAULT_THEME_LAYOUT: ThemeLayout = {
   gap: 20,
   photo: "large",
   headline: 100,
+  leading: 85,
+  tracking: 0,
+  spacing: 20,
   padding: 48,
   dark_photo: DEFAULT_HERO_LAYOUT,
   light_photo: DEFAULT_HERO_LAYOUT,
@@ -148,6 +160,9 @@ export function normalizeThemeLayout(v: unknown): ThemeLayout {
         ? o.photo
         : d.photo,
     headline: clamp(o.headline, THEME_LAYOUT_LIMITS.headline, d.headline),
+    leading: clamp(o.leading, THEME_LAYOUT_LIMITS.leading, d.leading),
+    tracking: clamp(o.tracking, THEME_LAYOUT_LIMITS.tracking, d.tracking),
+    spacing: clamp(o.spacing, THEME_LAYOUT_LIMITS.spacing, d.spacing),
     padding: clamp(o.padding, THEME_LAYOUT_LIMITS.padding, d.padding),
     dark_photo: normalizeLayout(o.dark_photo),
     light_photo: normalizeLayout(o.light_photo),
