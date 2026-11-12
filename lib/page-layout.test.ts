@@ -59,9 +59,26 @@ describe("themeLayoutOf", () => {
     expect(themeLayoutOf({})).toEqual(DEFAULT_THEME_LAYOUT);
     expect(
       themeLayoutOf({
-        page_layouts: { theme: { margin: 999, gap: 2, photo: "short" } },
+        page_layouts: {
+          theme: {
+            margin: 999,
+            gap: 2,
+            photo: "short",
+            headline: 300,
+            padding: 4,
+            dark_photo: { scale: 130, x: 5 },
+          },
+        },
       }),
-    ).toEqual({ margin: 200, gap: 8, photo: "short" });
+    ).toEqual({
+      ...DEFAULT_THEME_LAYOUT,
+      margin: 200,
+      gap: 8,
+      photo: "short",
+      headline: 160,
+      padding: 16,
+      dark_photo: { x: 5, y: 0, scale: 130 },
+    });
     expect(
       themeLayoutOf({ page_layouts: { theme: { photo: "huge" } } }).photo,
     ).toBe("large");

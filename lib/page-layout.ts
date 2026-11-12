@@ -1,3 +1,5 @@
+import { DEFAULT_HERO_LAYOUT, normalizeLayout, type HeroLayout } from "./photo";
+
 /**
  * How a page places its headline and intro text (editor › Vehicle & Story ›
  * Page layouts). History uses `vehicle.history_layout`; Installation, Bonus
@@ -107,15 +109,31 @@ export type ThemeLayout = {
   gap: number;
   /** Height of the photo in each card. */
   photo: "large" | "medium" | "short";
+  /** Size of the big headline in each card, % of the default. */
+  headline: number;
+  /** Space between the card's content and its edge, px (top and bottom a third more). */
+  padding: number;
+  /** Position & size of each side's photo in its frame. */
+  dark_photo: HeroLayout;
+  light_photo: HeroLayout;
 };
 
-export const THEME_LAYOUT_LIMITS = { margin: [0, 200], gap: [8, 96] } as const;
+export const THEME_LAYOUT_LIMITS = {
+  margin: [0, 200],
+  gap: [8, 96],
+  headline: [50, 160],
+  padding: [16, 96],
+} as const;
 
-/** The Theme page as it looked before: 40 px margin, 20 px between cards, 16:10 photos. */
+/** The Theme page as it looked before: 40 px margin, 20 px between cards, 16:10 photos, 48 px padding. */
 export const DEFAULT_THEME_LAYOUT: ThemeLayout = {
   margin: 40,
   gap: 20,
   photo: "large",
+  headline: 100,
+  padding: 48,
+  dark_photo: DEFAULT_HERO_LAYOUT,
+  light_photo: DEFAULT_HERO_LAYOUT,
 };
 
 /** Accepts anything from the database and returns a safe Theme layout. */
@@ -129,6 +147,10 @@ export function normalizeThemeLayout(v: unknown): ThemeLayout {
       o.photo === "medium" || o.photo === "short" || o.photo === "large"
         ? o.photo
         : d.photo,
+    headline: clamp(o.headline, THEME_LAYOUT_LIMITS.headline, d.headline),
+    padding: clamp(o.padding, THEME_LAYOUT_LIMITS.padding, d.padding),
+    dark_photo: normalizeLayout(o.dark_photo),
+    light_photo: normalizeLayout(o.light_photo),
   };
 }
 

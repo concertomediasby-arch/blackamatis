@@ -18,6 +18,7 @@ import {
 } from "@/lib/page-layout";
 import { useEditor } from "../EditorProvider";
 import { Card, btn } from "../Field";
+import { LayoutSliders } from "../LayoutSliders";
 
 /** The public page is designed at this width; the preview shows it scaled to fit the card. */
 const PAGE_WIDTH = 1440;
@@ -102,9 +103,15 @@ function ThemeLayoutFields() {
         },
       };
     });
-  const sliders: { k: "margin" | "gap"; label: string }[] = [
-    { k: "margin", label: "Page margin (left / right)" },
-    { k: "gap", label: "Space between the cards" },
+  const sliders: {
+    k: "margin" | "gap" | "padding" | "headline";
+    label: string;
+    unit: string;
+  }[] = [
+    { k: "headline", label: "Headline size", unit: "%" },
+    { k: "padding", label: "Space inside the cards", unit: "px" },
+    { k: "margin", label: "Page margin (left / right)", unit: "px" },
+    { k: "gap", label: "Space between the cards", unit: "px" },
   ];
   return (
     <>
@@ -143,18 +150,45 @@ function ThemeLayoutFields() {
                 className="accent-prussian"
               />
               <span className="text-right font-mono text-[12px]">
-                {t[x.k]} px
+                {t[x.k]}
+                {x.unit === "%" ? "%" : " px"}
               </span>
             </label>
           );
         })}
+      </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {(
+          [
+            ["dark_photo", "Dark side photo", v.dark_side_photo_path],
+            ["light_photo", "Light side photo", v.light_side_photo_path],
+          ] as const
+        ).map(([k, label, path]) =>
+          path ? (
+            <LayoutSliders
+              key={k}
+              label={`${label}: position & size`}
+              value={t[k]}
+              onChange={(l) => set({ [k]: l })}
+              preview={() => null}
+            />
+          ) : (
+            <p
+              key={k}
+              className="m-0 rounded-xl border border-dashed border-editor-border p-3 text-[13px] text-[#55535c]"
+            >
+              {label}: upload it in Editor › Theme › Two sides to set its
+              position &amp; size.
+            </p>
+          ),
+        )}
       </div>
       <button
         type="button"
         className={`${btn.secondary} self-start`}
         onClick={() => set(DEFAULT_THEME_LAYOUT)}
       >
-        Reset
+        Reset all Theme settings
       </button>
       <ScaledPreview label="Preview of the Theme page top">
         <ThemeSides v={v} layout={t} />
@@ -200,10 +234,11 @@ export function PageLayoutsEditor() {
   return (
     <Card title="Page layouts" id="page-layouts">
       <p className="m-0 text-sm text-[#4a4852]">
-        Where the headline and the intro text sit, set per page; for Theme, the
-        margin, the space between the two side cards and the photo height.
-        Settings apply from tablet width; phones always stack. The preview shows
-        a 1440 px wide screen.
+        Where the headline and the intro text sit, set per page. For Theme:
+        headline size, space inside and between the two side cards, page margin,
+        photo height and each photo&apos;s position &amp; size. Settings apply
+        from tablet width; phones always stack. The preview shows a 1440 px wide
+        screen.
       </p>
       <SegmentedTabs
         options={TABS}

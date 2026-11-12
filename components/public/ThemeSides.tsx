@@ -2,6 +2,7 @@ import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { EditPencil } from "@/components/public/EditMode";
 import type { ThemeLayout } from "@/lib/page-layout";
+import { heroTransform, type HeroLayout } from "@/lib/photo";
 import { normalizePoints } from "@/lib/theme";
 import type { Vehicle } from "@/lib/types";
 
@@ -39,12 +40,64 @@ function SidePoints({
   );
 }
 
+/** A side's photo in its frame, moved and scaled by the team's position & size (crop focus still applies). */
+function SidePhoto({
+  path,
+  label,
+  alt,
+  tone = "dark",
+  frame,
+  place,
+}: {
+  path: string | null;
+  label: string;
+  alt: string;
+  tone?: "dark" | "light";
+  frame: string;
+  place: HeroLayout;
+}) {
+  if (!path)
+    return (
+      <Placeholder
+        path={null}
+        label={label}
+        alt={alt}
+        tone={tone}
+        className={`${frame} w-full rounded-[24px] border`}
+      />
+    );
+  return (
+    <div
+      className={`${frame} relative w-full overflow-hidden rounded-[24px] border`}
+    >
+      <div
+        className="absolute inset-0"
+        style={{ transform: heroTransform(place) }}
+      >
+        <Placeholder
+          path={path}
+          label={label}
+          alt={alt}
+          tone={tone}
+          className="h-full w-full"
+          sizes="(max-width: 768px) 100vw, 50vw"
+        />
+      </div>
+    </div>
+  );
+}
+
 /**
  * The two-face cards at the top of the Theme page (dark side, light side).
- * Page margin, the space between the cards and the photo height come from
- * the team's Theme layout.
+ * Page margin, space between the cards, card padding, headline size, photo
+ * height and each photo's position & size come from the team's Theme layout.
  */
 export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
+  const k = layout.headline / 100;
+  const headline = {
+    fontSize: `clamp(${64 * k}px, ${8 * k}vw, ${120 * k}px)`,
+    lineHeight: 0.85,
+  };
   return (
     <section
       aria-labelledby="two-face"
@@ -52,11 +105,12 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
         {
           "--tm": `${layout.margin}px`,
           "--tg": `${layout.gap}px`,
+          "--tp": `${layout.padding}px`,
         } as React.CSSProperties
       }
       className="grid grid-cols-1 gap-[var(--tg)] px-3 pt-8 sm:px-6 md:grid-cols-2 md:px-[var(--tm)]"
     >
-      <GlassPanel className="relative flex flex-col gap-8 rounded-[36px] px-6 py-12 sm:px-12 sm:py-16">
+      <GlassPanel className="relative flex flex-col gap-8 rounded-[36px] px-6 py-12 sm:px-[var(--tp)] sm:py-[calc(var(--tp)*1.333)]">
         <EditPencil
           href="/editor/vehicle/#faces"
           label="Dark side"
@@ -65,11 +119,7 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
         <span className="eyebrow text-amber">02 — Theme</span>
         <div className="flex flex-col gap-5">
           <span className="label text-amber">{v.dark_side_name}</span>
-          <h1
-            id="two-face"
-            className="display m-0 font-black"
-            style={{ fontSize: "clamp(64px, 8vw, 120px)", lineHeight: 0.85 }}
-          >
+          <h1 id="two-face" className="display m-0 font-black" style={headline}>
             TWO
             <br />
             FACE
@@ -82,17 +132,17 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
             tone="dark"
           />
         </div>
-        <Placeholder
+        <SidePhoto
           path={v.dark_side_photo_path ?? null}
           label="Dark side photo"
           alt={`${v.dark_side_name}: the dark side of Black Amatis`}
-          className={`${PHOTO_ASPECT[layout.photo]} w-full rounded-[24px] border border-white/10`}
-          sizes="(max-width: 768px) 100vw, 50vw"
+          frame={`${PHOTO_ASPECT[layout.photo]} border-white/10`}
+          place={layout.dark_photo}
         />
       </GlassPanel>
       <GlassPanel
         tone="light"
-        className="relative flex flex-col justify-between gap-8 rounded-[36px] px-6 py-12 sm:px-12 sm:py-16"
+        className="relative flex flex-col justify-between gap-8 rounded-[36px] px-6 py-12 sm:px-[var(--tp)] sm:py-[calc(var(--tp)*1.333)]"
       >
         <EditPencil
           href="/editor/vehicle/#faces"
@@ -105,7 +155,7 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
           <span
             aria-hidden="true"
             className="display font-black"
-            style={{ fontSize: "clamp(64px, 8vw, 120px)", lineHeight: 0.85 }}
+            style={headline}
           >
             BLACK
             <br />
@@ -119,13 +169,13 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
             tone="light"
           />
         </div>
-        <Placeholder
+        <SidePhoto
           path={v.light_side_photo_path ?? null}
           label="Light side photo"
           alt={`${v.light_side_name}: the light side of Black Amatis`}
           tone="light"
-          className={`${PHOTO_ASPECT[layout.photo]} w-full rounded-[24px] border border-black/15`}
-          sizes="(max-width: 768px) 100vw, 50vw"
+          frame={`${PHOTO_ASPECT[layout.photo]} border-black/15`}
+          place={layout.light_photo}
         />
       </GlassPanel>
     </section>
