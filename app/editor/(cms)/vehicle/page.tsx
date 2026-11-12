@@ -224,17 +224,31 @@ export default function VehiclePage() {
         </div>
         <div id="f-history-photo">
           <MediaListEditor
-            label="History photos (slider)"
-            intro="Photos of the car under the story, shown as a slider visitors can swipe. Each photo shows whole in its frame; use Position & size to move or enlarge it. The caption is optional."
+            label="History slider (photos or videos)"
+            intro="Under the story, shown as a slider visitors can swipe. Each slide is a photo or a video (uploaded file or YouTube link). A photo shows whole in its frame; use Position & size to move or enlarge it. The caption is optional."
             folder="history"
             numbered={false}
-            photosOnly
             positionable
             value={normalizeMedia(v.history_photos)}
             onChange={(list) =>
               update((c) => ({
                 ...c,
                 vehicle: { ...c.vehicle, history_photos: list },
+              }))
+            }
+          />
+        </div>
+        <div id="f-history-gallery">
+          <MediaListEditor
+            label="History gallery (square tiles)"
+            intro="Square tiles under the slider, filling the row from left to right (2 per row on phones, up to 6 on wide screens). Photos or videos; a click opens them large. Set the crop focus so the square shows the right part. The caption is optional."
+            folder="history"
+            numbered={false}
+            value={normalizeMedia(v.history_gallery)}
+            onChange={(list) =>
+              update((c) => ({
+                ...c,
+                vehicle: { ...c.vehicle, history_gallery: list },
               }))
             }
           />

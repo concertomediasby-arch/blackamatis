@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { heroTransform, normalizeLayout } from "@/lib/photo";
+import { VideoPlayer } from "./MediaPlayer";
 import type { BonusMedia } from "@/lib/types";
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -287,7 +288,24 @@ export function FramedPhoto({
   );
 }
 
-/** Photo slider for the History page; one placeholder slide until photos are uploaded. */
+/** One slide: a photo (whole, with its position & size) or a video, in the slide frame. */
+export function FramedMedia({ m, alt }: { m: BonusMedia; alt: string }) {
+  if (m.kind === "photo")
+    return (
+      <FramedPhoto
+        photo={m}
+        alt={alt}
+        className="pointer-events-none select-none"
+      />
+    );
+  return (
+    <div className={`${SLIDE_FRAME} bg-black`}>
+      <VideoPlayer m={m} title={alt} />
+    </div>
+  );
+}
+
+/** Photo / video slider for the History page; one placeholder slide until something is uploaded. */
 export function PhotoSlider({
   photos,
   label,
@@ -303,10 +321,9 @@ export function PhotoSlider({
       slides={slides}
       label={label}
       renderSlide={(s, i) => (
-        <FramedPhoto
-          photo={s}
-          alt={s.caption || `Black Amatis, photo ${i + 1}`}
-          className="pointer-events-none select-none"
+        <FramedMedia
+          m={s}
+          alt={s.caption || `Black Amatis, ${s.kind} ${i + 1}`}
         />
       )}
     />
