@@ -261,6 +261,7 @@ export default function VehiclePage() {
             label="Owner"
             {...register("owner")}
             error={e.owner?.message}
+            hint="Leave empty to keep the owner's name off the site and the evidence pack."
           />
           <TextField
             label="Installer / workshop"

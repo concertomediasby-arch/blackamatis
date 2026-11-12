@@ -82,7 +82,8 @@ export function HomeView() {
     { k: "EMMA category", v: `${v.category} · ${CLASS_INFO[v.class].name}` },
     { k: "Owner", v: v.owner },
     { k: "Installer", v: v.installer },
-  ];
+    // A field left empty in the editor (e.g. an owner who prefers not to be named) is not shown.
+  ].filter((d) => (d.v ?? "").trim() !== "");
 
   return (
     <>
