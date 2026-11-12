@@ -98,3 +98,44 @@ export function pageLayoutOf(
         )[page];
   return normalizeHistoryLayout(saved, DEFAULT_PAGE_LAYOUTS[page]);
 }
+
+/** Theme page: the two-face cards (dark side, light side). Stored in `vehicle.page_layouts.theme`. */
+export type ThemeLayout = {
+  /** Left / right page margin on tablets and wider, px. */
+  margin: number;
+  /** Space between the two cards, px. */
+  gap: number;
+  /** Height of the photo in each card. */
+  photo: "large" | "medium" | "short";
+};
+
+export const THEME_LAYOUT_LIMITS = { margin: [0, 200], gap: [8, 96] } as const;
+
+/** The Theme page as it looked before: 40 px margin, 20 px between cards, 16:10 photos. */
+export const DEFAULT_THEME_LAYOUT: ThemeLayout = {
+  margin: 40,
+  gap: 20,
+  photo: "large",
+};
+
+/** Accepts anything from the database and returns a safe Theme layout. */
+export function normalizeThemeLayout(v: unknown): ThemeLayout {
+  const o = (v && typeof v === "object" ? v : {}) as Record<string, unknown>;
+  const d = DEFAULT_THEME_LAYOUT;
+  return {
+    margin: clamp(o.margin, THEME_LAYOUT_LIMITS.margin, d.margin),
+    gap: clamp(o.gap, THEME_LAYOUT_LIMITS.gap, d.gap),
+    photo:
+      o.photo === "medium" || o.photo === "short" || o.photo === "large"
+        ? o.photo
+        : d.photo,
+  };
+}
+
+/** The saved Theme layout, or the default. */
+export function themeLayoutOf(v: { page_layouts?: unknown }): ThemeLayout {
+  const all = (
+    v.page_layouts && typeof v.page_layouts === "object" ? v.page_layouts : {}
+  ) as Record<string, unknown>;
+  return normalizeThemeLayout(all.theme);
+}

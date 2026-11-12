@@ -3,7 +3,9 @@ import {
   DEFAULT_HISTORY_LAYOUT,
   DEFAULT_PAGE_LAYOUTS,
   normalizeHistoryLayout,
+  DEFAULT_THEME_LAYOUT,
   pageLayoutOf,
+  themeLayoutOf,
 } from "./page-layout";
 
 describe("normalizeHistoryLayout", () => {
@@ -49,5 +51,19 @@ describe("pageLayoutOf", () => {
     });
     expect(pageLayoutOf(v, "judge")).toEqual(DEFAULT_PAGE_LAYOUTS.judge);
     expect(pageLayoutOf({}, "installation").align).toBe("spread");
+  });
+});
+
+describe("themeLayoutOf", () => {
+  it("defaults to the current look and clamps saved values", () => {
+    expect(themeLayoutOf({})).toEqual(DEFAULT_THEME_LAYOUT);
+    expect(
+      themeLayoutOf({
+        page_layouts: { theme: { margin: 999, gap: 2, photo: "short" } },
+      }),
+    ).toEqual({ margin: 200, gap: 8, photo: "short" });
+    expect(
+      themeLayoutOf({ page_layouts: { theme: { photo: "huge" } } }).photo,
+    ).toBe("large");
   });
 });
