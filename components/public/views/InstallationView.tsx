@@ -152,6 +152,7 @@ export function InstallationView() {
             components={comps}
             field="hotspots"
             tabs={["System diagram", "Specs per product"]}
+            secondTab={false}
             idPrefix="signal"
             textList={{
               title: "Signal flow as a list",
