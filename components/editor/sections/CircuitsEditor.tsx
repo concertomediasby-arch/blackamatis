@@ -8,7 +8,7 @@ import { normalizeCircuit } from "@/lib/circuits";
 import { analyseChain, chainStatus } from "@/lib/emma/chain";
 import { spotFromDrag, type Hotspot } from "@/lib/photo";
 import { storageUrl } from "@/lib/supabase/env";
-import type { ChainItem, Circuit, SideCable } from "@/lib/types";
+import type { ChainItem, Circuit, PathPart, SideCable } from "@/lib/types";
 import { useEditor } from "../EditorProvider";
 import { Card, SelectField, TextField, btn } from "../Field";
 
@@ -181,22 +181,71 @@ function CablesEditor({ items, onChange, products }: { items: SideCable[]; onCha
   );
 }
 
-/** Drag boxes over the cable diagram for the selected circuit; other circuits' boxes are shown dashed. */
-function BoxMarker({ url, circuits, selected, onChange }: { url: string; circuits: Circuit[]; selected: Circuit; onChange: (spots: Hotspot[]) => void }) {
+const RUN_LABEL: Record<PathPart["run"], string> = { power: "+ Power", ground: "− Ground", both: "+ and −" };
+
+/**
+ * Drag boxes over the cable diagram for the selected circuit. "Device" boxes
+ * are where visitors click; "Parts" are what the circuit runs through (fuse
+ * holder, distribution, ground block, …): they light up with the device and
+ * are clickable too. Other circuits' boxes are shown dashed.
+ */
+function BoxMarker({
+  url,
+  circuits,
+  selected,
+  onDevice,
+  onParts,
+}: {
+  url: string;
+  circuits: Circuit[];
+  selected: Circuit;
+  onDevice: (spots: Hotspot[]) => void;
+  onParts: (parts: PathPart[]) => void;
+}) {
   const boxRef = useRef<HTMLDivElement>(null);
+  const [target, setTarget] = useState<"device" | "part">("device");
   const [draft, setDraft] = useState<{ a: { x: number; y: number }; b: { x: number; y: number } } | null>(null);
   const pt = (e: React.PointerEvent) => {
     const r = boxRef.current!.getBoundingClientRect();
     return { x: Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100)), y: Math.min(100, Math.max(0, ((e.clientY - r.top) / r.height) * 100)) };
   };
   const draftSpot = draft ? spotFromDrag(draft.a, draft.b) : null;
+  const addPart = (spot: Hotspot) => {
+    const isTrunk = selected.kind === "trunk";
+    const hasFuse = selected.parts.some((p) => p.run === "power");
+    const label = isTrunk ? "" : !hasFuse && selected.fuse_code ? `Fuse ${selected.fuse_code}` : hasFuse ? "Ground terminal" : "";
+    const run: PathPart["run"] = isTrunk ? "both" : hasFuse ? "ground" : "power";
+    onParts([...selected.parts, { ...spot, id: newId(), label, run }]);
+  };
+  const setPart = (id: string, p: Partial<PathPart>) => onParts(selected.parts.map((x) => (x.id === id ? { ...x, ...p } : x)));
+  const tag = (text: string, cls: string) => (
+    <span className={`absolute left-0 top-0 max-w-[160px] -translate-y-full truncate rounded px-1 text-[10px] font-semibold ${cls}`}>{text}</span>
+  );
+
   return (
     <div className="flex flex-col gap-2">
+      <SegmentedTabs
+        options={[
+          { key: "device", label: "Device (click area)" },
+          { key: "part", label: "Parts on the path" },
+        ]}
+        value={target}
+        onChange={setTarget}
+        label="What to mark"
+        tone="light"
+      />
+      <p className="m-0 text-[13px] text-[#55535c]">
+        {target === "device"
+          ? "Drag a box over the device itself (amplifier, speaker, …)."
+          : selected.kind === "trunk"
+            ? "Drag a box over each part of this main run: Battery +, main fuse, ultracap, VSS, fuse, distribution block, ground block. Name each one and say if it is on the + run, the − run or both."
+            : "Drag a box over this circuit's fuse holder on the distribution block, then over its terminal on the ground block. They light up together with the main run when the device is clicked."}
+      </p>
       <div className="rounded-xl bg-prussian p-3 sm:p-5">
         <div
           ref={boxRef}
           role="application"
-          aria-label={`Cable diagram. Drag to add a box for ${selected.name || "this circuit"}.`}
+          aria-label={`Cable diagram. Drag to add a ${target === "device" ? "device box" : "part"} for ${selected.name || "this circuit"}.`}
           className="relative cursor-crosshair touch-none select-none"
           onPointerDown={(e) => {
             (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -205,29 +254,37 @@ function BoxMarker({ url, circuits, selected, onChange }: { url: string; circuit
           }}
           onPointerMove={(e) => draft && setDraft({ ...draft, b: pt(e) })}
           onPointerUp={() => {
-            if (draftSpot) onChange([...selected.wiring_hotspots, draftSpot]);
+            if (draftSpot) {
+              if (target === "device") onDevice([...selected.wiring_hotspots, draftSpot]);
+              else addPart(draftSpot);
+            }
             setDraft(null);
           }}
         >
           <img src={url} alt="" draggable={false} className="block h-auto w-full rounded-lg" />
-          {circuits.flatMap((c) =>
-            c.wiring_hotspots.map((s, i) => {
-              const mine = c.id === selected.id;
-              return (
+          {circuits.flatMap((c) => {
+            const mine = c.id === selected.id;
+            return [
+              ...c.wiring_hotspots.map((s, i) => (
                 <div
-                  key={`${c.id}-${i}`}
-                  className={`pointer-events-none absolute rounded-md ${mine ? "border-2 border-amber bg-amber/25" : "border border-dashed border-white/70 bg-white/5"}`}
+                  key={`${c.id}-d${i}`}
+                  className={`pointer-events-none absolute rounded-md ${mine ? "border-2 border-amber bg-amber/25" : "border border-dashed border-white/50 bg-white/5"}`}
                   style={{ left: `${s.x}%`, top: `${s.y}%`, width: `${s.w}%`, height: `${s.h}%` }}
                 >
-                  <span
-                    className={`absolute left-0 top-0 max-w-[160px] -translate-y-full truncate rounded px-1 text-[10px] font-semibold ${mine ? "bg-amber text-prussian" : "bg-black/70 text-white"}`}
-                  >
-                    {c.name}
-                  </span>
+                  {mine && tag(c.name, "bg-amber text-prussian")}
                 </div>
-              );
-            }),
-          )}
+              )),
+              ...c.parts.map((s) => (
+                <div
+                  key={`${c.id}-p${s.id}`}
+                  className={`pointer-events-none absolute rounded-md ${mine ? "border-2 border-lemon bg-lemon/15" : "border border-dotted border-white/40"}`}
+                  style={{ left: `${s.x}%`, top: `${s.y}%`, width: `${s.w}%`, height: `${s.h}%` }}
+                >
+                  {mine && tag(s.label || "Part", "bg-lemon text-prussian")}
+                </div>
+              )),
+            ];
+          })}
           {draftSpot && (
             <div
               className="pointer-events-none absolute rounded-md border-2 border-dashed border-amber bg-amber/20"
@@ -237,11 +294,42 @@ function BoxMarker({ url, circuits, selected, onChange }: { url: string; circuit
         </div>
       </div>
       {selected.wiring_hotspots.length > 0 && (
-        <ol className="m-0 flex list-none flex-wrap gap-2 p-0">
+        <ol className="m-0 flex list-none flex-wrap gap-2 p-0" aria-label="Device boxes">
           {selected.wiring_hotspots.map((s, i) => (
             <li key={i} className="flex items-center gap-2 rounded-xl border border-editor-border bg-white px-3 py-1 text-[12px]">
-              Box {i + 1}: {s.x}%, {s.y}% · {s.w}×{s.h}%
-              <button type="button" className={btn.ghost} onClick={() => onChange(selected.wiring_hotspots.filter((_, j) => j !== i))} aria-label={`Remove box ${i + 1}`}>
+              Device box {i + 1}: {s.x}%, {s.y}% · {s.w}×{s.h}%
+              <button type="button" className={btn.ghost} onClick={() => onDevice(selected.wiring_hotspots.filter((_, j) => j !== i))} aria-label={`Remove device box ${i + 1}`}>
+                ✕
+              </button>
+            </li>
+          ))}
+        </ol>
+      )}
+      {selected.parts.length > 0 && (
+        <ol className="m-0 flex list-none flex-col gap-2 p-0" aria-label="Parts on the path">
+          {selected.parts.map((s, i) => (
+            <li key={s.id} className="grid grid-cols-1 items-center gap-2 rounded-xl border border-editor-border bg-white p-2 sm:grid-cols-[minmax(0,1fr)_150px_auto]">
+              <input
+                aria-label={`Part ${i + 1} name`}
+                placeholder="e.g. Fuse A7, Distribution A, Ground block A"
+                maxLength={40}
+                className="min-h-11 w-full rounded-xl border border-editor-border bg-white px-3 text-[15px]"
+                value={s.label}
+                onChange={(e) => setPart(s.id, { label: e.target.value })}
+              />
+              <select
+                aria-label={`Part ${i + 1} run`}
+                className="min-h-11 rounded-xl border border-editor-border bg-white px-2 text-[14px]"
+                value={s.run}
+                onChange={(e) => setPart(s.id, { run: e.target.value as PathPart["run"] })}
+              >
+                {(Object.keys(RUN_LABEL) as PathPart["run"][]).map((r) => (
+                  <option key={r} value={r}>
+                    {RUN_LABEL[r]}
+                  </option>
+                ))}
+              </select>
+              <button type="button" className={btn.ghost} onClick={() => onParts(selected.parts.filter((x) => x.id !== s.id))} aria-label={`Remove part ${i + 1}`}>
                 ✕
               </button>
             </li>
@@ -281,6 +369,7 @@ export function CircuitsEditor() {
       ground: [],
       cables: [],
       wiring_hotspots: [],
+      parts: [],
       sort: list.length + 1,
     };
     setList([...list, c]);
@@ -309,7 +398,7 @@ export function CircuitsEditor() {
                 >
                   <span className="text-sm font-semibold">{c.name || "Untitled"}</span>
                   <span className="font-mono text-[11px] text-[#55535c]">
-                    {c.kind === "trunk" ? "MAIN RUN" : c.fuse_code ? `FUSE ${c.fuse_code}` : "CIRCUIT"} · {c.wiring_hotspots.length} box{c.wiring_hotspots.length === 1 ? "" : "es"}
+                    {c.kind === "trunk" ? "MAIN RUN" : c.fuse_code ? `FUSE ${c.fuse_code}` : "CIRCUIT"} · {c.wiring_hotspots.length + c.parts.length} box{c.wiring_hotspots.length + c.parts.length === 1 ? "" : "es"}
                   </span>
                 </button>
                 <button type="button" className={btn.ghost} disabled={i === 0} onClick={() => setList(moved(list, i, -1))} aria-label={`Move ${c.name} up`}>
@@ -416,7 +505,13 @@ export function CircuitsEditor() {
               {!url ? (
                 <p className="m-0 text-sm text-[#55535c]">Upload the cable diagram image above first.</p>
               ) : mode === "edit" ? (
-                <BoxMarker url={url} circuits={list} selected={current} onChange={(wiring_hotspots) => patch({ wiring_hotspots })} />
+                <BoxMarker
+                  url={url}
+                  circuits={list}
+                  selected={current}
+                  onDevice={(wiring_hotspots) => patch({ wiring_hotspots })}
+                  onParts={(parts) => patch({ parts })}
+                />
               ) : (
                 <div className="rounded-xl bg-prussian p-3 sm:p-5">
                   <CableDiagram imageUrl={url} alt="Cable diagram" circuits={list} components={content.components} />

@@ -2,6 +2,12 @@
 
 /* eslint-disable @next/next/no-img-element -- static export; the image keeps its own aspect ratio */
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import {
+  clickAreas,
+  inside,
+  pathMarks,
+  type PathMark,
+} from "@/lib/circuit-path";
 import { circuitSheet } from "@/lib/circuit-sheet";
 import { normalizeCircuit } from "@/lib/circuits";
 import type { AudioComponent, Circuit } from "@/lib/types";
@@ -10,6 +16,8 @@ import { SpecPopover } from "./SpecPopover";
 
 /** At this container width the panel sits beside the diagram; below it, it opens as a sheet from the bottom. */
 const SIDE_MIN_WIDTH = 980;
+/** Below this width the diagram is too small for name tags: only the outlines show (names are in the circuit card). */
+const TAG_MIN_WIDTH = 640;
 
 const DOT = {
   ok: "bg-lemon",
@@ -42,9 +50,12 @@ export function CableDiagram({
   const [width, setWidth] = useState(0);
   const [open, setOpen] = useState<string | null>(null);
   const [specs, setSpecs] = useState(false);
+  // Phones: show the lit path on the diagram first, with a small bar; the sheet opens on demand.
+  const [peek, setPeek] = useState(true);
   const side = width >= SIDE_MIN_WIDTH;
   const active = circuits.find((c) => c.id === open) ?? null;
   const product = components.find((x) => x.key === active?.component_key);
+  const marks = active ? pathMarks(active, circuits) : [];
   const title = (k: string | null | undefined) =>
     components.find((x) => x.key === k)?.title;
 
@@ -66,6 +77,7 @@ export function CableDiagram({
 
   const pick = (id: string) => {
     setSpecs(false);
+    setPeek(true);
     setOpen(id);
   };
 
@@ -75,7 +87,7 @@ export function CableDiagram({
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, specs, close]);
+  }, [open, specs, peek, close]);
 
   const groups = [
     {
@@ -241,19 +253,26 @@ export function CableDiagram({
           : "flex flex-col gap-4"
       }
     >
-      <div className="relative">
-        <div className="overflow-hidden rounded-3xl border border-white/10">
-          <img src={imageUrl} alt={alt} className="block h-auto w-full" />
-        </div>
-        {circuits.flatMap((c) =>
-          c.wiring_hotspots.map((s, i) => {
+      <div className="flex min-w-0 flex-col gap-2">
+        <div className="relative">
+          <div className="overflow-hidden rounded-3xl border border-white/10">
+            <img src={imageUrl} alt={alt} className="block h-auto w-full" />
+          </div>
+          {marks.length > 0 && (
+            <PathOverlay
+              marks={marks}
+              maskId={`${uid}-mask`}
+              tags={width >= TAG_MIN_WIDTH}
+            />
+          )}
+          {clickAreas(circuits).map(({ circuit: c, box: s, key }, i, all) => {
             const on = open === c.id;
-            const key = `${c.id}-${i}`;
+            const first = all.findIndex((x) => x.circuit.id === c.id) === i;
             return (
               <button
                 key={key}
                 ref={(el) => {
-                  if (el && i === 0) btnRefs.current.set(c.id, el);
+                  if (el && first) btnRefs.current.set(c.id, el);
                 }}
                 type="button"
                 aria-expanded={on}
@@ -261,8 +280,7 @@ export function CableDiagram({
                 aria-label={`${c.fuse_code ? `${c.fuse_code} · ` : ""}${c.name}. Open circuit: power, ground, cables and fuses`}
                 title={c.fuse_code ? `${c.fuse_code} · ${c.name}` : c.name}
                 onClick={() => (on ? close() : pick(c.id))}
-                // Thin outline only on the selected device; nothing on hover.
-                className={`absolute cursor-pointer rounded-lg bg-transparent ${on ? "outline outline-2 outline-offset-2 outline-amber/90" : ""}`}
+                className="absolute cursor-pointer rounded-md bg-transparent"
                 style={{
                   left: `${s.x}%`,
                   top: `${s.y}%`,
@@ -271,7 +289,35 @@ export function CableDiagram({
                 }}
               />
             );
-          }),
+          })}
+        </div>
+        {marks.length > 0 && (
+          <p className="m-0 flex flex-wrap items-center gap-x-4 gap-y-1 px-1 font-mono text-[10px] tracking-[0.08em] text-muted-2">
+            <span className="text-ink">
+              PATH OF {active?.name.toUpperCase()}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                aria-hidden="true"
+                className="inline-block h-2.5 w-4 rounded-sm border-2 border-amber"
+              />
+              + POWER RUN
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                aria-hidden="true"
+                className="inline-block h-2.5 w-4 rounded-sm border-2 border-dashed border-white"
+              />
+              − GROUND RUN
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                aria-hidden="true"
+                className="inline-block h-2.5 w-4 rounded-sm border-[3px] border-lemon"
+              />
+              DEVICE
+            </span>
+          </p>
         )}
       </div>
 
@@ -286,6 +332,45 @@ export function CableDiagram({
         >
           {detail || <div className="pt-5">{index}</div>}
         </aside>
+      ) : active && peek ? (
+        <div
+          id={`${uid}-panel`}
+          ref={panelRef}
+          tabIndex={-1}
+          role="region"
+          aria-label={`Path of ${active.name} on the diagram`}
+          className="fixed inset-x-2 bottom-2 z-50 mx-auto flex max-w-[640px] items-center gap-3 rounded-2xl border border-amber/40 px-4 py-2 text-ink shadow-[0_18px_40px_rgba(0,0,0,0.5)]"
+          style={{ background: "rgba(1,20,53,0.96)" }}
+        >
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="font-mono text-[10px] tracking-[0.14em] text-amber">
+              {active.fuse_code
+                ? `CIRCUIT ${active.fuse_code}`
+                : active.kind === "trunk"
+                  ? "MAIN RUN"
+                  : "CIRCUIT"}{" "}
+              · PATH LIT UP
+            </span>
+            <span className="truncate text-[15px] font-semibold">
+              {active.name}
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={() => setPeek(false)}
+            className="pill min-h-11 flex-none bg-amber px-4 text-[13px] text-prussian"
+          >
+            Details ↑
+          </button>
+          <button
+            type="button"
+            onClick={close}
+            aria-label="Close circuit"
+            className="flex h-11 w-11 flex-none cursor-pointer items-center justify-center rounded-full hover:bg-white/10"
+          >
+            <span aria-hidden="true">✕</span>
+          </button>
+        </div>
       ) : active ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center px-2">
           <button
@@ -308,6 +393,15 @@ export function CableDiagram({
               aria-hidden="true"
               className="mx-auto mb-1 mt-2 h-1 w-10 flex-none rounded-full bg-white/30"
             />
+            {marks.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setPeek(true)}
+                className="mt-2 inline-flex min-h-11 cursor-pointer items-center gap-2 self-start rounded-full border border-amber/50 px-4 text-[13px] font-semibold text-amber hover:bg-white/5"
+              >
+                ↓ Show the path on the diagram
+              </button>
+            )}
             {detail}
           </div>
         </div>
@@ -322,6 +416,154 @@ export function CableDiagram({
           <div className="pt-3">{index}</div>
         </details>
       )}
+    </div>
+  );
+}
+
+const MARK_STYLE: Record<
+  PathMark["kind"],
+  { ring: string; tag: string; sign: string }
+> = {
+  device: {
+    ring: "border-[3px] border-lemon",
+    tag: "bg-lemon text-prussian",
+    sign: "",
+  },
+  power: {
+    ring: "border-2 border-amber",
+    tag: "bg-amber text-prussian",
+    sign: "+ ",
+  },
+  both: {
+    ring: "border-2 border-amber",
+    tag: "bg-amber text-prussian",
+    sign: "± ",
+  },
+  ground: {
+    ring: "border-2 border-dashed border-white",
+    tag: "bg-white text-prussian",
+    sign: "− ",
+  },
+};
+
+/**
+ * Where each name tag goes: above its box, or below when the box sits inside
+ * a bigger marked part (a fuse holder on the distribution block) or at the top
+ * edge. Tags that would overlap a neighbour's move one line further out.
+ */
+function placeTags(marks: PathMark[]) {
+  // Rough tag width in % of the diagram width (monospace ~0.62% per character at ~1000 px).
+  const half = (m: PathMark) => (m.label.length + 2) * 0.31 + 0.6;
+  const cx = (m: PathMark) => m.x + m.w / 2;
+  const placed = marks.map((m) => ({
+    m,
+    below: m.y < 6 || marks.some((o) => inside(m, o)),
+    level: 0,
+  }));
+  const edge = (t: (typeof placed)[number]) =>
+    t.below ? t.m.y + t.m.h : t.m.y;
+  [...placed]
+    .sort((a, b) => cx(a.m) - cx(b.m))
+    .forEach((t, i, sorted) => {
+      const taken = new Set(
+        sorted
+          .slice(0, i)
+          .filter(
+            (o) =>
+              o.below === t.below &&
+              Math.abs(edge(o) - edge(t)) < 4 &&
+              Math.abs(cx(o.m) - cx(t.m)) < half(o.m) + half(t.m),
+          )
+          .map((o) => o.level),
+      );
+      while (taken.has(t.level)) t.level++;
+    });
+  return placed;
+}
+
+/**
+ * The selected circuit's path on the cable diagram: everything else is dimmed
+ * and each part it runs through (main run, distribution, fuse holder, ground
+ * block, the device) is outlined with its name. Purely visual: the clickable
+ * areas sit on top of it.
+ */
+function PathOverlay({
+  marks,
+  maskId,
+  tags,
+}: {
+  marks: PathMark[];
+  maskId: string;
+  tags: boolean;
+}) {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 motion-safe:animate-[fadeIn_200ms_ease-out]"
+    >
+      <svg
+        className="absolute inset-0 h-full w-full overflow-hidden rounded-3xl"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <mask id={maskId}>
+            <rect x="0" y="0" width="100" height="100" fill="white" />
+            {marks.map((m) => (
+              <rect
+                key={m.key}
+                x={m.x - 0.3}
+                y={m.y - 0.5}
+                width={m.w + 0.6}
+                height={m.h + 1}
+                fill="black"
+              />
+            ))}
+          </mask>
+        </defs>
+        <rect
+          x="0"
+          y="0"
+          width="100"
+          height="100"
+          fill="rgba(0,2,49,0.62)"
+          mask={`url(#${maskId})`}
+        />
+      </svg>
+      {placeTags(marks).map(({ m, below, level }) => {
+        const st = MARK_STYLE[m.kind];
+        // No sign when the name already says it (Battery +).
+        const sign = /[+−-]\s*$/.test(m.label) ? "" : st.sign;
+        const shift = `${level * 18}px`;
+        return (
+          <div
+            key={m.key}
+            className={`absolute rounded-md ${st.ring} shadow-[0_0_0_1px_rgba(0,0,0,0.35)]`}
+            style={{
+              left: `${m.x}%`,
+              top: `${m.y}%`,
+              width: `${m.w}%`,
+              height: `${m.h}%`,
+            }}
+          >
+            {tags && (
+              <span
+                className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded px-1.5 py-px font-mono text-[9px] font-semibold leading-[14px] tracking-[0.04em] shadow-[0_2px_8px_rgba(0,0,0,0.4)] sm:text-[10px] ${st.tag} ${
+                  below ? "top-full mt-1" : "bottom-full mb-1"
+                }`}
+                style={
+                  below
+                    ? { marginTop: `calc(4px + ${shift})` }
+                    : { marginBottom: `calc(4px + ${shift})` }
+                }
+              >
+                {sign}
+                {m.label}
+              </span>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
