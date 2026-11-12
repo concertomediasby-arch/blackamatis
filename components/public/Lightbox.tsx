@@ -16,35 +16,41 @@ const AREA = "min(68vh, 760px)";
 
 /**
  * A photo in the large view: cut to the shape and zoom chosen in Crop &
- * position, or whole when it has neither.
+ * position, or whole when it has neither. It sits centred in a photo area of
+ * fixed height, so the window keeps its size while the visitor slides.
  */
 function LightboxPhoto({ path, alt }: { path: string | null; alt: string }) {
   const aspect = photoAspect(path);
   const zoom = photoZoom(path);
   const url = storageUrl(path);
+  // Only a zoomed photo in its own shape needs its size measured first.
+  const needSize = !aspect && zoom > 100;
   const [natural, setNatural] = useState<number | null>(null);
   useEffect(() => {
-    if (aspect || !url) return;
+    if (!needSize || !url) return;
     const im = new window.Image();
     im.onload = () => im.naturalHeight && setNatural(im.naturalWidth / im.naturalHeight);
     im.src = url;
-  }, [aspect, url]);
-  // Shape chosen in Crop & position, else the photo's own shape (whole, or zoomed).
-  const ratio = aspect ? aspect.w / aspect.h : (natural ?? 16 / 9);
-  const cropped = !!aspect || zoom > 100;
+  }, [needSize, url]);
+  if (!url) return null;
+  if (!aspect && !needSize)
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- sized by the photo itself, so the rounded corners hug it
+      <img
+        src={url}
+        alt={alt}
+        draggable={false}
+        className="block max-h-full max-w-full rounded-2xl object-contain"
+      />
+    );
+  const ratio = aspect ? aspect.w / aspect.h : natural;
+  if (!ratio) return null;
   return (
     <div
-      className="relative mx-auto overflow-hidden rounded-2xl"
+      className="relative overflow-hidden rounded-2xl"
       style={{ aspectRatio: ratio, width: `min(100%, calc(${AREA} * ${ratio}))` }}
     >
-      <Placeholder
-        path={cropped ? path : (path?.split("#")[0] ?? null)}
-        label="Photo"
-        alt={alt}
-        fit={cropped ? "cover" : "contain"}
-        className="h-full w-full"
-        sizes="100vw"
-      />
+      <Placeholder path={path} label="Photo" alt={alt} className="h-full w-full" sizes="100vw" />
     </div>
   );
 }
@@ -127,10 +133,11 @@ export function Lightbox({
         <div
           className="relative flex w-full select-none items-center justify-center"
           {...swipe}
+          style={{ ...swipe.style, height: AREA }}
         >
           <div
             key={cur.id + index}
-            className={`flex w-full justify-center ${dir > 0 ? "px-in-next" : dir < 0 ? "px-in-prev" : ""}`}
+            className={`flex h-full w-full items-center justify-center ${dir > 0 ? "px-in-next" : dir < 0 ? "px-in-prev" : ""}`}
           >
             {cur.kind === "photo" ? (
               <LightboxPhoto path={cur.path} alt={title(cur, index)} />

@@ -6,12 +6,13 @@ import {
   cropRect,
   cropStyle,
   focusForCentre,
-  photoAspect,
+  photoShape,
   photoZoom,
   splitPhoto,
   withCrop,
   ZOOM_LIMITS,
   type Aspect,
+  type PhotoShape,
   type Focus,
 } from "@/lib/photo";
 import { storageUrl } from "@/lib/supabase/env";
@@ -24,7 +25,15 @@ const SHAPES: { label: string; a: Aspect | null }[] = [
   { label: "4:3", a: { w: 4, h: 3 } },
   { label: "Wide 16:9", a: { w: 16, h: 9 } },
 ];
-const sameAspect = (x: Aspect | null, y: Aspect | null) => (x && y ? x.w * y.h === x.h * y.w : x === y);
+/** Tab shown when no shape is saved yet; any change then saves it. */
+const DEFAULT_SHAPE = 3;
+const shapeIndex = (saved: PhotoShape | null) => {
+  if (!saved) return DEFAULT_SHAPE;
+  if (saved === "original") return 0;
+  const i = SHAPES.findIndex((x) => x.a && x.a.w * saved.h === x.a.h * saved.w);
+  return i < 0 ? DEFAULT_SHAPE : i;
+};
+const toShape = (a: Aspect | null): PhotoShape => a ?? "original";
 
 /**
  * Crop & position: drag the frame over the photo (or click where it should
@@ -49,8 +58,7 @@ export function FocusPicker({
   const [ratio, setRatio] = useState<number | null>(null);
   const { focus } = splitPhoto(value);
   const zoom = photoZoom(value);
-  const aspect = photoAspect(value);
-  const shape = Math.max(0, SHAPES.findIndex((x) => sameAspect(x.a, aspect)));
+  const shape = shapeIndex(photoShape(value));
   const f: Focus = focus ?? { x: 50, y: 50 };
   const url = storageUrl(value);
   if (!url) return null;
@@ -58,7 +66,9 @@ export function FocusPicker({
   const frameRatio = (a: Aspect | null) => (a ? a.w / a.h : (ratio ?? 1));
   const fr = frameRatio(SHAPES[shape].a);
   const rect = ratio ? cropRect(ratio, fr, f, zoom) : null;
-  const set = (next: Focus, z = zoom, a = aspect) => onChange(withCrop(value, next, z, a));
+  // Every change saves the shape in view too, so the large view shows what the frame shows.
+  const set = (next: Focus, z = zoom, a: Aspect | null = SHAPES[shape].a) =>
+    onChange(withCrop(value, next, z, whole ? null : toShape(a)));
   const fromPointer = (e: React.PointerEvent) => {
     const r = imgRef.current?.getBoundingClientRect();
     if (!r || r.width === 0 || !ratio) return;
