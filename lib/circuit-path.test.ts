@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clickAreas, inside, pathMarks } from "./circuit-path";
+import { clickAreas, inside, onlyRun, pathMarks } from "./circuit-path";
 import { normalizeCircuit } from "./circuits";
 
 const box = (x: number) => ({ x, y: 10, w: 2, h: 2 });
@@ -56,7 +56,26 @@ describe("pathMarks", () => {
   });
 });
 
+describe("onlyRun", () => {
+  it("a + part lights the + run only, a − part the − run only", () => {
+    const all = pathMarks(trunkA, [trunkA]);
+    expect(onlyRun(all, "power").map((m) => m.label)).toEqual(["Battery +", "Ultracap A", "Distribution A"]);
+    expect(onlyRun(all, "ground").map((m) => m.label)).toEqual(["Ultracap A", "Ground block A"]);
+    expect(onlyRun(all, null)).toHaveLength(4);
+    // A device's path keeps the device itself.
+    expect(onlyRun(pathMarks(tweeter, [trunkA, trunkB, tweeter]), "power").map((m) => m.label)).toEqual([
+      "Battery +", "Ultracap A", "Distribution A", "Fuse A7", "Left Tweeter",
+    ]);
+  });
+});
+
 describe("clickAreas", () => {
+  it("tells which run a clicked part is on", () => {
+    const areas = clickAreas([trunkA]);
+    expect(areas.map((a) => a.run)).toEqual(["power", "both", "power", "ground"]);
+    expect(clickAreas([tweeter])[0].run).toBeUndefined();
+  });
+
   it("puts main runs first and skips a box another circuit already uses", () => {
     const areas = clickAreas([tweeter, trunkB, trunkA]);
     expect(areas.map((a) => a.circuit.id)).toEqual([

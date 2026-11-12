@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import {
   clickAreas,
+  onlyRun,
   inside,
   pathMarks,
   type PathMark,
@@ -55,7 +56,9 @@ export function CableDiagram({
   const side = width >= SIDE_MIN_WIDTH;
   const active = circuits.find((c) => c.id === open) ?? null;
   const product = components.find((x) => x.key === active?.component_key);
-  const marks = active ? pathMarks(active, circuits) : [];
+  // A click on a part of the + run (e.g. a fuse) lights the + run only; a − part the − run only.
+  const [focusRun, setFocusRun] = useState<"power" | "ground" | null>(null);
+  const marks = active ? onlyRun(pathMarks(active, circuits), focusRun) : [];
   const title = (k: string | null | undefined) =>
     components.find((x) => x.key === k)?.title;
 
@@ -75,9 +78,10 @@ export function CableDiagram({
     });
   }, []);
 
-  const pick = (id: string) => {
+  const pick = (id: string, run?: "power" | "ground" | "both") => {
     setSpecs(false);
     setPeek(true);
+    setFocusRun(run === "power" || run === "ground" ? run : null);
     setOpen(id);
   };
 
@@ -260,8 +264,8 @@ export function CableDiagram({
               tags={width >= TAG_MIN_WIDTH}
             />
           )}
-          {clickAreas(circuits).map(({ circuit: c, box: s, key }, i, all) => {
-            const on = open === c.id;
+          {clickAreas(circuits).map(({ circuit: c, box: s, key, run }, i, all) => {
+            const on = open === c.id && (focusRun ?? null) === (run === "power" || run === "ground" ? run : null);
             const first = all.findIndex((x) => x.circuit.id === c.id) === i;
             return (
               <button
@@ -274,7 +278,7 @@ export function CableDiagram({
                 aria-controls={`${uid}-panel`}
                 aria-label={`${c.fuse_code ? `${c.fuse_code} · ` : ""}${c.name}. Open circuit: power, ground, cables and fuses`}
                 title={c.fuse_code ? `${c.fuse_code} · ${c.name}` : c.name}
-                onClick={() => (on ? close() : pick(c.id))}
+                onClick={() => (on ? close() : pick(c.id, run))}
                 className="absolute cursor-pointer rounded-md bg-transparent"
                 style={{
                   left: `${s.x}%`,
@@ -289,7 +293,8 @@ export function CableDiagram({
         {marks.length > 0 && (
           <p className="m-0 flex flex-wrap items-center gap-x-4 gap-y-1 px-1 font-mono text-[10px] tracking-[0.08em] text-muted-2">
             <span className="text-ink">
-              PATH OF {active?.name.toUpperCase()}
+              {focusRun === "power" ? "+ POWER PATH OF " : focusRun === "ground" ? "− GROUND PATH OF " : "PATH OF "}
+              {active?.name.toUpperCase()}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span
