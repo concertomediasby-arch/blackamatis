@@ -48,10 +48,10 @@ export function EditorShell({ children }: { children: React.ReactNode }) {
     : dirty
       ? "Unsaved changes"
       : unpublished
-        ? `Draft · unpublished changes${lastSaved ? ` · saved ${time(lastSaved)}` : ""}`
+        ? `Saved by an editor · waiting for the owner to publish${lastSaved ? ` · ${time(lastSaved)}` : ""}`
         : nothingSaved
           ? "Nothing saved yet · site shows placeholders"
-          : "Published · up to date";
+          : `Saved · live on the site${lastSaved ? ` · ${time(lastSaved)}` : ""}`;
 
   return (
     <div className="editor flex min-h-screen bg-editor text-[#14141a]">
@@ -133,17 +133,14 @@ export function EditorShell({ children }: { children: React.ReactNode }) {
               View public site
             </a>
             <button type="button" onClick={() => void save()} disabled={saving || !dirty} className="pill cursor-pointer border border-prussian bg-white text-prussian disabled:opacity-50">
-              Save draft
+              Save
             </button>
-            <button
-              type="button"
-              onClick={() => void publish()}
-              disabled={saving || session.role !== "owner" || (!dirty && !unpublished)}
-              title={session.role !== "owner" ? "Only the owner can publish" : undefined}
-              className="pill cursor-pointer bg-prussian text-lemon disabled:opacity-50"
-            >
-              Publish
-            </button>
+            {/* Only an editor's saved changes wait for the owner; the owner's saves are live at once. */}
+            {unpublished && session.role === "owner" && (
+              <button type="button" onClick={() => void publish()} disabled={saving} className="pill cursor-pointer bg-prussian text-lemon disabled:opacity-50">
+                Publish editor changes
+              </button>
+            )}
           </div>
         </header>
         {session.mode === "preview" && (

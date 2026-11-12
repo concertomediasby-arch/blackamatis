@@ -262,11 +262,11 @@ circuits(id, name, kind ('trunk'|'channel'), component_key, power_from, ground_f
 ```
 - RLS: public `select` on all content tables; `insert/update/delete` only for authenticated editors (table `editors(user_id, role)` with `owner | editor`). Only `owner` can publish.
 - Storage buckets: `photos` (public read), `pdfs` (public read). Resize uploads to max 2400 px, WebP.
-- Draft/publish: content tables carry `status ('draft'|'published')`; public pages read only `published` (fetched live in the browser, so no rebuild on publish).
+- Saving is live (decided with the team): the owner's saves, including autosave, write `status = 'published'`, so the site shows them at once (fetched live in the browser, no rebuild). There is one copy of the content, so a draft status would take that part off the public site. Saves by a non-owner editor stay `draft` until the owner clicks **Publish editor changes** (RLS: only owners may publish). Public pages read only `published`.
 
 ## Editor (CMS) `/editor`
 
-Login: passwordless one-time code by email (Supabase email OTP, `shouldCreateUser: false`; the Magic Link email template shows `{{ .Token }}` and a sign-in link). Sidebar: Overview · Vehicle & Story · Theme · Components · Photo Log · Bonus Requests. Top bar: status ("Draft · unpublished changes"), **View public site**, **Save draft**, **Publish**.
+Login: passwordless one-time code by email (Supabase email OTP, `shouldCreateUser: false`; the Magic Link email template shows `{{ .Token }}` and a sign-in link). Sidebar: Overview · Vehicle & Story · Theme · Components · Photo Log · Bonus Requests. Top bar: status ("Saved · live on the site"), **View public site**, **Save** (autosave every 10 s), and **Publish editor changes** only when a non-owner editor's saves are waiting.
 - **Overview**: a card per public page (status, last edited by/when, Edit, Preview) + pre-event checklist + link to Judge Mode.
 - **Vehicle & Story**: vehicle fields, category/class selects, dark/light side names, statement (≤ 80 words, counter), team & links (no timeline and no team cards: removed on purpose), Workshop card (Built by).
 - **Components**: list on the left (select, add, reorder), form on the right: brand, model, type-specific spec fields, photo upload (transparent PNG), PDF upload, "Show in System / Wiring diagram" checkboxes; wiring link editor for cable size and fuse per link with an inline warning when the fuse exceeds the VW75212 table for that cable.
