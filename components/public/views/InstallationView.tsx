@@ -215,6 +215,7 @@ export function InstallationView() {
             circuits={c.circuits}
             imageHint="Click a device to see its power path, cable and fuse"
             tabs={["Cable diagram", "Cable sizes & fuses"]}
+            secondTab={false}
             idPrefix="wiring"
             textList={{
               title: "Power and fuses as a list",
