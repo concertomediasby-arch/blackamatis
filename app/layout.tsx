@@ -38,6 +38,10 @@ export const metadata: Metadata = {
     title: "Black Amethyst · EMMA 2026",
     description: "One car. Two faces. A Honda Odyssey car-audio build for EMMA 2026.",
   },
+  // Installable (needed for news notifications on iPhone: Add to Home Screen first).
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "Black Amethyst", statusBarStyle: "black-translucent" },
+  icons: { icon: "/icon-192.png", apple: "/apple-touch-icon.png" },
 };
 
 export const viewport: Viewport = { themeColor: "#000231", width: "device-width", initialScale: 1 };

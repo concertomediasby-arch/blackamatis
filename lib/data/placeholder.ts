@@ -289,5 +289,6 @@ export const PLACEHOLDER: SiteContent = {
     { id: id("z"), sort: 3, key: "trunk", name: "Trunk", criterion: "Design of trunk", photo_path: null, media: [], elements: ["[Theme element 1]", "[Theme element 2]", "[Theme element 3]"] },
   ],
   circuits: [],
+  news: [],
   moodboard: ["Concept sketch", "Reference", "Reference", "Render / mockup"].map((caption, i) => ({ id: id("mb"), caption, path: null, sort: i + 1 })),
 };

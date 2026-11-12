@@ -4,6 +4,7 @@ export const NAV = [
   { href: "/installation", label: "Installation" },
   { href: "/bonus", label: "Bonus Point" },
   { href: "/judge", label: "Judge Mode" },
+  { href: "/news", label: "News" },
 ] as const;
 
 /** Page order for the footer prev/next links. */

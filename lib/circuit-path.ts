@@ -53,15 +53,26 @@ export function pathMarks(c: Circuit, circuits: Circuit[]): PathMark[] {
   return out;
 }
 
-/** Click areas of every circuit, main runs first so a device's own boxes sit on top; a box already taken is skipped. */
+/**
+ * Only one run of a lit path: a click on a part of the + run (e.g. a fuse)
+ * shows the + run, a part of the − run (e.g. the ground block) the − run.
+ * Parts on both runs and the device always stay lit.
+ */
+export function onlyRun(marks: PathMark[], run: "power" | "ground" | null): PathMark[] {
+  if (!run) return marks;
+  const other = run === "power" ? "ground" : "power";
+  return marks.filter((m) => m.kind !== other);
+}
+
+/** Click areas of every circuit, main runs first so a device's own boxes sit on top; a box already taken is skipped. A part's area carries its run. */
 export function clickAreas(
   circuits: Circuit[],
-): { circuit: Circuit; box: Hotspot; key: string }[] {
+): { circuit: Circuit; box: Hotspot; key: string; run?: PathPart["run"] }[] {
   const ordered = [
     ...circuits.filter((c) => c.kind === "trunk"),
     ...circuits.filter((c) => c.kind !== "trunk"),
   ];
-  const out: { circuit: Circuit; box: Hotspot; key: string }[] = [];
+  const out: { circuit: Circuit; box: Hotspot; key: string; run?: PathPart["run"] }[] = [];
   for (const c of ordered) {
     [...c.wiring_hotspots, ...c.parts].forEach((b, i) => {
       if (out.some((o) => same(o.box, b))) return;
@@ -69,6 +80,7 @@ export function clickAreas(
         circuit: c,
         box: { x: b.x, y: b.y, w: b.w, h: b.h },
         key: `${c.id}-${i}`,
+        ...("run" in b ? { run: (b as PathPart).run } : {}),
       });
     });
   }
