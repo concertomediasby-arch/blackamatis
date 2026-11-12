@@ -105,9 +105,9 @@ export function BonusList({
                 />
                 <span className="flex min-w-0 flex-col gap-1">
                   <span className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[11px] tracking-[0.1em] text-dark-muted">
-                    <span className="font-medium text-navy">{r.code}</span>
-                    <span aria-hidden="true">·</span>
-                    <span>{groupInfo(r.group).label.toUpperCase()}</span>
+                    <span className="font-medium text-navy">
+                      {groupInfo(r.group).label.toUpperCase()}
+                    </span>
                     <span aria-hidden="true">·</span>
                     <span>ELEMENT {r.element}</span>
                   </span>
