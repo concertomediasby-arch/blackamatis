@@ -1,5 +1,7 @@
 "use client";
 
+import { PageHeader } from "@/components/public/PageHeader";
+import { pageLayoutOf } from "@/lib/page-layout";
 import {
   ContentFallback,
   useSiteContent,
@@ -23,24 +25,13 @@ export function BonusView() {
   );
   return (
     <>
-      <section className="px-8 sm:px-[72px] lg:px-[88px] grid grid-cols-1 items-end gap-12 pb-16 pt-24 md:grid-cols-2">
-        <div className="flex flex-col gap-4">
-          <span className="eyebrow text-amber">04 — Bonus Point</span>
-          <h1
-            className="display m-0 font-black"
-            style={{ fontSize: "clamp(64px, 9vw, 128px)", lineHeight: 0.85 }}
-          >
-            More than
-            <br />
-            just an install.
-          </h1>
-        </div>
-        <p className="m-0 max-w-[620px] text-lg leading-[1.7] text-muted md:justify-self-end">
-          Our bonus requests cover the whole car: glass, lights, rims, body,
-          cabin and trunk. Each request is worth up to 3 points: 1 for the idea,
-          plus 1 for average or 2 for good execution.
-        </p>
-      </section>
+      <PageHeader page="bonus" layout={pageLayoutOf(c.vehicle, "bonus")}>
+        <EditPencil
+          href="/editor/vehicle/#page-layouts"
+          label="Page layout"
+          className="right-5 top-20 sm:right-10"
+        />
+      </PageHeader>
 
       <section
         aria-labelledby="elements"

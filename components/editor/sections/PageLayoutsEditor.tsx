@@ -1,30 +1,48 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { HistoryHeader } from "@/components/public/HistoryHeader";
+import { PAGE_COPY, PageHeader } from "@/components/public/PageHeader";
 import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 import {
-  DEFAULT_HISTORY_LAYOUT,
+  DEFAULT_PAGE_LAYOUTS,
   HISTORY_LAYOUT_LIMITS,
-  normalizeHistoryLayout,
-  type HistoryLayout,
-} from "@/lib/history-layout";
+  PAGE_KEYS,
+  pageLayoutOf,
+  type PageKey,
+  type PageLayout,
+} from "@/lib/page-layout";
 import { useEditor } from "../EditorProvider";
 import { Card, btn } from "../Field";
 
 /** The public page is designed at this width; the preview shows it scaled to fit the card. */
 const PAGE_WIDTH = 1440;
 
-/** Editor › Vehicle & Story › History layout: where the headline and story sit, with a live preview. */
-export function HistoryLayoutEditor() {
+/**
+ * Editor › Vehicle & Story › Page layouts: per page (History, Installation,
+ * Bonus Point, Judge Mode), where the headline and intro text sit, with a
+ * live preview. History is stored in `history_layout`, the others in
+ * `page_layouts[page]`.
+ */
+export function PageLayoutsEditor() {
   const { content, update } = useEditor();
   const v = content.vehicle;
-  const l = normalizeHistoryLayout(v.history_layout);
-  const set = (p: Partial<HistoryLayout>) =>
-    update((c) => ({
-      ...c,
-      vehicle: { ...c.vehicle, history_layout: { ...l, ...p } },
-    }));
+  const [page, setPage] = useState<PageKey>("history");
+  const l = pageLayoutOf(v, page);
+  const set = (p: Partial<PageLayout>) =>
+    update((c) => {
+      const next = { ...pageLayoutOf(c.vehicle, page), ...p };
+      if (page === "history")
+        return { ...c, vehicle: { ...c.vehicle, history_layout: next } };
+      const all = (
+        c.vehicle.page_layouts && typeof c.vehicle.page_layouts === "object"
+          ? c.vehicle.page_layouts
+          : {}
+      ) as Record<string, unknown>;
+      return {
+        ...c,
+        vehicle: { ...c.vehicle, page_layouts: { ...all, [page]: next } },
+      };
+    });
 
   const boxRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
@@ -45,21 +63,30 @@ export function HistoryLayoutEditor() {
   }, []);
 
   const sliders: { k: "gap" | "width" | "margin"; label: string }[] = [
-    { k: "gap", label: "Space between headline and story" },
-    { k: "width", label: "Story width" },
+    { k: "gap", label: "Space between headline and text" },
+    { k: "width", label: "Text width" },
     { k: "margin", label: "Page margin (left / right)" },
   ];
 
   return (
-    <Card title="History layout" id="history-layout">
+    <Card title="Page layouts" id="page-layouts">
       <p className="m-0 text-sm text-[#4a4852]">
-        Where the headline and the story sit on the History page (tablets and
-        wider; phones always show the story under the headline). The preview
+        Where the headline and the intro text sit, set per page (tablets and
+        wider; phones always show the text under the headline). The preview
         shows a 1440 px wide screen.
       </p>
+      <SegmentedTabs
+        options={PAGE_KEYS.map((k) => ({ key: k, label: PAGE_COPY[k].name }))}
+        value={page}
+        onChange={setPage}
+        label="Page"
+        tone="light"
+      />
       <div className="flex flex-wrap gap-x-8 gap-y-4">
         <div className="flex flex-col gap-1.5">
-          <span className="text-[13px] font-semibold">Story</span>
+          <span className="text-[13px] font-semibold">
+            {page === "history" ? "Story" : "Intro text"}
+          </span>
           <SegmentedTabs
             options={[
               { key: "beside", label: "Beside the headline" },
@@ -133,13 +160,13 @@ export function HistoryLayoutEditor() {
       <button
         type="button"
         className={`${btn.secondary} self-start`}
-        onClick={() => set(DEFAULT_HISTORY_LAYOUT)}
+        onClick={() => set(DEFAULT_PAGE_LAYOUTS[page])}
       >
         Reset
       </button>
       <div
         ref={boxRef}
-        aria-label="Preview of the History page top"
+        aria-label={`Preview of the ${PAGE_COPY[page].name} page top`}
         className="overflow-hidden rounded-xl bg-prussian text-ink"
         style={{ height }}
       >
@@ -152,7 +179,11 @@ export function HistoryLayoutEditor() {
           }}
           className="pointer-events-none"
         >
-          <HistoryHeader story={v.story} layout={l} />
+          <PageHeader
+            page={page}
+            layout={l}
+            text={page === "history" ? v.story : undefined}
+          />
         </div>
       </div>
     </Card>

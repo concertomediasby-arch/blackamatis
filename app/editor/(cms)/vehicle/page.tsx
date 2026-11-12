@@ -13,7 +13,7 @@ import {
 } from "@/components/editor/Field";
 import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
-import { HistoryLayoutEditor } from "@/components/editor/sections/HistoryLayoutEditor";
+import { PageLayoutsEditor } from "@/components/editor/sections/PageLayoutsEditor";
 import { PartnersEditor } from "@/components/editor/sections/PartnersEditor";
 import { MediaListEditor } from "@/components/editor/sections/MediaListEditor";
 import { normalizeMedia } from "@/lib/bonus-media";
@@ -256,7 +256,7 @@ export default function VehiclePage() {
         </div>
       </Card>
 
-      <HistoryLayoutEditor />
+      <PageLayoutsEditor />
 
       <Card title="Team & links" id="team">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
