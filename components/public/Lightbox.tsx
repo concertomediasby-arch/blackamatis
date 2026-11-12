@@ -3,11 +3,51 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Placeholder } from "@/components/ui/Placeholder";
+import { photoAspect, photoZoom } from "@/lib/photo";
+import { storageUrl } from "@/lib/supabase/env";
 import { useSwipe } from "@/lib/use-swipe";
 import type { BonusMedia } from "@/lib/types";
 import { VideoPlayer } from "./MediaPlayer";
 
 const title = (m: BonusMedia, i: number) => m.caption || `Black Amethyst, ${m.kind} ${i + 1}`;
+
+/** Height of the photo area in the window. */
+const AREA = "min(68vh, 760px)";
+
+/**
+ * A photo in the large view: cut to the shape and zoom chosen in Crop &
+ * position, or whole when it has neither.
+ */
+function LightboxPhoto({ path, alt }: { path: string | null; alt: string }) {
+  const aspect = photoAspect(path);
+  const zoom = photoZoom(path);
+  const url = storageUrl(path);
+  const [natural, setNatural] = useState<number | null>(null);
+  useEffect(() => {
+    if (aspect || !url) return;
+    const im = new window.Image();
+    im.onload = () => im.naturalHeight && setNatural(im.naturalWidth / im.naturalHeight);
+    im.src = url;
+  }, [aspect, url]);
+  // Shape chosen in Crop & position, else the photo's own shape (whole, or zoomed).
+  const ratio = aspect ? aspect.w / aspect.h : (natural ?? 16 / 9);
+  const cropped = !!aspect || zoom > 100;
+  return (
+    <div
+      className="relative mx-auto overflow-hidden rounded-2xl"
+      style={{ aspectRatio: ratio, width: `min(100%, calc(${AREA} * ${ratio}))` }}
+    >
+      <Placeholder
+        path={cropped ? path : (path?.split("#")[0] ?? null)}
+        label="Photo"
+        alt={alt}
+        fit={cropped ? "cover" : "contain"}
+        className="h-full w-full"
+        sizes="100vw"
+      />
+    </div>
+  );
+}
 
 /**
  * A photo or video shown large in a window over the page: swipe or ← → to go
@@ -55,66 +95,65 @@ export function Lightbox({
       aria-modal="true"
       aria-label={title(cur, index)}
       tabIndex={-1}
-      className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-3 bg-[rgba(0,2,49,0.97)] p-3 outline-none backdrop-blur-md sm:p-8"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-[rgba(0,2,49,0.45)] p-3 outline-none backdrop-blur-[6px] sm:p-8"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="flex w-full max-w-[1200px] items-center justify-end gap-3 text-ink">
+      <div className="glass-dark relative flex max-h-full w-full max-w-[1120px] flex-col gap-3 overflow-y-auto rounded-[32px] p-3 sm:p-5">
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-white/25 hover:bg-white/10"
+          className="absolute right-3 top-3 z-10 flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-[rgba(1,20,53,0.6)] text-ink backdrop-blur-md hover:bg-white/10 sm:right-5 sm:top-5"
         >
           ✕
         </button>
-      </div>
-      <div className="relative w-full max-w-[1200px] select-none" {...swipe}>
-        {cur.kind === "photo" ? (
-          <Placeholder
-            path={cur.path?.split("#")[0] ?? null}
-            label="Photo"
-            alt={title(cur, index)}
-            fit="contain"
-            className="h-[72vh] w-full"
-            sizes="100vw"
-          />
-        ) : (
-          <div className="relative mx-auto aspect-video max-h-[72vh] w-full bg-black">
-            <VideoPlayer key={cur.id} m={cur} title={title(cur, index)} autoPlay muted />
+        <div
+          className="relative flex w-full select-none items-center justify-center"
+          {...swipe}
+        >
+          {cur.kind === "photo" ? (
+            <LightboxPhoto key={cur.id + index} path={cur.path} alt={title(cur, index)} />
+          ) : (
+            <div
+              className="relative mx-auto aspect-video overflow-hidden rounded-2xl bg-black"
+              style={{ width: `min(100%, calc(${AREA} * 16 / 9))` }}
+            >
+              <VideoPlayer key={cur.id} m={cur} title={title(cur, index)} autoPlay muted />
+            </div>
+          )}
+          {n > 1 &&
+            ([-1, 1] as const).map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => go(d)}
+                aria-label={d < 0 ? "Previous" : "Next"}
+                className={`absolute top-1/2 flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-black/15 text-ink opacity-50 backdrop-blur-sm hover:bg-black/45 hover:opacity-100 focus-visible:opacity-100 ${d < 0 ? "left-1 sm:left-2" : "right-1 sm:right-2"}`}
+              >
+                <span aria-hidden="true">{d < 0 ? "←" : "→"}</span>
+              </button>
+            ))}
+        </div>
+        {n > 1 && (
+          <div role="group" aria-label="Choose a photo" className="flex flex-wrap justify-center">
+            {items.map((m, i) => (
+              <button
+                key={m.id + i}
+                type="button"
+                aria-label={`Photo ${i + 1}`}
+                aria-current={i === index ? "true" : undefined}
+                onClick={() => onIndex(i)}
+                className="flex h-11 w-6 cursor-pointer items-center justify-center"
+              >
+                <span className={`block h-1.5 w-1.5 rounded-full transition-colors ${i === index ? "bg-amber" : "bg-white/35"}`} />
+              </button>
+            ))}
           </div>
         )}
-        {n > 1 &&
-          ([-1, 1] as const).map((d) => (
-            <button
-              key={d}
-              type="button"
-              onClick={() => go(d)}
-              aria-label={d < 0 ? "Previous" : "Next"}
-              className={`absolute top-1/2 flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-black/15 text-ink opacity-50 backdrop-blur-sm hover:bg-black/45 hover:opacity-100 focus-visible:opacity-100 ${d < 0 ? "left-2" : "right-2"}`}
-            >
-              <span aria-hidden="true">{d < 0 ? "←" : "→"}</span>
-            </button>
-          ))}
+        {cur.caption && (
+          <p className="m-0 mx-auto max-w-[900px] px-2 pb-1 text-center text-[15px] leading-relaxed text-muted">{cur.caption}</p>
+        )}
       </div>
-      {n > 1 && (
-        <div role="group" aria-label="Choose a photo" className="flex max-w-[1200px] flex-wrap justify-center">
-          {items.map((m, i) => (
-            <button
-              key={m.id + i}
-              type="button"
-              aria-label={`Photo ${i + 1}`}
-              aria-current={i === index ? "true" : undefined}
-              onClick={() => onIndex(i)}
-              className="flex h-11 w-6 cursor-pointer items-center justify-center"
-            >
-              <span className={`block h-1.5 w-1.5 rounded-full transition-colors ${i === index ? "bg-amber" : "bg-white/35"}`} />
-            </button>
-          ))}
-        </div>
-      )}
-      {cur.caption && (
-        <p className="m-0 max-w-[900px] text-center text-[15px] leading-relaxed text-muted">{cur.caption}</p>
-      )}
     </div>,
     document.body,
   );

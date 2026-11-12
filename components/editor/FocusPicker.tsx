@@ -6,27 +6,32 @@ import {
   cropRect,
   cropStyle,
   focusForCentre,
+  photoAspect,
   photoZoom,
   splitPhoto,
   withCrop,
   ZOOM_LIMITS,
+  type Aspect,
   type Focus,
 } from "@/lib/photo";
 import { storageUrl } from "@/lib/supabase/env";
 
-/** Frame shapes used on the site (photo log 4:3, close-ups 3:4, gallery and thumbnails square, news 16:9). */
-const SHAPES = [
-  { label: "Square", ratio: 1, css: "1 / 1" },
-  { label: "Portrait 3:4", ratio: 3 / 4, css: "3 / 4" },
-  { label: "4:3", ratio: 4 / 3, css: "4 / 3" },
-  { label: "Wide 16:9", ratio: 16 / 9, css: "16 / 9" },
+/** Frame shapes (photo log 4:3, close-ups 3:4, gallery and thumbnails square, news 16:9). "Original" keeps the photo's own shape. */
+const SHAPES: { label: string; a: Aspect | null }[] = [
+  { label: "Original", a: null },
+  { label: "Square", a: { w: 1, h: 1 } },
+  { label: "Portrait 3:4", a: { w: 3, h: 4 } },
+  { label: "4:3", a: { w: 4, h: 3 } },
+  { label: "Wide 16:9", a: { w: 16, h: 9 } },
 ];
+const sameAspect = (x: Aspect | null, y: Aspect | null) => (x && y ? x.w * y.h === x.h * y.w : x === y);
 
 /**
  * Crop & position: drag the frame over the photo (or click where it should
  * centre), zoom in to crop tighter, or use the sliders. Stored on the photo
- * path (focus + zoom), so the original file stays whole: the lightbox still
- * shows the full photo.
+ * path (focus, zoom and the chosen shape), so the original file stays whole.
+ * The large view (lightbox) shows the photo cut to the chosen shape; cards on
+ * the page keep their own shape around the same point.
  */
 export function FocusPicker({
   value,
@@ -42,16 +47,18 @@ export function FocusPicker({
   const uid = useId();
   const imgRef = useRef<HTMLImageElement>(null);
   const [ratio, setRatio] = useState<number | null>(null);
-  const [shape, setShape] = useState(2);
   const { focus } = splitPhoto(value);
   const zoom = photoZoom(value);
+  const aspect = photoAspect(value);
+  const shape = Math.max(0, SHAPES.findIndex((x) => sameAspect(x.a, aspect)));
   const f: Focus = focus ?? { x: 50, y: 50 };
   const url = storageUrl(value);
   if (!url) return null;
 
-  const frame = SHAPES[shape];
-  const rect = ratio ? cropRect(ratio, frame.ratio, f, zoom) : null;
-  const set = (next: Focus, z = zoom) => onChange(withCrop(value, next, z));
+  const frameRatio = (a: Aspect | null) => (a ? a.w / a.h : (ratio ?? 1));
+  const fr = frameRatio(SHAPES[shape].a);
+  const rect = ratio ? cropRect(ratio, fr, f, zoom) : null;
+  const set = (next: Focus, z = zoom, a = aspect) => onChange(withCrop(value, next, z, a));
   const fromPointer = (e: React.PointerEvent) => {
     const r = imgRef.current?.getBoundingClientRect();
     if (!r || r.width === 0 || !ratio) return;
@@ -60,7 +67,7 @@ export function FocusPicker({
     set(
       whole
         ? { x: Math.round(cx), y: Math.round(cy) }
-        : focusForCentre(ratio, frame.ratio, zoom, cx, cy, f),
+        : focusForCentre(ratio, fr, zoom, cx, cy, f),
     );
   };
 
@@ -73,15 +80,16 @@ export function FocusPicker({
         </p>
       ) : (
         <p className="m-0 text-sm text-[#4a4852]">
-          Drag the frame (or click) to choose what shows, and zoom in to crop
-          tighter. The site uses this crop wherever the photo is cut to a shape;
-          a click on the photo still opens it whole.
+          Pick a shape, drag the frame (or click) to choose what shows, and zoom
+          in to crop tighter. The large view (when a visitor clicks the photo)
+          shows exactly this frame; cards on the page keep their own shape
+          around the same point.
         </p>
       )}
       {!whole && (
         <div
           role="radiogroup"
-          aria-label="Frame shape to check"
+          aria-label="Shape of the photo in the large view"
           className="flex flex-wrap gap-2"
         >
           {SHAPES.map((s, i) => (
@@ -90,7 +98,7 @@ export function FocusPicker({
               type="button"
               role="radio"
               aria-checked={i === shape}
-              onClick={() => setShape(i)}
+              onClick={() => set(f, zoom, s.a)}
               className={`pill border px-4 text-[13px] ${i === shape ? "border-prussian bg-prussian text-lemon" : "border-editor-border bg-white"}`}
             >
               {s.label}
@@ -184,7 +192,7 @@ export function FocusPicker({
           />
           <button
             type="button"
-            onClick={() => onChange(withCrop(value, null, 100))}
+            onClick={() => onChange(withCrop(value, null, 100, null))}
             className="pill self-start border border-editor-border bg-white px-4 text-sm"
           >
             {whole ? "Reset" : "Reset (whole photo, centred)"}
@@ -209,11 +217,11 @@ export function FocusPicker({
               </figcaption>
             </figure>
           ) : (
-            SHAPES.map((s) => (
+            SHAPES.map((s, i) => (
               <figure key={s.label} className="m-0 flex flex-col gap-1">
                 <span
-                  className="block h-20 overflow-hidden rounded-md"
-                  style={{ aspectRatio: s.css }}
+                  className={`block h-20 overflow-hidden rounded-md ${i === shape ? "ring-2 ring-prussian ring-offset-2" : ""}`}
+                  style={{ aspectRatio: frameRatio(s.a) }}
                 >
                   <img
                     src={url}
@@ -224,6 +232,7 @@ export function FocusPicker({
                 </span>
                 <figcaption className="text-[11px] text-[#55535c]">
                   {s.label}
+                  {i === shape ? " · large view" : ""}
                 </figcaption>
               </figure>
             ))
