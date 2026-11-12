@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   SAVE_KEYS,
+  TABLE_OF,
   getPublishState,
   publishAll,
   saveDraft,
@@ -35,6 +36,10 @@ type Ctx = {
   error: string | null;
   save: () => Promise<void>;
   publish: () => Promise<void>;
+  /** Tables changed somewhere else (another tab, another team member) since this editor loaded them. */
+  stale: string[];
+  /** Save what is pending here, then load the latest content. */
+  reload: () => Promise<void>;
 };
 
 const EditorContext = createContext<Ctx | null>(null);
@@ -63,6 +68,32 @@ export function EditorProvider({ session, initial, children }: { session: Editor
   contentRef.current = content;
   /** What is stored right now, per part; a part is saved only when it differs. */
   const savedRef = useRef(snapshots(initial));
+  /** The content as loaded / last saved here: a save writes only the differences from it. */
+  const baseRef = useRef(initial);
+  /** Latest change per table that this editor knows about (its own saves included). */
+  const knownRef = useRef<Record<string, string | null> | null>(null);
+  const [stale, setStale] = useState<string[]>([]);
+
+  /** Compare the database with what this editor knows; remember tables changed elsewhere. */
+  const checkStale = useCallback(async () => {
+    if (session.mode !== "supabase") return;
+    let st: PublishState | null = null;
+    try {
+      st = await getPublishState(session);
+    } catch {
+      return;
+    }
+    if (!st) return;
+    if (!knownRef.current) {
+      knownRef.current = Object.fromEntries(Object.entries(st).map(([t, v]) => [t, v.last]));
+      return;
+    }
+    const known = knownRef.current;
+    const changed = Object.entries(st)
+      .filter(([t, v]) => v.last && (!known[t] || v.last > known[t]!))
+      .map(([t]) => t);
+    if (changed.length) setStale((s) => [...new Set([...s, ...changed])]);
+  }, [session]);
 
   const refreshState = useCallback(async () => {
     if (session.mode !== "supabase") return;
@@ -77,7 +108,22 @@ export function EditorProvider({ session, initial, children }: { session: Editor
 
   useEffect(() => {
     void refreshState();
-  }, [refreshState]);
+    void checkStale();
+  }, [refreshState, checkStale]);
+
+  // Look for changes made elsewhere every 45 s and whenever the tab comes back into view.
+  useEffect(() => {
+    if (session.mode !== "supabase") return;
+    const t = setInterval(() => void checkStale(), 45_000);
+    const onFocus = () => document.visibilityState === "visible" && void checkStale();
+    document.addEventListener("visibilitychange", onFocus);
+    window.addEventListener("focus", onFocus);
+    return () => {
+      clearInterval(t);
+      document.removeEventListener("visibilitychange", onFocus);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [session.mode, checkStale]);
 
   // Preview mode: restore the draft kept in this browser.
   useEffect(() => {
@@ -128,10 +174,15 @@ export function EditorProvider({ session, initial, children }: { session: Editor
     setSaving(true);
     setError(null);
     try {
-      const res = await saveDraft(session, current, changed);
+      // Notice changes made elsewhere before this save, so they are reported, not absorbed.
+      await checkStale();
+      const res = await saveDraft(session, current, changed, baseRef.current);
       // Decide now, before any state update below re-renders and replaces contentRef.
       const editedMeanwhile = contentRef.current !== current;
       for (const k of changed) savedRef.current[k] = snapshotOf(res.content, k);
+      const nextBase = { ...baseRef.current };
+      for (const k of changed) (nextBase as Record<string, unknown>)[k] = k === "vehicle" ? res.content.vehicle : res.content[k];
+      baseRef.current = nextBase;
       if (session.mode === "preview") {
         persistLocal({ content: res.content, savedAt: res.savedAt, unpublished: true });
         setLocalSaved(res.savedAt);
@@ -141,6 +192,13 @@ export function EditorProvider({ session, initial, children }: { session: Editor
         // their newer edits (the next save writes them; stale rows are removed).
         if (!editedMeanwhile) setContent(res.content);
         await refreshState();
+        // This save is now the latest known change of the tables it wrote.
+        try {
+          const st = await getPublishState(session);
+          if (st && knownRef.current) for (const k of changed) knownRef.current[TABLE_OF[k]] = st[TABLE_OF[k]]?.last ?? null;
+        } catch {
+          // the next check fills it in
+        }
       }
       // Edits made while saving stay dirty and are picked up by the next autosave.
       setDirty(editedMeanwhile);
@@ -149,7 +207,12 @@ export function EditorProvider({ session, initial, children }: { session: Editor
     } finally {
       setSaving(false);
     }
-  }, [session, refreshState]);
+  }, [session, refreshState, checkStale]);
+
+  const reload = useCallback(async () => {
+    if (dirty) await save();
+    window.location.reload();
+  }, [dirty, save]);
 
   const publish = useCallback(async () => {
     if (dirty) await save();
@@ -194,7 +257,7 @@ export function EditorProvider({ session, initial, children }: { session: Editor
 
   return (
     <EditorContext.Provider
-      value={{ session, content, update, dirty, unpublished, saving, lastSaved, lastPublished, publishState, stateLoading, error, save, publish }}
+      value={{ session, content, update, dirty, unpublished, saving, lastSaved, lastPublished, publishState, stateLoading, error, save, publish, stale, reload }}
     >
       {ready ? children : <p className="p-8 text-sm">Loading draft…</p>}
     </EditorContext.Provider>

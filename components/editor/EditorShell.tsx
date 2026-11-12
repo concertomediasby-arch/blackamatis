@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { signOut } from "@/lib/editor/data";
 import { normPath } from "@/lib/nav";
 import { useEditor } from "./EditorProvider";
+import { btn } from "./Field";
 
 const NAV = [
   { href: "/editor", label: "Overview" },
@@ -17,12 +18,32 @@ const NAV = [
   { href: "/editor/news", label: "News" },
 ];
 
+/** Friendly names for the stale-content warning. */
+const TABLE_LABEL: Record<string, string> = {
+  vehicle: "Vehicle & Story",
+  components: "Components",
+  wiring_links: "Wiring links",
+  circuits: "Cable diagram circuits",
+  photos: "Photo log",
+  craft_photos: "Craftsmanship close-ups",
+  bonus_requests: "Bonus requests",
+  theme_zones: "Theme zones",
+  partners: "Partners",
+  news: "News",
+  team: "Team",
+  milestones: "Milestones",
+  competitions: "Competitions",
+  tuning: "Tuning",
+  before_after: "Before / after",
+  moodboard_items: "Moodboard",
+};
+
 const time = (iso: string | null) => (iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : null);
 
 export function EditorShell({ children }: { children: React.ReactNode }) {
   const pathname = normPath(usePathname());
   const router = useRouter();
-  const { session, dirty, unpublished, saving, lastSaved, error, save, publish, stateLoading, publishState } = useEditor();
+  const { session, dirty, unpublished, saving, lastSaved, error, save, publish, stateLoading, publishState, stale, reload } = useEditor();
   const nothingSaved = session.mode === "supabase" && !!publishState && Object.values(publishState).every((t) => t.rows === 0);
   const [menu, setMenu] = useState(false);
 
@@ -154,6 +175,17 @@ export function EditorShell({ children }: { children: React.ReactNode }) {
           <p role="alert" className="m-0 border-b border-red-300 bg-red-50 px-4 py-2.5 text-sm text-red-800 sm:px-8">
             {error}
           </p>
+        )}
+        {stale.length > 0 && (
+          <div role="alert" className="flex flex-wrap items-center justify-between gap-3 border-b border-amber/60 bg-[#FFF6CC] px-4 py-2.5 text-sm sm:px-8">
+            <span>
+              <b>Changed somewhere else</b> since you opened the editor: {stale.map((t) => TABLE_LABEL[t] ?? t).join(", ")}. Your
+              saves only write what you change here, so they do not undo that. Reload to see the latest.
+            </span>
+            <button type="button" className={`${btn.primary} min-h-10`} onClick={() => void reload()}>
+              {dirty ? "Save and reload" : "Reload"}
+            </button>
+          </div>
         )}
         </div>
         <main id="editor-main" className="mx-auto w-full max-w-[1200px] flex-1 px-4 py-8 sm:px-8">

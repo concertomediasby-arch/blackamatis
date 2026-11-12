@@ -4,7 +4,8 @@ import { PLACEHOLDER } from "../data/placeholder";
 import { createClient } from "../supabase/client";
 import { CONTENT_TABLES, fetchEditorContent } from "../supabase/content";
 import { isSupabaseConfigured } from "../supabase/env";
-import { stableUuid } from "./ids";
+import { isUuid, stableUuid } from "./ids";
+import { rowChanges, vehiclePatch } from "./diff";
 import { normalizeMedia } from "../bonus-media";
 import { normalizeCircuit } from "../circuits";
 import { normalizeHotspots } from "../photo";
@@ -95,7 +96,13 @@ export async function getPublishState(session: EditorSession): Promise<PublishSt
  * stay drafts until the owner publishes them (RLS: only owners may publish).
  * Returns the content with database ids.
  */
-export async function saveDraft(session: EditorSession, content: SiteContent, keys: SaveKey[] = SAVE_KEYS): Promise<{ content: SiteContent; savedAt: string }> {
+export async function saveDraft(
+  session: EditorSession,
+  content: SiteContent,
+  keys: SaveKey[] = SAVE_KEYS,
+  /** The content as this editor loaded or last saved it: only differences from it are written. */
+  base: SiteContent = content,
+): Promise<{ content: SiteContent; savedAt: string }> {
   const savedAt = new Date().toISOString();
   if (session.mode === "preview") return { content, savedAt };
   const client = db();
@@ -103,21 +110,34 @@ export async function saveDraft(session: EditorSession, content: SiteContent, ke
 
   const next: SiteContent = { ...content };
   if (keys.includes("vehicle")) {
-    const vehicle = { ...content.vehicle, id: await stableUuid(content.vehicle.id), status, updated_by: session.userId, updated_at: savedAt };
-    const vr = await client.from("vehicle").upsert(vehicle);
-    if (vr.error) throw new Error(explainDbError("vehicle", vr.error.message));
-    // There is one vehicle: remove any other row so the site can never show a stale copy.
-    const vd = await client.from("vehicle").delete().neq("id", vehicle.id);
-    if (vd.error) throw new Error(`vehicle: ${vd.error.message}`);
-    next.vehicle = { ...content.vehicle, id: vehicle.id };
+    const id = await stableUuid(content.vehicle.id);
+    const stamp = { status, updated_by: session.userId, updated_at: savedAt };
+    if (isUuid(base.vehicle.id) && base.vehicle.id.toLowerCase() === id) {
+      // The row exists: write only the fields changed here, so fields changed elsewhere stay.
+      const patch = vehiclePatch(content.vehicle, base.vehicle);
+      if (Object.keys(patch).length) {
+        const vr = await client.from("vehicle").update({ ...patch, ...stamp }).eq("id", id);
+        if (vr.error) throw new Error(explainDbError("vehicle", vr.error.message));
+      }
+    } else {
+      // First save of the vehicle: write the whole row.
+      const vr = await client.from("vehicle").upsert({ ...content.vehicle, id, ...stamp });
+      if (vr.error) throw new Error(explainDbError("vehicle", vr.error.message));
+      // There is one vehicle: remove any other row so the site can never show a stale copy.
+      const vd = await client.from("vehicle").delete().neq("id", id);
+      if (vd.error) throw new Error(`vehicle: ${vd.error.message}`);
+    }
+    next.vehicle = { ...content.vehicle, id };
   }
 
   for (const { key, table } of WRITE_TABLES) {
     if (!keys.includes(key as SaveKey)) continue;
     // Diagram keys must be unique: a later duplicate gets a suffix ("amp" -> "amp_2").
-    const source = table === "components" ? dedupeKeys(content.components) : (content[key] as { id: string }[]);
+    const all = table === "components" ? dedupeKeys(content.components) : (content[key] as { id: string }[]);
+    // Only rows edited or added here are written, and only rows removed here are deleted.
+    const { write, remove } = rowChanges(all, base[key] as { id: string }[]);
     const rows = await Promise.all(
-      source.map(async (r) => ({
+      write.map(async (r) => ({
         ...r,
         ...(table === "components"
           ? {
@@ -143,16 +163,18 @@ export async function saveDraft(session: EditorSession, content: SiteContent, ke
       })),
     );
     // Remove deleted rows first, so a new row may reuse a value (e.g. a diagram key) of a removed one.
-    const ids = rows.map((r) => r.id);
-    const del = client.from(table).delete();
-    const { error: delErr } = ids.length ? await del.not("id", "in", `(${ids.join(",")})`) : await del.neq("id", "00000000-0000-0000-0000-000000000000");
-    if (delErr) throw new Error(explainDbError(table, delErr.message));
+    if (remove.length) {
+      const { error: delErr } = await client.from(table).delete().in("id", remove);
+      if (delErr) throw new Error(explainDbError(table, delErr.message));
+    }
     if (rows.length) {
       const { error } = await client.from(table).upsert(rows);
       if (error) throw new Error(explainDbError(table, error.message));
     }
-    (next as Record<string, unknown>)[key] = rows.map((r) => {
-      const { status: _s, updated_at: _u, updated_by: _b, ...rest } = r;
+    // The list as saved: written rows with their database ids, the others as they were.
+    const saved = new Map(write.map((r, i) => [r, rows[i]]));
+    (next as Record<string, unknown>)[key] = all.map((r) => {
+      const { status: _s, updated_at: _u, updated_by: _b, ...rest } = (saved.get(r) ?? r) as Record<string, unknown>;
       void _s;
       void _u;
       void _b;
