@@ -189,9 +189,9 @@ export function MediaGallery({
                     aria-label={`Photo ${i + 1}`}
                     aria-current={i === open ? "true" : undefined}
                     onClick={() => setOpen(i)}
-                    className="flex h-11 w-7 cursor-pointer items-center justify-center"
+                    className="flex h-11 w-6 cursor-pointer items-center justify-center"
                   >
-                    <span className={`block h-2 w-2 rounded-full transition-colors ${i === open ? "bg-amber" : "bg-white/35"}`} />
+                    <span className={`block h-1.5 w-1.5 rounded-full transition-colors ${i === open ? "bg-amber" : "bg-white/35"}`} />
                   </button>
                 ))}
               </div>
