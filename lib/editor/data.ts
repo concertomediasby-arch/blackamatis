@@ -125,7 +125,12 @@ export async function saveDraft(session: EditorSession, content: SiteContent, ke
               wiring_hotspots: normalizeHotspots((r as { wiring_hotspots?: unknown }).wiring_hotspots),
             }
           : table === "bonus_requests"
-            ? { process: normalizeMedia((r as { process?: unknown }).process), result: normalizeMedia((r as { result?: unknown }).result) }
+            ? {
+                process: normalizeMedia((r as { process?: unknown }).process),
+                result: normalizeMedia((r as { result?: unknown }).result),
+                // A request without a strength loads as "" (empty text columns are filled); store it as null.
+                strength: (r as { strength?: string | null }).strength || null,
+              }
             : table === "circuits"
               ? (({ id: _i, sort: _s, ...c }) => (void _i, void _s, c))(normalizeCircuit(r as Circuit))
               : {}),

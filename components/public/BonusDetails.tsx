@@ -56,7 +56,7 @@ function MediaItem({
     media = (
       <div className={box}>
         <iframe
-          src={`https://www.youtube-nocookie.com/embed/${yt}`}
+          src={`https://www.youtube-nocookie.com/embed/${yt}?mute=1`}
           title={`${name}: ${label}`}
           loading="lazy"
           allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
@@ -71,6 +71,11 @@ function MediaItem({
         <video
           src={file}
           controls
+          muted
+          // Bonus videos start without sound (team decision); React does not always set the attribute itself.
+          ref={(el) => {
+            if (el) el.muted = el.defaultMuted = true;
+          }}
           playsInline
           preload="metadata"
           aria-label={`${name}: ${label}`}

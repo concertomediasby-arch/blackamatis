@@ -112,12 +112,13 @@ export function MediaGallery({
                   </span>
                 </>
               )}
-              {m.caption && (
-                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 pb-2 pt-6 text-left text-[12px] leading-snug text-ink">
-                  {m.caption}
-                </span>
-              )}
             </button>
+            {/* The caption sits under the tile, not over the photo (it is already in the tile's label). */}
+            {m.caption && (
+              <p aria-hidden="true" className="m-0 mt-2 px-1 text-[13px] leading-snug text-muted">
+                {m.caption}
+              </p>
+            )}
           </li>
         ))}
       </ul>
