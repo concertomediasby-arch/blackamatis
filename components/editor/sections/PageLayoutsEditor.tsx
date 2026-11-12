@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { PAGE_COPY, PageHeader } from "@/components/public/PageHeader";
 import { HeroHeadline } from "@/components/public/Hero";
-import { PhotoSlider } from "@/components/public/PhotoSlider";
+import { HistorySlides } from "@/components/public/HistorySlides";
 import { ThemeSides } from "@/components/public/ThemeSides";
 import { normalizeMedia } from "@/lib/bonus-media";
 import { CLASS_INFO } from "@/lib/emma/matrix";
@@ -527,11 +527,11 @@ export function PageLayoutsEditor() {
             />
             {page === "history" && (
               <div className="px-10">
-                <PhotoSlider
+                <HistorySlides
                   photos={normalizeMedia(v.history_photos)}
+                  text={v.history_side_text}
+                  slider={historySliderOf(v)}
                   label="Preview of the History slider"
-                  maxVh={historySliderOf(v).height}
-                  bordered={historySliderOf(v).frame}
                 />
               </div>
             )}

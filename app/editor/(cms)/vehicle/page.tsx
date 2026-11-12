@@ -22,6 +22,8 @@ import { MediaListEditor } from "@/components/editor/sections/MediaListEditor";
 import { ScaledPreview } from "@/components/editor/ScaledPreview";
 import { StatementSection } from "@/components/public/HomeSections";
 import { MediaGallery } from "@/components/public/MediaGallery";
+import { HistorySlides } from "@/components/public/HistorySlides";
+import { historySliderOf } from "@/lib/page-layout";
 import { normalizeMedia } from "@/lib/bonus-media";
 import {
   STATEMENT_MAX_WORDS,
@@ -47,6 +49,7 @@ export default function VehiclePage() {
     mode: "onChange",
     defaultValues: {
       ...v,
+      history_side_text: v.history_side_text ?? "",
       team: [...content.team].sort((a, b) => a.sort - b.sort),
     },
   });
@@ -246,6 +249,24 @@ export default function VehiclePage() {
               }))
             }
           />
+        </div>
+        <div id="f-history-side-text">
+          <TextArea
+            label="Text beside the History slider (optional)"
+            {...register("history_side_text")}
+            error={e.history_side_text?.message}
+            hint="Shown on the left of the slider on wide screens and above it on phones. One paragraph per line. Leave empty to let the slider fill the row."
+          />
+          <ScaledPreview label="Preview of the History slider with its text">
+            <div className="px-10 py-8">
+              <HistorySlides
+                photos={normalizeMedia(v.history_photos)}
+                text={v.history_side_text}
+                slider={historySliderOf(v)}
+                label="Preview of the History slider"
+              />
+            </div>
+          </ScaledPreview>
         </div>
         <div id="f-history-gallery">
           <MediaListEditor

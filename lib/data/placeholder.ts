@@ -172,6 +172,7 @@ export const PLACEHOLDER: SiteContent = {
     website: "",
     car_photo_path: null,
     history_photos: [],
+    history_side_text: "",
     history_gallery: [],
     hero_photos: [],
     dark_side_photo_path: null,

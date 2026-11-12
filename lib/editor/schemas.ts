@@ -24,6 +24,7 @@ export const vehicleSchema = z.object({
     .string()
     .refine((s) => wordCount(s) <= STATEMENT_MAX_WORDS, `Keep the statement to ${STATEMENT_MAX_WORDS} words or fewer`),
   story: text(800),
+  history_side_text: text(800),
   owner: text(80),
   installer: text(80),
   designer: text(80),
