@@ -2,13 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import { PAGE_COPY, PageHeader } from "@/components/public/PageHeader";
+import { HeroHeadline } from "@/components/public/Hero";
 import { ThemeSides } from "@/components/public/ThemeSides";
+import { CLASS_INFO } from "@/lib/emma/matrix";
+import { heroText } from "@/lib/home";
 import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 import {
   DEFAULT_PAGE_LAYOUTS,
   HISTORY_LAYOUT_LIMITS,
   PAGE_KEYS,
+  DEFAULT_HOME_LAYOUT,
   DEFAULT_THEME_LAYOUT,
+  HEADLINE_LIMITS,
+  homeLayoutOf,
+  type HeadlineStyle,
   THEME_LAYOUT_LIMITS,
   pageLayoutOf,
   themeLayoutOf,
@@ -24,7 +31,9 @@ import { LayoutSliders } from "../LayoutSliders";
 const PAGE_WIDTH = 1440;
 
 /** Tabs in the order of the site menu. */
-const TABS: { key: PageKey | "theme"; label: string }[] = [
+type Tab = PageKey | "theme" | "home";
+const TABS: { key: Tab; label: string }[] = [
+  { key: "home", label: "Home" },
   { key: "history", label: PAGE_COPY.history.name },
   { key: "theme", label: "Theme" },
   ...PAGE_KEYS.filter((k) => k !== "history").map((k) => ({
@@ -80,6 +89,112 @@ function ScaledPreview({
   );
 }
 
+/** The headline's paragraph style: size, line spacing, letter spacing and the space around it. Same on every tab. */
+function HeadlineStyleFields({
+  value,
+  onChange,
+  spacingLabel,
+}: {
+  value: HeadlineStyle;
+  onChange: (p: Partial<HeadlineStyle>) => void;
+  spacingLabel: string;
+}) {
+  const rows: {
+    k: keyof HeadlineStyle;
+    label: string;
+    step: number;
+    show: (n: number) => string;
+  }[] = [
+    { k: "headline", label: "Size", step: 2, show: (n) => `${n}%` },
+    { k: "leading", label: "Line spacing", step: 1, show: (n) => `${n}%` },
+    {
+      k: "tracking",
+      label: "Letter spacing",
+      step: 1,
+      show: (n) => `${(n / 100).toFixed(2)} em`,
+    },
+    { k: "spacing", label: spacingLabel, step: 2, show: (n) => `${n} px` },
+  ];
+  return (
+    <fieldset className="m-0 flex flex-col gap-2 rounded-xl border border-editor-border p-3">
+      <legend className="px-1 text-sm font-semibold">Headline</legend>
+      {rows.map((x) => {
+        const [min, max] = HEADLINE_LIMITS[x.k];
+        return (
+          <label
+            key={x.k}
+            className="grid grid-cols-[minmax(0,208px)_1fr_72px] items-center gap-3 text-[13px] font-semibold"
+          >
+            {x.label}
+            <input
+              type="range"
+              min={min}
+              max={max}
+              step={x.step}
+              value={value[x.k]}
+              onChange={(e) => onChange({ [x.k]: Number(e.target.value) })}
+              className="accent-prussian"
+            />
+            <span className="text-right font-mono text-[12px]">
+              {x.show(value[x.k])}
+            </span>
+          </label>
+        );
+      })}
+    </fieldset>
+  );
+}
+
+/** Home tab: the hero headline's paragraph style. Stored in `page_layouts.home`; the text itself is in the Landing page card. */
+function HomeLayoutFields() {
+  const { content, update } = useEditor();
+  const v = content.vehicle;
+  const h = homeLayoutOf(v);
+  const set = (p: Partial<HeadlineStyle>) =>
+    update((c) => {
+      const all = (
+        c.vehicle.page_layouts && typeof c.vehicle.page_layouts === "object"
+          ? c.vehicle.page_layouts
+          : {}
+      ) as Record<string, unknown>;
+      return {
+        ...c,
+        vehicle: {
+          ...c.vehicle,
+          page_layouts: { ...all, home: { ...homeLayoutOf(c.vehicle), ...p } },
+        },
+      };
+    });
+  return (
+    <>
+      <p className="m-0 text-[13px] text-[#55535c]">
+        The text itself (small line, headline, short copy, button) is edited in
+        the Landing page card above.
+      </p>
+      <HeadlineStyleFields
+        value={h}
+        onChange={set}
+        spacingLabel="Space between the lines of the block"
+      />
+      <button
+        type="button"
+        className={`${btn.secondary} self-start`}
+        onClick={() => set(DEFAULT_HOME_LAYOUT)}
+      >
+        Reset
+      </button>
+      <ScaledPreview label="Preview of the Home headline">
+        <div className="bg-prussian px-[88px] py-16">
+          <HeroHeadline
+            text={heroText(v.home, CLASS_INFO[v.class]?.name ?? "")}
+            headline={h}
+          />
+        </div>
+      </ScaledPreview>
+    </>
+  );
+}
+
 /** Theme tab: page margin, space between the two side cards, photo height. Stored in `page_layouts.theme`. */
 function ThemeLayoutFields() {
   const { content, update } = useEditor();
@@ -103,31 +218,10 @@ function ThemeLayoutFields() {
         },
       };
     });
-  const sliders: {
-    k:
-      | "margin"
-      | "gap"
-      | "padding"
-      | "headline"
-      | "leading"
-      | "tracking"
-      | "spacing";
-    label: string;
-    unit: string;
-    step?: number;
-  }[] = [
-    { k: "headline", label: "Headline size", unit: "%" },
-    { k: "leading", label: "Headline line spacing", unit: "%", step: 1 },
-    { k: "tracking", label: "Headline letter spacing", unit: "", step: 1 },
-    {
-      k: "spacing",
-      label: "Space above & below the headline",
-      unit: "px",
-      step: 2,
-    },
-    { k: "padding", label: "Space inside the cards", unit: "px" },
-    { k: "margin", label: "Page margin (left / right)", unit: "px" },
-    { k: "gap", label: "Space between the cards", unit: "px" },
+  const sliders: { k: "margin" | "gap" | "padding"; label: string }[] = [
+    { k: "padding", label: "Space inside the cards" },
+    { k: "margin", label: "Page margin (left / right)" },
+    { k: "gap", label: "Space between the cards" },
   ];
   return (
     <>
@@ -160,20 +254,23 @@ function ThemeLayoutFields() {
                 type="range"
                 min={min}
                 max={max}
-                step={x.step ?? 4}
+                step={4}
                 value={t[x.k]}
                 onChange={(e) => set({ [x.k]: Number(e.target.value) })}
                 className="accent-prussian"
               />
               <span className="text-right font-mono text-[12px]">
-                {x.k === "tracking"
-                  ? `${(t.tracking / 100).toFixed(2)} em`
-                  : `${t[x.k]}${x.unit === "%" ? "%" : " px"}`}
+                {t[x.k]} px
               </span>
             </label>
           );
         })}
       </div>
+      <HeadlineStyleFields
+        value={t}
+        onChange={(p) => set(p)}
+        spacingLabel="Space above & below the headline"
+      />
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {(
           [
@@ -223,8 +320,8 @@ function ThemeLayoutFields() {
 export function PageLayoutsEditor() {
   const { content, update } = useEditor();
   const v = content.vehicle;
-  const [tab, setTab] = useState<PageKey | "theme">("history");
-  const page: PageKey = tab === "theme" ? "history" : tab;
+  const [tab, setTab] = useState<Tab>("home");
+  const page: PageKey = tab === "theme" || tab === "home" ? "history" : tab;
   const l = pageLayoutOf(v, page);
   const set = (p: Partial<PageLayout>) =>
     update((c) => {
@@ -251,11 +348,11 @@ export function PageLayoutsEditor() {
   return (
     <Card title="Page layouts" id="page-layouts">
       <p className="m-0 text-sm text-[#4a4852]">
-        Where the headline and the intro text sit, set per page. For Theme:
-        headline size and spacing, space inside and between the two side cards,
-        page margin, photo height and each photo&apos;s position &amp; size.
-        Settings apply from tablet width; phones always stack. The preview shows
-        a 1440 px wide screen.
+        Per page: the headline&apos;s size and paragraph style (line spacing,
+        letter spacing, space around it) and where the headline and text sit;
+        for Theme also the two side cards and their photos. Settings apply from
+        tablet width; phones always stack. The preview shows a 1440 px wide
+        screen.
       </p>
       <SegmentedTabs
         options={TABS}
@@ -264,7 +361,9 @@ export function PageLayoutsEditor() {
         label="Page"
         tone="light"
       />
-      {tab === "theme" ? (
+      {tab === "home" ? (
+        <HomeLayoutFields />
+      ) : tab === "theme" ? (
         <ThemeLayoutFields />
       ) : (
         <>
@@ -350,6 +449,11 @@ export function PageLayoutsEditor() {
               );
             })}
           </div>
+          <HeadlineStyleFields
+            value={l}
+            onChange={(p) => set(p)}
+            spacingLabel="Space under the small line above it"
+          />
           <button
             type="button"
             className={`${btn.secondary} self-start`}

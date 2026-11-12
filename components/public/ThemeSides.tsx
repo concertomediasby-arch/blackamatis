@@ -1,7 +1,7 @@
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { EditPencil } from "@/components/public/EditMode";
-import type { ThemeLayout } from "@/lib/page-layout";
+import { headlineCss, type ThemeLayout } from "@/lib/page-layout";
 import { heroTransform, type HeroLayout } from "@/lib/photo";
 import { normalizePoints } from "@/lib/theme";
 import type { Vehicle } from "@/lib/types";
@@ -93,12 +93,7 @@ function SidePhoto({
  * height and each photo's position & size come from the team's Theme layout.
  */
 export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
-  const k = layout.headline / 100;
-  const headline = {
-    fontSize: `clamp(${64 * k}px, ${8 * k}vw, ${120 * k}px)`,
-    lineHeight: layout.leading / 100,
-    letterSpacing: `${layout.tracking / 100}em`,
-  };
+  const headline = headlineCss(layout, 64, (k) => `${8 * k}vw`, 120);
   return (
     <section
       aria-labelledby="two-face"

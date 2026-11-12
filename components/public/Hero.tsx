@@ -7,6 +7,7 @@ import { CarPhoto } from "./CarPhoto";
 import { Carousel } from "./PhotoSlider";
 import { EditPencil } from "./EditMode";
 import type { CarPhotoLayout } from "@/lib/photo";
+import { headlineCss, type HeadlineStyle } from "@/lib/page-layout";
 import { SiteHeader } from "./SiteHeader";
 
 type Face = "dark" | "light";
@@ -58,6 +59,8 @@ const SECTIONS = [
 ];
 
 type Props = {
+  /** Paragraph style of the headline (editor › Page layouts › Home). */
+  headline: HeadlineStyle;
   /** The team's hero text (lib/home.ts › heroText). */
   text: {
     eyebrow: string;
@@ -81,6 +84,7 @@ type Props = {
  */
 export function Hero({
   text,
+  headline,
   carPhotoUrls,
   carLayout,
   instagramUrl,
@@ -190,51 +194,14 @@ export function Hero({
         </div>
 
         {/* Headline, bottom left */}
-        <div className="relative flex flex-col justify-end gap-5 pt-10 lg:order-1 lg:pb-10">
+        <div className="relative flex flex-col justify-end pt-10 lg:order-1 lg:pb-10">
           <EditPencil
             href="/editor/vehicle/#home-hero"
             label="Landing page text"
             className="right-0 top-2"
             tone={pencilTone}
           />
-          <span
-            className="font-mono text-[12px] uppercase tracking-[0.16em]"
-            style={{ color: f.accent }}
-          >
-            {text.eyebrow}
-          </span>
-          <h1
-            className="display m-0 font-black"
-            style={{
-              fontSize: "clamp(48px, min(5.4vw, 9vh), 104px)",
-              lineHeight: 0.92,
-            }}
-          >
-            {text.titleLines.map((line, i) => (
-              <span key={i} className="block">
-                {line}
-              </span>
-            ))}
-          </h1>
-          <p
-            className="m-0 max-w-[380px] text-[17px] leading-relaxed"
-            style={{ color: f.muted }}
-          >
-            {text.intro}
-          </p>
-          <a
-            href="#start"
-            className="group inline-flex min-h-12 items-center gap-3 self-start rounded-full border py-1.5 pl-6 pr-1.5 font-semibold uppercase tracking-[0.06em]"
-            style={{ borderColor: f.line, color: f.ink }}
-          >
-            {text.cta}
-            <span
-              className="flex h-10 w-10 items-center justify-center rounded-full transition-transform group-hover:translate-x-0.5"
-              style={{ background: f.ctaBg, color: f.ctaFg }}
-            >
-              <span aria-hidden="true">→</span>
-            </span>
-          </a>
+          <HeroHeadline text={text} headline={headline} />
         </div>
       </div>
 
@@ -360,5 +327,64 @@ export function Hero({
         </span>
       </a>
     </section>
+  );
+}
+
+/**
+ * The hero's eyebrow, headline, short copy and button (dark face). Used by the
+ * hero and by the Home preview in the editor; the gap between them is the
+ * headline's spacing setting.
+ */
+export function HeroHeadline({
+  text,
+  headline,
+}: {
+  text: Props["text"];
+  headline: HeadlineStyle;
+}) {
+  const f = FACES.dark;
+  return (
+    <div className="flex flex-col" style={{ gap: `${headline.spacing}px` }}>
+      <span
+        className="font-mono text-[12px] uppercase tracking-[0.16em]"
+        style={{ color: f.accent }}
+      >
+        {text.eyebrow}
+      </span>
+      <h1
+        className="display m-0 font-black"
+        style={headlineCss(
+          headline,
+          48,
+          (k) => `min(${5.4 * k}vw, ${9 * k}vh)`,
+          104,
+        )}
+      >
+        {text.titleLines.map((line, i) => (
+          <span key={i} className="block">
+            {line}
+          </span>
+        ))}
+      </h1>
+      <p
+        className="m-0 max-w-[380px] text-[17px] leading-relaxed"
+        style={{ color: f.muted }}
+      >
+        {text.intro}
+      </p>
+      <a
+        href="#start"
+        className="group inline-flex min-h-12 items-center gap-3 self-start rounded-full border py-1.5 pl-6 pr-1.5 font-semibold uppercase tracking-[0.06em]"
+        style={{ borderColor: f.line, color: f.ink }}
+      >
+        {text.cta}
+        <span
+          className="flex h-10 w-10 items-center justify-center rounded-full transition-transform group-hover:translate-x-0.5"
+          style={{ background: f.ctaBg, color: f.ctaFg }}
+        >
+          <span aria-hidden="true">→</span>
+        </span>
+      </a>
+    </div>
   );
 }

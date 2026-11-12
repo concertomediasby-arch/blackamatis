@@ -3,7 +3,10 @@ import {
   DEFAULT_HISTORY_LAYOUT,
   DEFAULT_PAGE_LAYOUTS,
   normalizeHistoryLayout,
+  DEFAULT_HOME_LAYOUT,
   DEFAULT_THEME_LAYOUT,
+  headlineCss,
+  homeLayoutOf,
   pageLayoutOf,
   themeLayoutOf,
 } from "./page-layout";
@@ -27,6 +30,7 @@ describe("normalizeHistoryLayout", () => {
         margin: 64.4,
       }),
     ).toEqual({
+      ...DEFAULT_HISTORY_LAYOUT,
       story: "below",
       align: "center",
       valign: "start",
@@ -86,5 +90,41 @@ describe("themeLayoutOf", () => {
     expect(
       themeLayoutOf({ page_layouts: { theme: { photo: "huge" } } }).photo,
     ).toBe("large");
+  });
+});
+
+describe("headline style on every page", () => {
+  it("page headers and Home default to their designed look and clamp saved values", () => {
+    expect(pageLayoutOf({}, "bonus")).toMatchObject({
+      headline: 100,
+      leading: 85,
+      tracking: 0,
+      spacing: 16,
+    });
+    expect(
+      pageLayoutOf(
+        { page_layouts: { judge: { leading: 300, tracking: -20 } } },
+        "judge",
+      ),
+    ).toMatchObject({ leading: 140, tracking: -6 });
+    expect(homeLayoutOf({})).toEqual(DEFAULT_HOME_LAYOUT);
+    expect(
+      homeLayoutOf({ page_layouts: { home: { headline: 120, spacing: 99 } } }),
+    ).toEqual({ ...DEFAULT_HOME_LAYOUT, headline: 120, spacing: 64 });
+  });
+
+  it("scales the page's fluid size and sets line and letter spacing", () => {
+    expect(
+      headlineCss(
+        { headline: 50, leading: 100, tracking: 4, spacing: 0 },
+        64,
+        (k) => `${9 * k}vw`,
+        128,
+      ),
+    ).toEqual({
+      fontSize: "clamp(32px, 4.5vw, 64px)",
+      lineHeight: 1,
+      letterSpacing: "0.04em",
+    });
   });
 });
