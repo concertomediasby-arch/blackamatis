@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { heroTransform, normalizeLayout } from "@/lib/photo";
 import { VideoPlayer } from "./MediaPlayer";
+import { useWheelSwipe } from "@/lib/use-swipe";
 import type { BonusMedia } from "@/lib/types";
 import { ZoomablePhoto } from "./Lightbox";
 
@@ -44,11 +45,23 @@ export function Carousel<T extends Slide>({
   const stacked = variant === "bare";
   const swipe = useRef<{ x: number; y: number } | null>(null);
 
-  // Follow the slide in view while the visitor swipes.
+  // Follow the slide in view while the visitor swipes, and move each photo a
+  // little slower than its slide (parallax: --px is the slide's distance from
+  // the centre, -1…1).
   useEffect(() => {
     const el = trackRef.current;
     if (!el || stacked) return;
-    const onScroll = () =>
+    let frame = 0;
+    const parallax = () => {
+      frame = 0;
+      const w = Math.max(1, el.clientWidth);
+      const pos = el.scrollLeft / w;
+      Array.from(el.children).forEach((li, i) => {
+        const d = Math.max(-1, Math.min(1, i - pos));
+        (li as HTMLElement).style.setProperty("--px", d.toFixed(4));
+      });
+    };
+    const onScroll = () => {
       setIndex(
         Math.max(
           0,
@@ -58,8 +71,16 @@ export function Carousel<T extends Slide>({
           ),
         ),
       );
+      if (!frame) frame = requestAnimationFrame(parallax);
+    };
+    parallax();
     el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, [n, stacked]);
 
   const go = useCallback(
@@ -81,6 +102,9 @@ export function Carousel<T extends Slide>({
     },
     [n, stacked],
   );
+
+  // Two-finger touchpad swipe on the stacked (hero) slides; the scroll track handles it natively.
+  const wheel = useWheelSwipe(() => go(index + 1), () => go(index - 1), stacked && n > 1);
 
   // Mouse drag for desktops without a trackpad.
   const drag = useRef<{ x: number; left: number } | null>(null);
@@ -120,6 +144,7 @@ export function Carousel<T extends Slide>({
           <ul
             tabIndex={n > 1 ? 0 : -1}
             aria-label={`${label}, ${n} photo${n === 1 ? "" : "s"}${n > 1 ? ". Use the arrow keys or swipe to move." : ""}`}
+            ref={wheel}
             className="m-0 grid list-none p-0 [touch-action:pan-y]"
             style={{ cursor: n > 1 ? "grab" : undefined }}
             onPointerDown={(e) => {
@@ -197,11 +222,11 @@ export function Carousel<T extends Slide>({
             {slides.map((s, i) => (
               <li
                 key={s.id}
-                className="w-full flex-none snap-center snap-always"
+                className="w-full flex-none snap-center snap-always overflow-hidden"
                 aria-roledescription="slide"
                 aria-label={`${i + 1} of ${n}`}
               >
-                {renderSlide(s, i)}
+                {n > 1 ? <div className="px-layer">{renderSlide(s, i)}</div> : renderSlide(s, i)}
               </li>
             ))}
           </ul>

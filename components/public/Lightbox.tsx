@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { photoAspect, photoZoom } from "@/lib/photo";
 import { storageUrl } from "@/lib/supabase/env";
-import { useSwipe } from "@/lib/use-swipe";
+import { useSwipe, useWheelSwipe } from "@/lib/use-swipe";
 import type { BonusMedia } from "@/lib/types";
 import { VideoPlayer } from "./MediaPlayer";
 
@@ -67,8 +67,17 @@ export function Lightbox({
 }) {
   const n = items.length;
   const dialogRef = useRef<HTMLDivElement>(null);
-  const go = useCallback((d: -1 | 1) => onIndex((index + d + n) % n), [index, n, onIndex]);
+  // Direction of the last switch, for the parallax slide-in (0 = just opened).
+  const [dir, setDir] = useState(0);
+  const go = useCallback(
+    (d: -1 | 1) => {
+      setDir(d);
+      onIndex((index + d + n) % n);
+    },
+    [index, n, onIndex],
+  );
   const swipe = useSwipe(() => go(1), () => go(-1), n > 1);
+  const wheel = useWheelSwipe(() => go(1), () => go(-1), n > 1);
 
   useEffect(() => {
     dialogRef.current?.focus();
@@ -80,9 +89,14 @@ export function Lightbox({
     document.addEventListener("keydown", onKey);
     const { overflow } = document.body.style;
     document.body.style.overflow = "hidden";
+    // No "back a page" from a sideways touchpad swipe while the window is open.
+    const root = document.documentElement;
+    const { overscrollBehaviorX } = root.style;
+    root.style.overscrollBehaviorX = "none";
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = overflow;
+      root.style.overscrollBehaviorX = overscrollBehaviorX;
     };
   }, [go, n, onClose]);
 
@@ -90,7 +104,10 @@ export function Lightbox({
   if (!cur) return null;
   return createPortal(
     <div
-      ref={dialogRef}
+      ref={(el) => {
+        dialogRef.current = el;
+        wheel(el);
+      }}
       role="dialog"
       aria-modal="true"
       aria-label={title(cur, index)}
@@ -111,16 +128,21 @@ export function Lightbox({
           className="relative flex w-full select-none items-center justify-center"
           {...swipe}
         >
-          {cur.kind === "photo" ? (
-            <LightboxPhoto key={cur.id + index} path={cur.path} alt={title(cur, index)} />
-          ) : (
-            <div
-              className="relative mx-auto aspect-video overflow-hidden rounded-2xl bg-black"
-              style={{ width: `min(100%, calc(${AREA} * 16 / 9))` }}
-            >
-              <VideoPlayer key={cur.id} m={cur} title={title(cur, index)} autoPlay muted />
-            </div>
-          )}
+          <div
+            key={cur.id + index}
+            className={`flex w-full justify-center ${dir > 0 ? "px-in-next" : dir < 0 ? "px-in-prev" : ""}`}
+          >
+            {cur.kind === "photo" ? (
+              <LightboxPhoto path={cur.path} alt={title(cur, index)} />
+            ) : (
+              <div
+                className="relative mx-auto aspect-video overflow-hidden rounded-2xl bg-black"
+                style={{ width: `min(100%, calc(${AREA} * 16 / 9))` }}
+              >
+                <VideoPlayer key={cur.id} m={cur} title={title(cur, index)} autoPlay muted />
+              </div>
+            )}
+          </div>
           {n > 1 &&
             ([-1, 1] as const).map((d) => (
               <button
@@ -142,7 +164,10 @@ export function Lightbox({
                 type="button"
                 aria-label={`Photo ${i + 1}`}
                 aria-current={i === index ? "true" : undefined}
-                onClick={() => onIndex(i)}
+                onClick={() => {
+                  if (i !== index) setDir(i > index ? 1 : -1);
+                  onIndex(i);
+                }}
                 className="flex h-11 w-6 cursor-pointer items-center justify-center"
               >
                 <span className={`block h-1.5 w-1.5 rounded-full transition-colors ${i === index ? "bg-amber" : "bg-white/35"}`} />

@@ -4,7 +4,7 @@ import { EditPencil } from "@/components/public/EditMode";
 import { headlineCss, type ThemeLayout } from "@/lib/page-layout";
 import { heroTransform, type HeroLayout } from "@/lib/photo";
 import { normalizePoints } from "@/lib/theme";
-import type { Vehicle } from "@/lib/types";
+import type { BonusMedia, Vehicle } from "@/lib/types";
 import { ZoomablePhoto } from "@/components/public/Lightbox";
 
 /** Photo height in the two side cards (editor › Page layouts › Theme). */
@@ -49,7 +49,10 @@ function SidePhoto({
   tone = "dark",
   frame,
   place,
+  group,
 }: {
+  /** Both side photos, so the large view can slide between them. */
+  group: BonusMedia[];
   path: string | null;
   label: string;
   alt: string;
@@ -69,7 +72,8 @@ function SidePhoto({
     );
   return (
     <ZoomablePhoto
-      group={[{ id: label, kind: "photo", path, url: null, caption: alt }]}
+      group={group}
+      index={Math.max(0, group.findIndex((g) => g.id === label))}
       label={alt}
       className={`${frame} relative w-full overflow-hidden rounded-[24px] border`}
     >
@@ -99,6 +103,12 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
   const base = headlineCss(layout, 64, (k) => `${8 * k}vw`, 120);
   // Never wider than the card: AMETHYST is about 4.2 em wide, so cap the size at 23 % of the text column.
   const headline = { ...base, fontSize: `min(${base.fontSize}, 23cqi)` };
+  const darkAlt = `${v.dark_side_name}: the dark side of Black Amethyst`;
+  const lightAlt = `${v.light_side_name}: the light side of Black Amethyst`;
+  const sides: BonusMedia[] = [
+    { id: "Dark side photo", kind: "photo", path: v.dark_side_photo_path ?? null, url: null, caption: darkAlt },
+    { id: "Light side photo", kind: "photo", path: v.light_side_photo_path ?? null, url: null, caption: lightAlt },
+  ].filter((m) => m.path) as BonusMedia[];
   return (
     <section
       aria-labelledby="two-face"
@@ -137,7 +147,8 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
         <SidePhoto
           path={v.dark_side_photo_path ?? null}
           label="Dark side photo"
-          alt={`${v.dark_side_name}: the dark side of Black Amethyst`}
+          alt={darkAlt}
+          group={sides}
           frame={`${PHOTO_ASPECT[layout.photo]} border-white/10`}
           place={layout.dark_photo}
         />
@@ -174,7 +185,8 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
         <SidePhoto
           path={v.light_side_photo_path ?? null}
           label="Light side photo"
-          alt={`${v.light_side_name}: the light side of Black Amethyst`}
+          alt={lightAlt}
+          group={sides}
           tone="light"
           frame={`${PHOTO_ASPECT[layout.photo]} border-black/15`}
           place={layout.light_photo}
