@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { PAGE_COPY, PageHeader } from "@/components/public/PageHeader";
 import { HeroHeadline } from "@/components/public/Hero";
+import { PhotoSlider } from "@/components/public/PhotoSlider";
 import { ThemeSides } from "@/components/public/ThemeSides";
+import { normalizeMedia } from "@/lib/bonus-media";
 import { CLASS_INFO } from "@/lib/emma/matrix";
 import { heroText } from "@/lib/home";
 import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
@@ -11,7 +13,11 @@ import {
   DEFAULT_PAGE_LAYOUTS,
   HISTORY_LAYOUT_LIMITS,
   PAGE_KEYS,
+  DEFAULT_HISTORY_SLIDER,
   DEFAULT_HOME_LAYOUT,
+  HISTORY_SLIDER_LIMITS,
+  historySliderOf,
+  type HistorySlider,
   DEFAULT_THEME_LAYOUT,
   HEADLINE_LIMITS,
   homeLayoutOf,
@@ -192,6 +198,86 @@ function HomeLayoutFields() {
         </div>
       </ScaledPreview>
     </>
+  );
+}
+
+/** History tab: the photo slider under the story (height, space above it, frame line). Stored in `page_layouts.history_slider`. */
+function HistorySliderFields() {
+  const { content, update } = useEditor();
+  const h = historySliderOf(content.vehicle);
+  const set = (p: Partial<HistorySlider>) =>
+    update((c) => {
+      const all = (
+        c.vehicle.page_layouts && typeof c.vehicle.page_layouts === "object"
+          ? c.vehicle.page_layouts
+          : {}
+      ) as Record<string, unknown>;
+      return {
+        ...c,
+        vehicle: {
+          ...c.vehicle,
+          page_layouts: {
+            ...all,
+            history_slider: { ...historySliderOf(c.vehicle), ...p },
+          },
+        },
+      };
+    });
+  const rows: {
+    k: "height" | "space";
+    label: string;
+    show: (n: number) => string;
+  }[] = [
+    { k: "height", label: "Height (of the screen)", show: (n) => `${n}%` },
+    {
+      k: "space",
+      label: "Space between the story and the slider",
+      show: (n) => `${n} px`,
+    },
+  ];
+  return (
+    <fieldset className="m-0 flex flex-col gap-2 rounded-xl border border-editor-border p-3">
+      <legend className="px-1 text-sm font-semibold">Photo slider</legend>
+      {rows.map((x) => {
+        const [min, max] = HISTORY_SLIDER_LIMITS[x.k];
+        return (
+          <label
+            key={x.k}
+            className="grid grid-cols-[minmax(0,208px)_1fr_72px] items-center gap-3 text-[13px] font-semibold"
+          >
+            {x.label}
+            <input
+              type="range"
+              min={min}
+              max={max}
+              step={2}
+              value={h[x.k]}
+              onChange={(e) => set({ [x.k]: Number(e.target.value) })}
+              className="accent-prussian"
+            />
+            <span className="text-right font-mono text-[12px]">
+              {x.show(h[x.k])}
+            </span>
+          </label>
+        );
+      })}
+      <label className="flex min-h-11 items-center gap-3 text-[13px] font-semibold">
+        <input
+          type="checkbox"
+          checked={h.frame}
+          onChange={(e) => set({ frame: e.target.checked })}
+          className="h-5 w-5 accent-prussian"
+        />
+        Thin line around the slider
+      </label>
+      <button
+        type="button"
+        className={`${btn.secondary} self-start`}
+        onClick={() => set(DEFAULT_HISTORY_SLIDER)}
+      >
+        Reset slider
+      </button>
+    </fieldset>
   );
 }
 
@@ -454,6 +540,7 @@ export function PageLayoutsEditor() {
             onChange={(p) => set(p)}
             spacingLabel="Space under the small line above it"
           />
+          {page === "history" && <HistorySliderFields />}
           <button
             type="button"
             className={`${btn.secondary} self-start`}
@@ -468,7 +555,18 @@ export function PageLayoutsEditor() {
               page={page}
               layout={l}
               text={page === "history" ? v.story : undefined}
+              bottom={page === "history" ? historySliderOf(v).space : undefined}
             />
+            {page === "history" && (
+              <div className="px-10">
+                <PhotoSlider
+                  photos={normalizeMedia(v.history_photos)}
+                  label="Preview of the History slider"
+                  maxVh={historySliderOf(v).height}
+                  bordered={historySliderOf(v).frame}
+                />
+              </div>
+            )}
           </ScaledPreview>
         </>
       )}

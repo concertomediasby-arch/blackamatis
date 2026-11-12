@@ -3,7 +3,9 @@ import {
   DEFAULT_HISTORY_LAYOUT,
   DEFAULT_PAGE_LAYOUTS,
   normalizeHistoryLayout,
+  DEFAULT_HISTORY_SLIDER,
   DEFAULT_HOME_LAYOUT,
+  historySliderOf,
   DEFAULT_THEME_LAYOUT,
   headlineCss,
   homeLayoutOf,
@@ -126,5 +128,18 @@ describe("headline style on every page", () => {
       lineHeight: 1,
       letterSpacing: "0.04em",
     });
+  });
+});
+
+describe("historySliderOf", () => {
+  it("defaults to no frame line and clamps saved values", () => {
+    expect(historySliderOf({})).toEqual(DEFAULT_HISTORY_SLIDER);
+    expect(
+      historySliderOf({
+        page_layouts: {
+          history_slider: { height: 20, space: 500, frame: true },
+        },
+      }),
+    ).toEqual({ height: 40, space: 160, frame: true });
   });
 });

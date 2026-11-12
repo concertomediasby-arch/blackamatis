@@ -5,7 +5,7 @@ import {
   useSiteContent,
 } from "@/components/public/ContentProvider";
 import { PageHeader } from "@/components/public/PageHeader";
-import { pageLayoutOf } from "@/lib/page-layout";
+import { historySliderOf, pageLayoutOf } from "@/lib/page-layout";
 import { MediaGallery } from "@/components/public/MediaGallery";
 import { PhotoSlider } from "@/components/public/PhotoSlider";
 import { normalizeMedia } from "@/lib/bonus-media";
@@ -15,12 +15,14 @@ export function HistoryView() {
   const state = useSiteContent();
   if (state.status !== "ready") return <ContentFallback state={state} />;
   const c = state.content;
+  const slider = historySliderOf(c.vehicle);
   return (
     <>
       <PageHeader
         page="history"
         text={c.vehicle.story}
         layout={pageLayoutOf(c.vehicle, "history")}
+        bottom={slider.space}
       >
         <EditPencil
           href="/editor/vehicle/#f-story"
@@ -40,6 +42,8 @@ export function HistoryView() {
         <PhotoSlider
           photos={normalizeMedia(c.vehicle.history_photos)}
           label="Photos and videos of Black Amatis"
+          maxVh={slider.height}
+          bordered={slider.frame}
         />
       </section>
       <section

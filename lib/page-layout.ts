@@ -259,3 +259,43 @@ export function homeLayoutOf(v: { page_layouts?: unknown }): HomeLayout {
   ) as Record<string, unknown>;
   return normalizeHeadline(o, DEFAULT_HOME_LAYOUT);
 }
+
+/** History: the photo slider under the story. Stored in `vehicle.page_layouts.history_slider`. */
+export type HistorySlider = {
+  /** Maximum height of the slide, % of the screen height. */
+  height: number;
+  /** Space between the story and the slider, px. */
+  space: number;
+  /** Thin line around the slider. */
+  frame: boolean;
+};
+
+export const HISTORY_SLIDER_LIMITS = {
+  height: [40, 90],
+  space: [0, 160],
+} as const;
+
+/** The History slider without a frame line, otherwise as before (78 % of the screen, 64 px under the story). */
+export const DEFAULT_HISTORY_SLIDER: HistorySlider = {
+  height: 78,
+  space: 64,
+  frame: false,
+};
+
+/** The saved History slider settings, or the default. */
+export function historySliderOf(v: { page_layouts?: unknown }): HistorySlider {
+  const all = (
+    v.page_layouts && typeof v.page_layouts === "object" ? v.page_layouts : {}
+  ) as Record<string, unknown>;
+  const o = (
+    all.history_slider && typeof all.history_slider === "object"
+      ? all.history_slider
+      : {}
+  ) as Record<string, unknown>;
+  const d = DEFAULT_HISTORY_SLIDER;
+  return {
+    height: clamp(o.height, HISTORY_SLIDER_LIMITS.height, d.height),
+    space: clamp(o.space, HISTORY_SLIDER_LIMITS.space, d.space),
+    frame: typeof o.frame === "boolean" ? o.frame : d.frame,
+  };
+}
