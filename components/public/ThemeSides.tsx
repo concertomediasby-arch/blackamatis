@@ -93,7 +93,9 @@ function SidePhoto({
  * height and each photo's position & size come from the team's Theme layout.
  */
 export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
-  const headline = headlineCss(layout, 64, (k) => `${8 * k}vw`, 120);
+  const base = headlineCss(layout, 64, (k) => `${8 * k}vw`, 120);
+  // Never wider than the card: AMETHYST is about 4.2 em wide, so cap the size at 23 % of the text column.
+  const headline = { ...base, fontSize: `min(${base.fontSize}, 23cqi)` };
   return (
     <section
       aria-labelledby="two-face"
@@ -114,7 +116,7 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
           className="right-5 top-5"
         />
         <span className="eyebrow text-amber">02 — Theme</span>
-        <div className="flex flex-col gap-[var(--th)]">
+        <div className="flex flex-col gap-[var(--th)] [container-type:inline-size]">
           <span className="label text-amber">{v.dark_side_name}</span>
           <h1 id="two-face" className="display m-0 font-black" style={headline}>
             TWO
@@ -132,7 +134,7 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
         <SidePhoto
           path={v.dark_side_photo_path ?? null}
           label="Dark side photo"
-          alt={`${v.dark_side_name}: the dark side of Black Amatis`}
+          alt={`${v.dark_side_name}: the dark side of Black Amethyst`}
           frame={`${PHOTO_ASPECT[layout.photo]} border-white/10`}
           place={layout.dark_photo}
         />
@@ -147,7 +149,7 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
           className="right-5 top-5"
           tone="light"
         />
-        <div className="flex flex-col gap-[var(--th)]">
+        <div className="flex flex-col gap-[var(--th)] [container-type:inline-size]">
           <span className="label text-navy">{v.light_side_name}</span>
           <span
             aria-hidden="true"
@@ -156,7 +158,7 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
           >
             BLACK
             <br />
-            AMATIS
+            AMETHYST
           </span>
           <p className="m-0 max-w-[460px] text-[17px] leading-[1.7] text-dark-muted">
             {v.light_side_body}
@@ -169,7 +171,7 @@ export function ThemeSides({ v, layout }: { v: Vehicle; layout: ThemeLayout }) {
         <SidePhoto
           path={v.light_side_photo_path ?? null}
           label="Light side photo"
-          alt={`${v.light_side_name}: the light side of Black Amatis`}
+          alt={`${v.light_side_name}: the light side of Black Amethyst`}
           tone="light"
           frame={`${PHOTO_ASPECT[layout.photo]} border-black/15`}
           place={layout.light_photo}

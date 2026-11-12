@@ -41,7 +41,7 @@ export function HistoryView() {
         />
         <PhotoSlider
           photos={normalizeMedia(c.vehicle.history_photos)}
-          label="Photos and videos of Black Amatis"
+          label="Photos and videos of Black Amethyst"
           maxVh={slider.height}
           bordered={slider.frame}
         />
@@ -57,7 +57,7 @@ export function HistoryView() {
         />
         <MediaGallery
           items={normalizeMedia(c.vehicle.history_gallery)}
-          label="Gallery of Black Amatis"
+          label="Gallery of Black Amethyst"
         />
       </section>
     </>

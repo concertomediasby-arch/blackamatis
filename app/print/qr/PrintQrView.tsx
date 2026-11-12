@@ -17,7 +17,7 @@ export function PrintQrView({ svg, display }: { svg: string; display: string }) 
       <article className="a4" aria-label="A4 QR display">
         <div className="a4-body">
           <div className="a4-top">
-            <span className="a4-word">BLACK AMATIS</span>
+            <span className="a4-word">BLACK AMETHYST</span>
             <span className="a4-pill">{label}</span>
           </div>
           <span className="a4-eyebrow">HONDA ODYSSEY · TWO-FACE CONCEPT</span>

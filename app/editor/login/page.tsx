@@ -10,7 +10,7 @@ export default function LoginPage() {
     <div className="editor flex min-h-screen items-center justify-center bg-prussian p-4">
       <div className="flex w-full max-w-[420px] flex-col gap-6 rounded-3xl bg-editor p-8 text-[#14141a]">
         <div className="flex flex-col gap-1">
-          <span className="font-display text-3xl font-extrabold tracking-[0.08em] text-prussian">BLACK AMATIS</span>
+          <span className="font-display text-3xl font-extrabold tracking-[0.08em] text-prussian">BLACK AMETHYST</span>
           <span className="font-mono text-xs tracking-[0.14em] text-[#55535c]">EDITOR LOGIN</span>
         </div>
         {isSupabaseConfigured ? (

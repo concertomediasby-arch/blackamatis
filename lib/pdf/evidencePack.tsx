@@ -32,9 +32,9 @@ function EvidencePack({ c, cls }: { c: SiteContent; cls: EmmaClass }) {
   const v = c.vehicle;
   const photos = c.photos.filter((p) => p.proves_criterion);
   return (
-    <Document title={`Black Amatis evidence pack (${CLASS_INFO[cls].label})`} author="Black Amatis">
+    <Document title={`Black Amethyst evidence pack (${CLASS_INFO[cls].label})`} author="Black Amethyst">
       <Page size="A4" style={st.page}>
-        <Text style={st.h1}>BLACK AMATIS - EVIDENCE PACK</Text>
+        <Text style={st.h1}>BLACK AMETHYST - EVIDENCE PACK</Text>
         <Text style={st.meta}>{safe(`${v.model} · ${v.event} · Class ${CLASS_INFO[cls].label} (${CLASS_INFO[cls].name}) · Category ${v.category}`)}</Text>
         <Text style={st.meta}>{safe([v.owner?.trim() && `Owner ${v.owner}`, `Installer ${v.installer}`].filter(Boolean).join(" · "))}</Text>
         <Text style={st.summary}>{safe(`Evidence ready: ${r.readyPts} / ${r.total} points (${r.pct}%) · ${r.count} judged criteria`)}</Text>
@@ -65,7 +65,7 @@ function EvidencePack({ c, cls }: { c: SiteContent; cls: EmmaClass }) {
             ))}
           </View>
         )}
-        <Text style={st.footer} render={({ pageNumber, totalPages }) => `Black Amatis · EMMA 2026 · page ${pageNumber} / ${totalPages}`} fixed />
+        <Text style={st.footer} render={({ pageNumber, totalPages }) => `Black Amethyst · EMMA 2026 · page ${pageNumber} / ${totalPages}`} fixed />
       </Page>
     </Document>
   );
@@ -77,7 +77,7 @@ export async function downloadEvidencePack(c: SiteContent, cls: EmmaClass) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `black-amatis-evidence-pack-${cls}.pdf`;
+  a.download = `black-amethyst-evidence-pack-${cls}.pdf`;
   document.body.appendChild(a);
   a.click();
   a.remove();

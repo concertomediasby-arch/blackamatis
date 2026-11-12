@@ -29,7 +29,7 @@ export const PAGE_COPY: Record<
     eyebrow: "05 — Judge Mode",
     title: ["Every criterion.", "Every proof."],
     intro:
-      "A quick reference for the judges. Each criterion from the EMMA Install Judge Book 2026 is linked to the evidence for Black Amatis, so it can be checked without removing a single panel.",
+      "A quick reference for the judges. Each criterion from the EMMA Install Judge Book 2026 is linked to the evidence for Black Amethyst, so it can be checked without removing a single panel.",
   },
 };
 

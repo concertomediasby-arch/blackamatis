@@ -214,7 +214,7 @@ export function HomeView() {
               The people behind it
             </h2>
             <p className="m-0 leading-[1.7] text-muted">
-              The workshop that built Black Amatis, and the brands that
+              The workshop that built Black Amethyst, and the brands that
               supported the project.
             </p>
           </div>

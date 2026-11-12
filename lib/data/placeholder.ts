@@ -150,7 +150,7 @@ const craft: CraftPhoto[] = (Object.keys(CRAFT_SEED) as CraftPhoto["category"][]
 export const PLACEHOLDER: SiteContent = {
   vehicle: {
     id: "vehicle",
-    name: "Black Amatis",
+    name: "Black Amethyst",
     model: "Honda Odyssey",
     year: "[YEAR]",
     category: "[CATEGORY]",
@@ -161,7 +161,7 @@ export const PLACEHOLDER: SiteContent = {
     dark_side_body: "[Dark side: its character, mood, and the elements that express it — materials, finishes, lighting.]",
     light_side_body: "[Light side: the opposite character, and how the two sides meet in one car.]",
     statement:
-      "[Write the concept statement here: why Black Amatis was built in a two-face style, what it should say to judges and spectators, and how the theme carries from the exterior and interior to the trunk.]",
+      "[Write the concept statement here: why Black Amethyst was built in a two-face style, what it should say to judges and spectators, and how the theme carries from the exterior and interior to the trunk.]",
     story:
       "[Story summary: where this Odyssey came from, why it was chosen as the project base, and who was involved in building it.]",
     owner: "[OWNER NAME]",
@@ -192,7 +192,7 @@ export const PLACEHOLDER: SiteContent = {
   },
   milestones: [
     { id: id("m"), when_label: "[YEAR]", title: "Car acquired", body: "[Starting condition, why the Honda Odyssey was chosen as the base.]", photo_path: null, sort: 1 },
-    { id: id("m"), when_label: "[MONTH]", title: "The two-face concept is born", body: "[Where the two-face idea came from and what the name Black Amatis means.]", photo_path: null, sort: 2 },
+    { id: id("m"), when_label: "[MONTH]", title: "The two-face concept is born", body: "[Where the two-face idea came from and what the name Black Amethyst means.]", photo_path: null, sort: 2 },
     { id: id("m"), when_label: "[MONTH]", title: "Design & system planning", body: "[Sketches, signal flow plan, component selection.]", photo_path: null, sort: 3 },
     { id: id("m"), when_label: "[MONTH]", title: "Fabrication & installation", body: "[Panel work, wiring, power system, trunk build.]", photo_path: null, sort: 4 },
     { id: id("m"), when_label: "[MONTH]", title: "Tuning & finishing", body: "[Sound tuning, final details, cleanliness check.]", photo_path: null, sort: 5 },

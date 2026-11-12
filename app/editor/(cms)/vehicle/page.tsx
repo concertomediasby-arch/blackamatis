@@ -144,7 +144,7 @@ export default function VehiclePage() {
                 vehicle: { ...c.vehicle, car_photo_path: p },
               }))
             }
-            hint="Cut-out photo on a transparent background. Shown over the AMATIS word."
+            hint="Cut-out photo on a transparent background. Shown over the AMETHYST word."
             focusable={false}
           />
         </div>

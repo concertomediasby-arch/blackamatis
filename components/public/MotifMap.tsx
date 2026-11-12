@@ -37,7 +37,7 @@ export function MotifMap({
         <Placeholder
           path={photo}
           label="Car photo with motifs"
-          alt="Black Amatis with its motifs"
+          alt="Black Amethyst with its motifs"
           className="aspect-[16/10] w-full rounded-[28px] border border-white/10"
           sizes="(max-width: 1024px) 100vw, 60vw"
         />

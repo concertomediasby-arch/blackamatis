@@ -1,6 +1,6 @@
-# Black Amatis · EMMA 2026 Portfolio
+# Black Amethyst · EMMA 2026 Portfolio
 
-Web portfolio for **Black Amatis**, a two-face Honda Odyssey car-audio build competing in EMMA 2026.
+Web portfolio for **Black Amethyst**, a two-face Honda Odyssey car-audio build competing in EMMA 2026.
 
 - **Public site**: Home, History, Theme, Installation, Bonus Point, Judge Mode, plus a print-ready A4 QR display at `/print/qr`.
 - **Editor (CMS)** at `/editor`: Overview + checklist, Vehicle & Story, Components (with wiring/fuse editor), Photo Log, Bonus Requests.
@@ -41,7 +41,7 @@ Editors sign in with a one-time code sent by email (Supabase email OTP, existing
 
 ## Hosting
 
-**GitHub Pages** (static files, deployed by `.github/workflows/deploy.yml` on every push to `main`) + **Supabase** (data, auth, storage). DNS for `concerto.id` is managed at Hostinger: one `CNAME blackamatis → concertomediasby-arch.github.io`. `next.config.ts` uses `output: 'export'`; there is no server runtime, so editor, publish and the evidence-pack PDF all run in the browser. Step-by-step guide (Indonesian): `docs/DEPLOY.md`.
+**GitHub Pages** (static files, deployed by `.github/workflows/deploy.yml` on every push to `main`) + **Supabase** (data, auth, storage). DNS for `concerto.id` is managed at Hostinger: one `CNAME blackamethyst → concertomediasby-arch.github.io`. `next.config.ts` uses `output: 'export'`; there is no server runtime, so editor, publish and the evidence-pack PDF all run in the browser. Step-by-step guide (Indonesian): `docs/DEPLOY.md`.
 
 ## Structure
 

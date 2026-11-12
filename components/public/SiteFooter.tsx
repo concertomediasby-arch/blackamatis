@@ -15,7 +15,7 @@ export function SiteFooter() {
       id="contact"
       className="glass-dark relative z-10 mx-3 mb-6 mt-24 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-[32px] px-7 py-3.5 font-mono text-xs tracking-[0.1em] text-muted-2 sm:mx-6 lg:mx-10"
     >
-      <span className="flex min-h-11 items-center">BLACK AMATIS · HONDA ODYSSEY</span>
+      <span className="flex min-h-11 items-center">BLACK AMETHYST · HONDA ODYSSEY</span>
       <span className="flex min-h-11 items-center gap-4">
         {instagram && (
           <>

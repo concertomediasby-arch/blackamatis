@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 /**
  * Static export: `npm run build` writes plain files to `out/`, which GitHub Actions
- * publishes to GitHub Pages (https://blackamatis.concerto.id). No server runtime:
+ * publishes to GitHub Pages (https://blackamethyst.concerto.id). No server runtime:
  * data, auth and storage come from Supabase in the browser.
  */
 const nextConfig: NextConfig = {

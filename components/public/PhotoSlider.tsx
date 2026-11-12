@@ -347,7 +347,7 @@ export function PhotoSlider({
         <FramedMedia
           m={s}
           maxVh={maxVh}
-          alt={s.caption || `Black Amatis, ${s.kind} ${i + 1}`}
+          alt={s.caption || `Black Amethyst, ${s.kind} ${i + 1}`}
         />
       )}
     />
