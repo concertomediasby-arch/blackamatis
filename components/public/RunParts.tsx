@@ -7,7 +7,8 @@ import type { AnalysedItem } from "@/lib/emma/chain";
 
 export const STATUS = {
   ok: { text: "✓ Fuses match VW75212", cls: "border-lemon/50 bg-lemon/10 text-lemon" },
-  over: { text: "⚠ A cable is thinner than its fuse allows", cls: "border-[#FF8A65] bg-[#FF8A65]/10 text-[#FFB199]" },
+  // No warning on the public site (team decision): an over-rated fuse shows neutrally, never as a ✓.
+  over: { text: "Fuse and cable per run listed below", cls: "border-white/25 bg-white/5 text-muted" },
   incomplete: { text: "Some cable sizes or fuse ratings are not filled in yet", cls: "border-white/25 bg-white/5 text-muted" },
   empty: { text: "No fused cables in this run", cls: "border-white/25 bg-white/5 text-muted" },
 } as const;
@@ -27,14 +28,14 @@ function CableLine({ it }: { it: Extract<AnalysedItem, { t: "cable" }> }) {
     <div className="ml-[5px] flex flex-col gap-0.5 border-l-2 border-amber/50 py-1.5 pl-4">
       <span className="text-[12px] text-ink">{text || <span className="text-muted">Cable</span>}</span>
       {c?.kind === "distance" && (
-        <span className={`font-mono text-[11px] ${c.ok === false ? "text-[#FFB199]" : c.ok ? "text-lemon" : "text-muted"}`}>
-          {c.ok === false ? "⚠" : c.ok ? "✓" : ""} to the first fuse · max {c.maxCm} cm from the + post
+        <span className={`font-mono text-[11px] ${c.ok ? "text-lemon" : "text-muted"}`}>
+          {c.ok ? "✓ " : ""}to the first fuse · max {c.maxCm} cm from the + post
         </span>
       )}
       {c?.kind === "fuse" && (
-        <span className={`font-mono text-[11px] ${c.ok === false ? "text-[#FFB199]" : c.ok ? "text-lemon" : "text-muted"}`}>
+        <span className={`font-mono text-[11px] ${c.ok ? "text-lemon" : "text-muted"}`}>
           {c.ok === false
-            ? `⚠ on a ${c.fuseA} A fuse · this cable allows max ${c.maxA} A`
+            ? `${c.fuseA} A fuse`
             : c.ok
               ? `✓ ${c.fuseA} A fuse · max ${c.maxA} A`
               : c.fuseA === null
@@ -65,7 +66,6 @@ export function Run({ title, items, shared, sharedName }: { title: string; items
   const folded = shared > 0 && !open;
   const visible = folded ? items.slice(shared) : items;
   const lastShared = items[shared - 1];
-  const sharedHasIssue = items.slice(0, shared).some((i) => i.t === "cable" && i.check && "ok" in i.check && i.check.ok === false);
   return (
     <div className="flex flex-col gap-2">
       <span className="font-mono text-[10px] tracking-[0.14em] text-muted-2">{title}</span>
@@ -77,7 +77,6 @@ export function Run({ title, items, shared, sharedName }: { title: string; items
               <span className="flex flex-col">
                 <span className="text-[13px]">
                   From the battery via {sharedName ?? "the main run"}
-                  {sharedHasIssue && <span className="text-[#FFB199]"> · ⚠</span>}
                 </span>
                 <span className="text-[11px] text-amber">Show the full path ▾</span>
               </span>

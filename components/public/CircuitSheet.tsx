@@ -16,15 +16,15 @@ const RUN_LABEL: Record<SheetRow["run"], string> = {
 function CheckCell({ r }: { r: SheetRow }) {
   const c = r.check;
   const tone = (ok: boolean | null) =>
-    ok === false ? "text-[#FFB199]" : ok ? "text-lemon" : "text-muted";
+    ok ? "text-lemon" : "text-muted";
   if (c?.kind === "fuse")
     return (
       <span className={`flex flex-col ${tone(c.ok)}`}>
         <span>
-          {c.ok === false ? "⚠ " : c.ok ? "✓ " : ""}
+          {c.ok ? "✓ " : ""}
           {c.fuseA != null ? `${c.fuseA} A` : "[__ A]"}
         </span>
-        {c.maxA != null && (
+        {c.maxA != null && c.ok !== false && (
           <span className="text-[10px] text-muted">max {c.maxA} A</span>
         )}
       </span>
@@ -33,7 +33,7 @@ function CheckCell({ r }: { r: SheetRow }) {
     return (
       <span className={`flex flex-col ${tone(c.ok)}`}>
         <span>
-          {c.ok === false ? "⚠ " : c.ok ? "✓ " : ""}
+          {c.ok ? "✓ " : ""}
           {lengthLabel(r.length_cm)}
         </span>
         <span className="text-[10px] text-muted">
