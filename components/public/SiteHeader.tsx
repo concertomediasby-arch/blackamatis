@@ -1,5 +1,6 @@
 "use client";
 
+import { headerLabel } from "@/lib/home";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,7 +15,7 @@ type Face = "dark" | "light";
  */
 export function SiteHeader({ face = "dark", inHero = false }: { face?: Face; inHero?: boolean }) {
   const pathname = normPath(usePathname());
-  const category = useVehicleField("category") ?? "…";
+  const label = headerLabel(useVehicleField("home"), useVehicleField("category"));
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [pathname]);
 
@@ -63,7 +64,7 @@ export function SiteHeader({ face = "dark", inHero = false }: { face?: Face; inH
                 light ? "border-black/30" : "border-white/15 bg-white/10"
               }`}
             >
-              EMMA 2026 · {category}
+              {label}
             </span>
           )}
           <button
@@ -97,7 +98,7 @@ export function SiteHeader({ face = "dark", inHero = false }: { face?: Face; inH
               </li>
             );
           })}
-          <li className="px-5 pt-2 font-mono text-xs tracking-[0.12em] sm:hidden">EMMA 2026 · {category}</li>
+          <li className="px-5 pt-2 font-mono text-xs tracking-[0.12em] sm:hidden">{label}</li>
         </ul>
       </nav>
     </header>

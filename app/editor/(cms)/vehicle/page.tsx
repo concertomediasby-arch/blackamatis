@@ -2,18 +2,20 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import {
   Card,
   PageTitle,
   SelectField,
   TextArea,
   TextField,
-  btn,
 } from "@/components/editor/Field";
 import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
-import { HomeHeroEditor } from "@/components/editor/sections/HomeHeroEditor";
+import {
+  HomeHeroEditor,
+  WorkshopCardEditor,
+} from "@/components/editor/sections/HomeHeroEditor";
 import { PageLayoutsEditor } from "@/components/editor/sections/PageLayoutsEditor";
 import { PartnersEditor } from "@/components/editor/sections/PartnersEditor";
 import { MediaListEditor } from "@/components/editor/sections/MediaListEditor";
@@ -32,7 +34,6 @@ import { CLASSES, CLASS_INFO } from "@/lib/emma/matrix";
 const FORM_KEYS = Object.keys(
   vehicleSchema.shape,
 ) as (keyof typeof vehicleSchema.shape)[];
-const newId = () => crypto.randomUUID();
 
 export default function VehiclePage() {
   const { content, update } = useEditor();
@@ -46,9 +47,9 @@ export default function VehiclePage() {
       team: [...content.team].sort((a, b) => a.sort - b.sort),
     },
   });
-  const { register, watch, formState, setValue, control } = form;
+  const { register, watch, formState } = form;
   const e = formState.errors;
-  const team = useFieldArray({ control, name: "team", keyName: "_k" });
+  // Team rows are kept as they are (the home page shows one Built by card instead, see WorkshopCardEditor).
 
   // Mirror form values into the editor draft (autosave picks them up).
   useEffect(() => {
@@ -271,6 +272,7 @@ export default function VehiclePage() {
           />
           <TextField
             label="Installer / workshop"
+            hint="Shown as the Built by card on the home page."
             {...register("installer")}
             error={e.installer?.message}
           />
@@ -298,112 +300,11 @@ export default function VehiclePage() {
             error={e.website?.message}
           />
         </div>
-        <h3 className="m-0 mt-2 text-base font-bold">Team cards</h3>
-        <ol className="m-0 flex list-none flex-col gap-3 p-0">
-          {team.fields.map((f, i) => (
-            <li
-              key={f._k}
-              className="grid grid-cols-1 items-end gap-3 rounded-xl border border-editor-border p-4 md:grid-cols-[1fr_1.4fr_2fr_auto]"
-            >
-              <TextField
-                label="Role"
-                {...register(`team.${i}.role`)}
-                error={e.team?.[i]?.role?.message}
-              />
-              <TextField
-                label="Name"
-                {...register(`team.${i}.name`)}
-                error={e.team?.[i]?.name?.message}
-              />
-              <TextField
-                label="One line"
-                {...register(`team.${i}.line`)}
-                error={e.team?.[i]?.line?.message}
-              />
-              <RowButtons
-                i={i}
-                n={team.fields.length}
-                move={team.move}
-                remove={team.remove}
-                label={`team member ${i + 1}`}
-              />
-              <UploadZone
-                className="md:col-span-4"
-                label="Photo"
-                kind="photo"
-                folder="team"
-                value={watch(`team.${i}.photo_path`)}
-                onChange={(p) =>
-                  setValue(`team.${i}.photo_path`, p, { shouldDirty: true })
-                }
-              />
-            </li>
-          ))}
-        </ol>
-        <button
-          type="button"
-          className={`${btn.secondary} self-start`}
-          onClick={() =>
-            team.append({
-              id: newId(),
-              role: "",
-              name: "",
-              line: "",
-              photo_path: null,
-              sort: 0,
-            })
-          }
-        >
-          + Add team member
-        </button>
       </Card>
+
+      <WorkshopCardEditor />
 
       <PartnersEditor />
     </form>
-  );
-}
-
-function RowButtons({
-  i,
-  n,
-  move,
-  remove,
-  label,
-}: {
-  i: number;
-  n: number;
-  move: (a: number, b: number) => void;
-  remove: (i: number) => void;
-  label: string;
-}) {
-  return (
-    <div className="flex gap-1.5">
-      <button
-        type="button"
-        className={btn.ghost}
-        disabled={i === 0}
-        onClick={() => move(i, i - 1)}
-        aria-label={`Move ${label} up`}
-      >
-        ↑
-      </button>
-      <button
-        type="button"
-        className={btn.ghost}
-        disabled={i === n - 1}
-        onClick={() => move(i, i + 1)}
-        aria-label={`Move ${label} down`}
-      >
-        ↓
-      </button>
-      <button
-        type="button"
-        className={btn.ghost}
-        onClick={() => remove(i)}
-        aria-label={`Remove ${label}`}
-      >
-        ✕
-      </button>
-    </div>
   );
 }

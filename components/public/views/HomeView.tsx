@@ -16,7 +16,7 @@ import { storageUrl } from "@/lib/supabase/env";
 import { instagramHref } from "@/lib/format";
 import { EditPencil } from "@/components/public/EditMode";
 import { PartnerLogo } from "@/components/public/PartnerLogo";
-import { categoryLabel, heroText } from "@/lib/home";
+import { categoryLabel, heroText, normalizeHome } from "@/lib/home";
 import { homeLayoutOf } from "@/lib/page-layout";
 import { visiblePartners } from "@/lib/partners";
 
@@ -79,6 +79,9 @@ export function HomeView() {
   const v = c.vehicle;
 
   const hero = heroText(v.home, CLASS_INFO[v.class].name);
+  const home = normalizeHome(v.home);
+  const workshop = v.installer?.trim() || "[WORKSHOP NAME]";
+  const ig = instagramHref(v.instagram ?? "");
   const data = [
     { k: "Car", v: v.model },
     { k: "Year / generation", v: v.year },
@@ -234,35 +237,45 @@ export function HomeView() {
               The people behind it
             </h2>
             <p className="m-0 leading-[1.7] text-muted">
-              Everyone who planned, built and tuned Black Amatis, and the brands
-              that supported the project.
+              The workshop that built Black Amatis, and the brands that
+              supported the project.
             </p>
           </div>
-          <ul className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 p-0">
-            {c.team.map((t) => (
-              <li
-                key={t.id}
-                className="glass-inset flex flex-col gap-4 rounded-3xl p-6"
-              >
-                <Placeholder
-                  path={t.photo_path}
-                  label="Photo"
-                  alt={t.name}
-                  className="h-[72px] w-[72px] rounded-full text-[9px]"
-                  sizes="72px"
-                />
-                <div className="flex flex-col gap-1">
-                  <span className="label text-amber">{t.role}</span>
-                  <span className="font-display text-[26px] font-extrabold leading-tight">
-                    {t.name}
-                  </span>
-                  <span className="text-sm leading-normal text-muted">
-                    {t.line}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
+          {/* One "Built by" card for the workshop (name = installer, link = Instagram). */}
+          <div className="glass-inset relative flex flex-col gap-5 rounded-3xl p-6 sm:flex-row sm:items-center sm:gap-8 sm:p-8">
+            <EditPencil
+              href="/editor/vehicle/#workshop"
+              label="Workshop card"
+              className="right-4 top-4"
+            />
+            <Placeholder
+              path={home.workshop_logo}
+              label="Logo"
+              alt={`${workshop} logo`}
+              fit="contain"
+              className="h-24 w-24 flex-none rounded-2xl text-[9px]"
+              sizes="96px"
+            />
+            <div className="flex min-w-0 flex-col gap-2">
+              <span className="label text-amber">Built by</span>
+              <span className="font-display text-[clamp(32px,4vw,44px)] font-extrabold leading-none">
+                {workshop}
+              </span>
+              <span className="text-[15px] leading-relaxed text-muted">
+                {home.workshop_line.trim() || "[One line about the workshop.]"}
+              </span>
+              {ig && (
+                <a
+                  href={ig}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-11 items-center gap-2 self-start font-semibold text-amber hover:text-lemon"
+                >
+                  Instagram <span aria-hidden="true">↗</span>
+                </a>
+              )}
+            </div>
+          </div>
           <div className="relative flex flex-col gap-4">
             <EditPencil
               href="/editor/vehicle/#partners"
