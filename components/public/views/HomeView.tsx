@@ -8,7 +8,6 @@ import Link from "next/link";
 import { Hero } from "@/components/public/Hero";
 import { ArrowUpRight } from "@/components/ui/Arrow";
 import { GlassPanel } from "@/components/ui/GlassPanel";
-import { Placeholder } from "@/components/ui/Placeholder";
 import { CLASS_INFO } from "@/lib/emma/matrix";
 import { normalizeCarLayout } from "@/lib/photo";
 import { normalizeMedia } from "@/lib/bonus-media";
@@ -16,7 +15,11 @@ import { storageUrl } from "@/lib/supabase/env";
 import { instagramHref } from "@/lib/format";
 import { EditPencil } from "@/components/public/EditMode";
 import { PartnerLogo } from "@/components/public/PartnerLogo";
-import { categoryLabel, heroText, normalizeHome } from "@/lib/home";
+import { categoryLabel, heroText } from "@/lib/home";
+import {
+  StatementSection,
+  WorkshopCard,
+} from "@/components/public/HomeSections";
 import { homeLayoutOf } from "@/lib/page-layout";
 import { visiblePartners } from "@/lib/partners";
 
@@ -79,9 +82,6 @@ export function HomeView() {
   const v = c.vehicle;
 
   const hero = heroText(v.home, CLASS_INFO[v.class].name);
-  const home = normalizeHome(v.home);
-  const workshop = v.installer?.trim() || "[WORKSHOP NAME]";
-  const ig = instagramHref(v.instagram ?? "");
   const data = [
     { k: "Car", v: v.model },
     { k: "Year / generation", v: v.year },
@@ -190,36 +190,13 @@ export function HomeView() {
         </GlassPanel>
       )}
 
-      <section
-        aria-labelledby="statement"
-        className="px-8 sm:px-[72px] lg:px-[88px] relative grid grid-cols-1 items-start gap-10 py-28 md:grid-cols-2 md:gap-16"
-      >
+      <StatementSection statement={v.statement}>
         <EditPencil
           href="/editor/vehicle/#f-statement"
           label="Project statement"
           className="right-5 top-20 sm:right-10"
         />
-        <div className="flex flex-col gap-4">
-          <span className="eyebrow text-amber">Project statement</span>
-          <h2
-            id="statement"
-            className="display m-0 font-extrabold"
-            style={{ fontSize: "clamp(40px, 5vw, 64px)" }}
-          >
-            One car.
-            <br />
-            Two faces.
-          </h2>
-        </div>
-        <div className="flex flex-col gap-5 text-lg leading-[1.7] text-muted">
-          <p className="m-0">{v.statement}</p>
-          <p className="m-0 text-muted-2">
-            EMMA judges assess design as a concept and a consistent theme, not
-            personal taste. This page is the entry point to the full project
-            documentation.
-          </p>
-        </div>
-      </section>
+      </StatementSection>
 
       <section aria-labelledby="team" className="px-3 sm:px-6 lg:px-10">
         <GlassPanel className="relative flex flex-col gap-8 rounded-[36px] p-6 sm:p-12">
@@ -241,41 +218,17 @@ export function HomeView() {
               supported the project.
             </p>
           </div>
-          {/* One "Built by" card for the workshop (name = installer, link = Instagram). */}
-          <div className="glass-inset relative flex flex-col gap-5 rounded-3xl p-6 sm:flex-row sm:items-center sm:gap-8 sm:p-8">
+          <WorkshopCard
+            installer={v.installer}
+            instagram={v.instagram}
+            home={v.home}
+          >
             <EditPencil
               href="/editor/vehicle/#workshop"
               label="Workshop card"
               className="right-4 top-4"
             />
-            <Placeholder
-              path={home.workshop_logo}
-              label="Logo"
-              alt={`${workshop} logo`}
-              fit="contain"
-              className="h-24 w-24 flex-none rounded-2xl text-[9px]"
-              sizes="96px"
-            />
-            <div className="flex min-w-0 flex-col gap-2">
-              <span className="label text-amber">Built by</span>
-              <span className="font-display text-[clamp(32px,4vw,44px)] font-extrabold leading-none">
-                {workshop}
-              </span>
-              <span className="text-[15px] leading-relaxed text-muted">
-                {home.workshop_line.trim() || "[One line about the workshop.]"}
-              </span>
-              {ig && (
-                <a
-                  href={ig}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex min-h-11 items-center gap-2 self-start font-semibold text-amber hover:text-lemon"
-                >
-                  Instagram <span aria-hidden="true">↗</span>
-                </a>
-              )}
-            </div>
-          </div>
+          </WorkshopCard>
           <div className="relative flex flex-col gap-4">
             <EditPencil
               href="/editor/vehicle/#partners"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { PAGE_COPY, PageHeader } from "@/components/public/PageHeader";
 import { HeroHeadline } from "@/components/public/Hero";
 import { PhotoSlider } from "@/components/public/PhotoSlider";
@@ -33,10 +33,8 @@ import {
 } from "@/lib/page-layout";
 import { useEditor } from "../EditorProvider";
 import { Card, btn } from "../Field";
+import { ScaledPreview } from "../ScaledPreview";
 import { LayoutSliders } from "../LayoutSliders";
-
-/** The public page is designed at this width; the preview shows it scaled to fit the card. */
-const PAGE_WIDTH = 1440;
 
 /** Tabs in the order of the site menu. */
 type Tab = PageKey | "theme" | "home";
@@ -49,53 +47,6 @@ const TABS: { key: Tab; label: string }[] = [
     label: PAGE_COPY[k].name,
   })),
 ];
-
-/** A 1440 px wide piece of the public page, scaled down to fit the card. */
-function ScaledPreview({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  const boxRef = useRef<HTMLDivElement>(null);
-  const innerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(0.5);
-  const [height, setHeight] = useState(300);
-  useEffect(() => {
-    const box = boxRef.current;
-    const inner = innerRef.current;
-    if (!box || !inner) return;
-    const ro = new ResizeObserver(() => {
-      const s = box.clientWidth / PAGE_WIDTH;
-      setScale(s);
-      setHeight(inner.offsetHeight * s);
-    });
-    ro.observe(box);
-    ro.observe(inner);
-    return () => ro.disconnect();
-  }, []);
-  return (
-    <div
-      ref={boxRef}
-      aria-label={label}
-      className="overflow-hidden rounded-xl bg-prussian text-ink"
-      style={{ height }}
-    >
-      <div
-        ref={innerRef}
-        style={{
-          width: PAGE_WIDTH,
-          transform: `scale(${scale})`,
-          transformOrigin: "top left",
-        }}
-        className="pointer-events-none pb-8"
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
 
 /** The headline's paragraph style: size, line spacing, letter spacing and the space around it. Same on every tab. */
 function HeadlineStyleFields({

@@ -4,6 +4,8 @@ import { Card, PageTitle, TextField, btn } from "@/components/editor/Field";
 import { RowActions } from "@/components/editor/RowActions";
 import { UploadZone } from "@/components/editor/UploadZone";
 import { useList } from "@/components/editor/useList";
+import { ScaledPreview } from "@/components/editor/ScaledPreview";
+import { ZoneCards } from "@/components/public/ZoneCards";
 import { fieldErrors, zoneSchema } from "@/lib/editor/schemas";
 import {
   MotifsEditor,
@@ -113,6 +115,13 @@ export default function ThemeEditorPage() {
             );
           })}
         </div>
+        <ScaledPreview label="Preview of the theme zones">
+          <div className="pt-10">
+            <ZoneCards
+              zones={[...zones.items].sort((a, b) => a.sort - b.sort)}
+            />
+          </div>
+        </ScaledPreview>
       </Card>
     </div>
   );

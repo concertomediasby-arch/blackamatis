@@ -19,6 +19,9 @@ import {
 import { PageLayoutsEditor } from "@/components/editor/sections/PageLayoutsEditor";
 import { PartnersEditor } from "@/components/editor/sections/PartnersEditor";
 import { MediaListEditor } from "@/components/editor/sections/MediaListEditor";
+import { ScaledPreview } from "@/components/editor/ScaledPreview";
+import { StatementSection } from "@/components/public/HomeSections";
+import { MediaGallery } from "@/components/public/MediaGallery";
 import { normalizeMedia } from "@/lib/bonus-media";
 import {
   STATEMENT_MAX_WORDS,
@@ -218,6 +221,9 @@ export default function VehiclePage() {
             }
           />
         </div>
+        <ScaledPreview label="Preview of the project statement">
+          <StatementSection statement={v.statement} />
+        </ScaledPreview>
         <div id="f-story">
           <TextArea
             label="History summary"
@@ -255,6 +261,11 @@ export default function VehiclePage() {
               }))
             }
           />
+          <ScaledPreview label="Preview of the History gallery">
+            <div className="px-10 py-8">
+              <MediaGallery items={normalizeMedia(v.history_gallery)} label="Gallery preview" />
+            </div>
+          </ScaledPreview>
         </div>
       </Card>
 

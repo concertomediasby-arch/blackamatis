@@ -6,8 +6,10 @@ import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 import { CRAFT_CHECKLIST } from "@/lib/data/craft";
 import { CRAFT_CATEGORIES, type CraftCategory, type CraftPhoto } from "@/lib/types";
 
-export function Craftsmanship({ photos }: { photos: CraftPhoto[] }) {
-  const [cat, setCat] = useState<CraftCategory>("wiring");
+/** Close-ups per category; `category` fixes the tab from outside (the editor's preview). */
+export function Craftsmanship({ photos, category }: { photos: CraftPhoto[]; category?: CraftCategory }) {
+  const [picked, setCat] = useState<CraftCategory>("wiring");
+  const cat = category ?? picked;
   const list = photos.filter((p) => p.category === cat).sort((a, b) => a.sort - b.sort).slice(0, 3);
   return (
     <div className="flex flex-col gap-8">

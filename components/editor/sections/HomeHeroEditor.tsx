@@ -7,7 +7,12 @@ import {
   normalizeHome,
   type HomeSettings,
 } from "@/lib/home";
+import { HeroHeadline } from "@/components/public/Hero";
+import { WorkshopCard } from "@/components/public/HomeSections";
+import { heroText } from "@/lib/home";
+import { homeLayoutOf } from "@/lib/page-layout";
 import { useEditor } from "../EditorProvider";
+import { ScaledPreview } from "../ScaledPreview";
 import { Card, Checkbox, TextArea, TextField } from "../Field";
 import { UploadZone } from "../UploadZone";
 
@@ -91,6 +96,14 @@ export function HomeHeroEditor() {
         checked={h.show_strip}
         onChange={(e) => set({ show_strip: e.target.checked })}
       />
+      <ScaledPreview label="Preview of the landing page text">
+        <div className="px-[88px] py-14">
+          <HeroHeadline
+            text={heroText(v.home, className)}
+            headline={homeLayoutOf(v)}
+          />
+        </div>
+      </ScaledPreview>
     </Card>
   );
 }
@@ -136,6 +149,15 @@ export function WorkshopCardEditor() {
           hint={`${HOME_LIMITS.workshop_line - h.workshop_line.length} characters left`}
         />
       </div>
+      <ScaledPreview label="Preview of the Built by card" width={1200}>
+        <div className="p-10">
+          <WorkshopCard
+            installer={v.installer}
+            instagram={v.instagram}
+            home={v.home}
+          />
+        </div>
+      </ScaledPreview>
     </Card>
   );
 }

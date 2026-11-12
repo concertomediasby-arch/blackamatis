@@ -38,15 +38,15 @@ export default function OverviewPage() {
       return { label: "Live · ticks save instantly", tone: "green", last, lastBy: null };
     }
     if (session.mode === "preview") {
-      return { label: dirty || unpublished ? "Draft · not published yet" : "Published", tone: dirty || unpublished ? "amber" : "green", last: lastSaved, lastBy: editedBy };
+      return { label: dirty || unpublished ? "Not saved yet" : "Saved", tone: dirty || unpublished ? "amber" : "green", last: lastSaved, lastBy: editedBy };
     }
     if (stateLoading || !publishState) return { label: "Checking…", tone: "grey", last: null, lastBy: null };
     const st = tables.map((t) => publishState[t]).filter(Boolean);
     const latest = st.reduce<(typeof st)[number] | null>((a, x) => (x.last && (!a || !a.last || x.last > a.last) ? x : a), null);
     const base = { last: latest?.last ?? null, lastBy: who(latest?.lastBy ?? null) };
-    if (st.some((x) => x.drafts > 0)) return { label: "Draft · not published yet", tone: "amber", ...base };
+    if (st.some((x) => x.drafts > 0)) return { label: "Saved by an editor · waiting for the owner", tone: "amber", ...base };
     if (st.every((x) => x.rows === 0)) return { label: "Placeholder · nothing saved yet", tone: "grey", ...base };
-    return { label: "Published", tone: "green", ...base };
+    return { label: "Live on the site", tone: "green", ...base };
   };
   const DOT = { green: "bg-emerald-600", amber: "bg-amber", grey: "bg-[#B5B2BC]" };
 

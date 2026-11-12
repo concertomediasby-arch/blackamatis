@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Card, Checkbox, PageTitle, SelectField, TextArea, TextField, btn } from "@/components/editor/Field";
+import { ScaledPreview } from "@/components/editor/ScaledPreview";
+import { SpecPopover } from "@/components/public/SpecPopover";
 import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
 import { DiagramImageCard } from "@/components/editor/sections/DiagramImageCard";
@@ -102,7 +104,9 @@ export default function ComponentsPage() {
 }
 
 function ComponentEditor({ component, all, onRemove }: { component: AudioComponent; all: AudioComponent[]; onRemove: () => void }) {
-  const { update } = useEditor();
+  const { update, content } = useEditor();
+  // The draft as it is now (the form mirrors every change into it), for the spec sheet preview.
+  const live = content.components.find((x) => x.id === component.id) ?? component;
   const { register, watch, setValue, formState } = useForm<ComponentForm>({
     resolver: zodResolver(componentSchema),
     mode: "onChange",
@@ -224,6 +228,11 @@ function ComponentEditor({ component, all, onRemove }: { component: AudioCompone
           ))}
         </SelectField>
       </div>
+      <ScaledPreview label={`Preview of the spec sheet of ${live.title}`} width={420} note="Preview · the spec sheet visitors open on the diagram">
+        <div className="p-4">
+          <SpecPopover id={`preview-${live.id}`} component={live} style={{}} inline onClose={() => {}} />
+        </div>
+      </ScaledPreview>
     </Card>
   );
 }

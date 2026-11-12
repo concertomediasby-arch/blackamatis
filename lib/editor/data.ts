@@ -89,17 +89,21 @@ export async function getPublishState(session: EditorSession): Promise<PublishSt
 }
 
 /**
- * Save the given parts as draft (only what changed, so untouched pages stay
- * published). Returns the content with database ids.
+ * Save the given parts (only what changed). The owner's saves go live at once
+ * (status "published"): there is one copy of the content, so a draft status
+ * would take that part off the public site until Publish. An editor's saves
+ * stay drafts until the owner publishes them (RLS: only owners may publish).
+ * Returns the content with database ids.
  */
 export async function saveDraft(session: EditorSession, content: SiteContent, keys: SaveKey[] = SAVE_KEYS): Promise<{ content: SiteContent; savedAt: string }> {
   const savedAt = new Date().toISOString();
   if (session.mode === "preview") return { content, savedAt };
   const client = db();
+  const status = session.role === "owner" ? "published" : "draft";
 
   const next: SiteContent = { ...content };
   if (keys.includes("vehicle")) {
-    const vehicle = { ...content.vehicle, id: await stableUuid(content.vehicle.id), status: "draft", updated_by: session.userId, updated_at: savedAt };
+    const vehicle = { ...content.vehicle, id: await stableUuid(content.vehicle.id), status, updated_by: session.userId, updated_at: savedAt };
     const vr = await client.from("vehicle").upsert(vehicle);
     if (vr.error) throw new Error(explainDbError("vehicle", vr.error.message));
     // There is one vehicle: remove any other row so the site can never show a stale copy.
@@ -126,7 +130,7 @@ export async function saveDraft(session: EditorSession, content: SiteContent, ke
               ? (({ id: _i, sort: _s, ...c }) => (void _i, void _s, c))(normalizeCircuit(r as Circuit))
               : {}),
         id: await stableUuid(r.id),
-        status: "draft",
+        status,
         updated_by: session.userId,
         updated_at: savedAt,
       })),

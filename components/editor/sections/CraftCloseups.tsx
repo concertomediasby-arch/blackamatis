@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Craftsmanship } from "@/components/public/Craftsmanship";
+import { ScaledPreview } from "../ScaledPreview";
 import { CRAFT_CHECKLIST } from "@/lib/data/craft";
 import { craftSchema, fieldErrors } from "@/lib/editor/schemas";
 import { CRAFT_CATEGORIES, type CraftCategory } from "@/lib/types";
@@ -58,6 +60,11 @@ export function CraftCloseups() {
           + Add close-up
         </button>
       </div>
+      <ScaledPreview label="Preview of the craftsmanship close-ups">
+        <div className="p-12">
+          <Craftsmanship photos={craft.items} category={cat} />
+        </div>
+      </ScaledPreview>
     </Card>
   );
 }

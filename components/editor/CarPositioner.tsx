@@ -114,7 +114,7 @@ export function CarPositioner({ path, layout, onChange }: { path: string | null;
         </div>
       </div>
       <p className="m-0 text-[13px] text-[#55535c]">
-        The preview is a close approximation. After Publish, check the real home page on a computer and on a phone.
+        The preview is a close approximation. After saving, check the real home page on a computer and on a phone.
       </p>
     </div>
   );
