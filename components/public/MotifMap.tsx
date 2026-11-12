@@ -26,7 +26,15 @@ export function MotifMap({
   const count = Math.max(1, photos.length);
   // A motif on a photo that was removed shows on the first photo.
   const photoOf = (m: Motif) => ((m.photo ?? 0) < count ? (m.photo ?? 0) : 0);
-  const [shown, setShown] = useState(active ? photoOf(active) : 0);
+  const [shown, setShownRaw] = useState(active ? photoOf(active) : 0);
+  // Direction of the last switch, for the parallax slide-in (0 = no animation).
+  const [dir, setDir] = useState(0);
+  const setShown = (next: number | ((x: number) => number)) =>
+    setShownRaw((x) => {
+      const to = typeof next === "function" ? next(x) : next;
+      if (to !== x) setDir(to > x ? 1 : -1);
+      return to;
+    });
   const pick = (m: Motif) => {
     setOpen(m.id);
     setShown(photoOf(m));
@@ -55,39 +63,17 @@ export function MotifMap({
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)]">
       <div className="flex flex-col gap-3">
       <div className={`relative ${count > 1 ? "cursor-grab select-none active:cursor-grabbing" : ""}`} {...swipe}>
-        <Placeholder
+        <div
           key={shown}
+          className={`relative ${dir > 0 ? "px-in-next" : dir < 0 ? "px-in-prev" : ""}`}
+        >
+        <Placeholder
           path={photos[shown] ?? null}
           label="Car photo with motifs"
           alt={`Black Amethyst with its motifs${count > 1 ? `, photo ${shown + 1} of ${count}` : ""}`}
           className="aspect-[16/10] w-full rounded-[28px] border border-white/10"
           sizes="(max-width: 1024px) 100vw, 60vw"
         />
-        {zoom && photos[shown] && (
-          <button
-            type="button"
-            onClick={() => zoom(group, shown)}
-            aria-label="Open the photo larger"
-            className="absolute right-3 top-3 z-10 flex h-11 w-11 cursor-zoom-in items-center justify-center rounded-full border border-white/10 bg-black/25 text-ink opacity-70 backdrop-blur-sm hover:bg-black/45 hover:opacity-100 focus-visible:opacity-100"
-          >
-            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-            </svg>
-          </button>
-        )}
-        {count > 1 &&
-          (["prev", "next"] as const).map((d) => (
-            <button
-              key={d}
-              type="button"
-              aria-label={d === "prev" ? "Previous photo" : "Next photo"}
-              disabled={d === "prev" ? shown === 0 : shown === count - 1}
-              onClick={() => setShown((x) => x + (d === "prev" ? -1 : 1))}
-              className={`absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-black/15 text-ink opacity-50 backdrop-blur-sm hover:bg-black/45 hover:opacity-100 focus-visible:opacity-100 disabled:pointer-events-none disabled:opacity-0 ${d === "prev" ? "left-3" : "right-3"}`}
-            >
-              <span aria-hidden="true">{d === "prev" ? "←" : "→"}</span>
-            </button>
-          ))}
         {motifs.map((m, i) => {
           if (photoOf(m) !== shown) return null;
           const on = m.id === open;
@@ -119,6 +105,32 @@ export function MotifMap({
             </button>
           );
         })}
+        </div>
+        {zoom && photos[shown] && (
+          <button
+            type="button"
+            onClick={() => zoom(group, shown)}
+            aria-label="Open the photo larger"
+            className="absolute right-3 top-3 z-10 flex h-11 w-11 cursor-zoom-in items-center justify-center rounded-full border border-white/10 bg-black/25 text-ink opacity-70 backdrop-blur-sm hover:bg-black/45 hover:opacity-100 focus-visible:opacity-100"
+          >
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+            </svg>
+          </button>
+        )}
+        {count > 1 &&
+          (["prev", "next"] as const).map((d) => (
+            <button
+              key={d}
+              type="button"
+              aria-label={d === "prev" ? "Previous photo" : "Next photo"}
+              disabled={d === "prev" ? shown === 0 : shown === count - 1}
+              onClick={() => setShown((x) => x + (d === "prev" ? -1 : 1))}
+              className={`absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-black/15 text-ink opacity-50 backdrop-blur-sm hover:bg-black/45 hover:opacity-100 focus-visible:opacity-100 disabled:pointer-events-none disabled:opacity-0 ${d === "prev" ? "left-3" : "right-3"}`}
+            >
+              <span aria-hidden="true">{d === "prev" ? "←" : "→"}</span>
+            </button>
+          ))}
       </div>
       {count > 1 && (
         <div role="group" aria-label="Choose a photo" className="flex justify-center">

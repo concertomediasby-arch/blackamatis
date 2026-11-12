@@ -44,11 +44,23 @@ export function Carousel<T extends Slide>({
   const stacked = variant === "bare";
   const swipe = useRef<{ x: number; y: number } | null>(null);
 
-  // Follow the slide in view while the visitor swipes.
+  // Follow the slide in view while the visitor swipes, and move each photo a
+  // little slower than its slide (parallax: --px is the slide's distance from
+  // the centre, -1…1).
   useEffect(() => {
     const el = trackRef.current;
     if (!el || stacked) return;
-    const onScroll = () =>
+    let frame = 0;
+    const parallax = () => {
+      frame = 0;
+      const w = Math.max(1, el.clientWidth);
+      const pos = el.scrollLeft / w;
+      Array.from(el.children).forEach((li, i) => {
+        const d = Math.max(-1, Math.min(1, i - pos));
+        (li as HTMLElement).style.setProperty("--px", d.toFixed(4));
+      });
+    };
+    const onScroll = () => {
       setIndex(
         Math.max(
           0,
@@ -58,8 +70,16 @@ export function Carousel<T extends Slide>({
           ),
         ),
       );
+      if (!frame) frame = requestAnimationFrame(parallax);
+    };
+    parallax();
     el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, [n, stacked]);
 
   const go = useCallback(
@@ -197,11 +217,11 @@ export function Carousel<T extends Slide>({
             {slides.map((s, i) => (
               <li
                 key={s.id}
-                className="w-full flex-none snap-center snap-always"
+                className="w-full flex-none snap-center snap-always overflow-hidden"
                 aria-roledescription="slide"
                 aria-label={`${i + 1} of ${n}`}
               >
-                {renderSlide(s, i)}
+                {n > 1 ? <div className="px-layer">{renderSlide(s, i)}</div> : renderSlide(s, i)}
               </li>
             ))}
           </ul>

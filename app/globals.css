@@ -236,3 +236,50 @@ body {
     opacity: 1;
   }
 }
+
+/* ── Parallax slides ───────────────────────────────────────────
+   Sliders with more than one photo: the photo moves a little slower than its
+   frame, so it seems to sit behind it. Scroll sliders set --px (the slide's
+   distance from the centre, -1…1); slides that switch (motifs, large view)
+   enter with px-in-next / px-in-prev. Uses translate / scale (not transform),
+   so a photo's own crop zoom is kept. */
+.px-layer {
+  translate: calc(var(--px, 0) * -38%) 0;
+  will-change: translate;
+}
+.px-in-next,
+.px-in-prev {
+  animation: px-frame 560ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+.px-in-prev {
+  --px-dir: -1;
+}
+.px-in-next img,
+.px-in-prev img {
+  animation: px-photo 760ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+@keyframes px-frame {
+  from {
+    opacity: 0;
+    translate: calc(var(--px-dir, 1) * 14%) 0;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes px-photo {
+  from {
+    translate: calc(var(--px-dir, 1) * -6%) 0;
+    scale: 1.1;
+  }
+  to {
+    translate: 0 0;
+    scale: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .px-layer {
+    translate: none;
+  }
+}
