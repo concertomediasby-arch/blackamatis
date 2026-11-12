@@ -64,8 +64,10 @@ export function ThemeView() {
             The theme in every zone
           </h2>
           <p className="m-0 max-w-[720px] text-[17px] leading-[1.7] text-muted-2">
-            Judges deduct 1 point for every element that does not follow the
-            design idea. Every zone carries the same two-face concept.
+            The result: one wayang story told across the whole car. Shadow Play
+            and Limelight meet in a straight line over the bonnet, the Batik
+            Malang theme glows in the head and tail lights, and every zone below
+            carries the same two faces, from the outside in.
           </p>
         </div>
         <ZoneCards zones={c.zones} />
