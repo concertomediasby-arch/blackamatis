@@ -12,7 +12,7 @@ import { CLASS_INFO, type CriterionKey } from "@/lib/emma/matrix";
 const PAGES = [
   { name: "Home", href: "/", edit: "/editor/vehicle/", tables: ["vehicle", "team", "partners"] },
   { name: "History", href: "/history/", edit: "/editor/vehicle/#f-story", tables: ["vehicle"] },
-  { name: "Theme", href: "/theme/", edit: "/editor/theme/", tables: ["vehicle", "theme_zones", "moodboard_items"] },
+  { name: "Theme", href: "/theme/", edit: "/editor/theme/", tables: ["vehicle", "theme_zones"] },
   { name: "Installation", href: "/installation/", edit: "/editor/components/", tables: ["components", "wiring_links", "photos", "craft_photos"] },
   { name: "Bonus Point", href: "/bonus/", edit: "/editor/bonus/", tables: ["bonus_requests"] },
   { name: "Judge Mode", href: "/judge/", edit: "/editor/#checklist", tables: [] },
