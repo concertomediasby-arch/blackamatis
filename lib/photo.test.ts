@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cropRect, cropStyle, focusForCentre, heroTransform, photoAspect, normalizeCarLayout, normalizeHotspots, objectPosition, photoZoom, splitPhoto, spotFromDrag, withCrop, withFocus } from "./photo";
+import { cropRect, cropStyle, focusForCentre, heroTransform, photoAspect, photoShape, normalizeCarLayout, normalizeHotspots, objectPosition, photoZoom, splitPhoto, spotFromDrag, withCrop, withFocus } from "./photo";
 
 describe("photo focus point", () => {
   it("reads the focus fragment and strips it from the path", () => {
@@ -100,5 +100,16 @@ describe("photo crop shape", () => {
     expect(withFocus("a.webp#z=150&a=1x1", { x: 20, y: 20 })).toBe("a.webp#fp=20,20&z=150&a=1x1");
     expect(photoZoom("a.webp#a=4x3&z=120")).toBe(120);
     expect(splitPhoto("a.webp#fp=1,2&a=4x3").focus).toEqual({ x: 1, y: 2 });
+  });
+});
+
+describe("photo crop: original shape", () => {
+  it("stores and reads the photo's own shape", () => {
+    expect(withCrop("a.webp", null, 150, "original")).toBe("a.webp#z=150&a=orig");
+    expect(photoShape("a.webp#z=150&a=orig")).toBe("original");
+    expect(photoAspect("a.webp#z=150&a=orig")).toBeNull();
+    expect(photoShape("a.webp#fp=1,2&a=4x3")).toEqual({ w: 4, h: 3 });
+    expect(photoShape("a.webp#fp=1,2")).toBeNull();
+    expect(withFocus("a.webp#a=orig", { x: 10, y: 10 })).toBe("a.webp#fp=10,10&a=orig");
   });
 });

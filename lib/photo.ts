@@ -35,18 +35,34 @@ export function photoZoom(path: string | null | undefined): number {
 /** Frame shape chosen in Crop & position ("#…&a=16x9"): the large view shows the photo cut to it. */
 export type Aspect = { w: number; h: number };
 
-export function photoAspect(path: string | null | undefined): Aspect | null {
+/** Shape chosen in Crop & position: a ratio, "original" (the photo's own shape) or none chosen yet. */
+export type PhotoShape = Aspect | "original";
+
+export function photoShape(path: string | null | undefined): PhotoShape | null {
   const hash = path ? path.indexOf("#") : -1;
   if (!path || hash < 0) return null;
-  const m = /(?:^|&)a=(\d{1,2})x(\d{1,2})/.exec(path.slice(hash + 1));
+  const frag = path.slice(hash + 1);
+  if (/(?:^|&)a=orig(?:&|$)/.test(frag)) return "original";
+  const m = /(?:^|&)a=(\d{1,2})x(\d{1,2})/.exec(frag);
   if (!m) return null;
   const w = Number(m[1]);
   const h = Number(m[2]);
   return w > 0 && h > 0 ? { w, h } : null;
 }
 
+/** The chosen frame ratio, or null (original shape or none chosen). */
+export function photoAspect(path: string | null | undefined): Aspect | null {
+  const s = photoShape(path);
+  return s && s !== "original" ? s : null;
+}
+
 /** Path with the crop set: focus point (object-position), zoom and frame shape. Centred / 100 % / no shape leave the path plain. */
-export function withCrop(path: string | null, focus: Focus | null, zoom = 100, aspect: Aspect | null = null): string | null {
+export function withCrop(
+  path: string | null,
+  focus: Focus | null,
+  zoom = 100,
+  shape: PhotoShape | null = null,
+): string | null {
   const { path: base } = splitPhoto(path);
   if (!base) return null;
   const parts: string[] = [];
@@ -54,13 +70,14 @@ export function withCrop(path: string | null, focus: Focus | null, zoom = 100, a
     parts.push(`fp=${clamp(Math.round(focus.x), 0, 100)},${clamp(Math.round(focus.y), 0, 100)}`);
   const z = clamp(Math.round(zoom), ZOOM_LIMITS.min, ZOOM_LIMITS.max);
   if (z > 100) parts.push(`z=${z}`);
-  if (aspect) parts.push(`a=${aspect.w}x${aspect.h}`);
+  if (shape === "original") parts.push("a=orig");
+  else if (shape) parts.push(`a=${shape.w}x${shape.h}`);
   return parts.length ? `${base}#${parts.join("&")}` : base;
 }
 
 /** Path with the focus fragment set (or removed when focus is null or centred); keeps the zoom. */
 export function withFocus(path: string | null, focus: Focus | null): string | null {
-  return withCrop(path, focus, photoZoom(path), photoAspect(path));
+  return withCrop(path, focus, photoZoom(path), photoShape(path));
 }
 
 export const objectPosition = (focus: Focus | null) => (focus ? `${focus.x}% ${focus.y}%` : undefined);
