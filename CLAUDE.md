@@ -148,7 +148,7 @@ Shared: floating glass header (wordmark, nav: History · Theme · Installation �
 
 ### Theme `/theme`
 - Two-face split hero (dark glass + lemon glass cards): per side the name, description, up to 5 short points (`vehicle.dark_side_points` / `light_side_points`) and a photo (`dark_side_photo_path` / `light_side_photo_path`).
-- **Motifs & meaning**: one car photo (`vehicle.motif_photo_path`) with numbered points (`vehicle.motifs` jsonb: title, meaning, x/y in %); a point or its list row opens the motif's meaning. Text comes from the team only. The section is hidden until at least one motif has a name or a meaning.
+- **Motifs & meaning**: one or more car photos (`vehicle.motif_photos` jsonb, e.g. both sides; the first is also `motif_photo_path`) with numbered points (`vehicle.motifs` jsonb: title, meaning, x/y in %, `photo` = index of the photo it sits on); numbers run across all photos; dots and arrows switch photos; a point or its list row opens the motif's meaning and shows its photo. Text comes from the team only. The section is hidden until at least one motif has a name or a meaning.
 - "The theme in every zone": one card per zone, Exterior / Interior / Trunk to start, and the team can add, rename, reorder and remove zones (editor › Theme, "+ Add zone"; added zones get key `zone-…` and no criterion). Each card has its photos and videos as a slider (`theme_zones.media` jsonb; swipe, arrows, dots, caption; videos start muted; `photo_path` follows the first photo). The first three are mapped in data to the judge criteria *Overall design*, *Design of interior* and *Design of trunk*; the card shows a zone number ("Zone 01 / 04"), not the criterion: no judging labels for visitors. The intro under the heading tells the result of the theme, not the judging rule.
 - No sketches & moodboard grid (removed on purpose; the `moodboard_items` table is kept but unused).
 - No palette/material section (removed on purpose).
@@ -240,7 +240,7 @@ Other rules used in the UI: main fuse ≤ 40 cm from each positive battery post;
 ```
 vehicle(id, name, model, year, category, class, event, dark_side_name, light_side_name, car_photo_path, car_photo_layout jsonb,
         history_photos jsonb, history_side_text, history_gallery jsonb, history_layout jsonb, page_layouts jsonb, home jsonb, hero_photos jsonb, dark_side_photo_path, light_side_photo_path, dark_side_points jsonb,
-        light_side_points jsonb, motif_photo_path, motifs jsonb,
+        light_side_points jsonb, motif_photo_path, motif_photos jsonb, motifs jsonb,
         statement, owner, installer, designer, tuner, instagram, website, updated_at)
 milestones(id, when_label, title, body, photo_path, sort)
 competitions(id, event, city, category, install_points, result, date)
@@ -272,7 +272,7 @@ Login: passwordless one-time code by email (Supabase email OTP, `shouldCreateUse
 - **Vehicle & Story**: vehicle fields, category/class selects, dark/light side names, statement (≤ 80 words, counter), team & links (no timeline and no team cards: removed on purpose), Workshop card (Built by).
 - **Components**: list on the left (select, add, reorder), form on the right: brand, model, type-specific spec fields, photo upload (transparent PNG), PDF upload, "Show in System / Wiring diagram" checkboxes; wiring link editor for cable size and fuse per link with an inline warning when the fuse exceeds the VW75212 table for that cable.
 - No History section in the editor: the History page shows only the story, edited in Vehicle & Story.
-- **Theme**: two sides (photo + up to 5 points each); motifs (photo, motifs with meaning, click the photo to place each number); theme zones (add / reorder / remove; name, photos and videos, up to 8 theme elements each). No moodboard (removed on purpose).
+- **Theme**: two sides (photo + up to 5 points each); motifs (one or more photos with + Add motif photo, motifs with meaning, pick the photo then click it to place each number); theme zones (add / reorder / remove; name, photos and videos, up to 8 theme elements each). No moodboard (removed on purpose).
 - No tuning section (removed on purpose from the Installation page and the editor; the `tuning` table and `vehicle.tuning_*` columns are kept but unused).
 - **Photo Log**: area tabs, slots with upload, caption, "Proves" select (criteria list), add slot, drag to reorder; craftsmanship close-ups (3 per category).
 - **Vehicle & Story** also edits partner logos (name, logo, optional link, and the logo's position & size in its box: sliders with a live preview, stored in `partners.logo_layout`).

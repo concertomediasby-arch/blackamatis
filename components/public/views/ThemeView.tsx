@@ -10,7 +10,7 @@ import { MotifMap } from "@/components/public/MotifMap";
 import { ThemeSides } from "@/components/public/ThemeSides";
 import { ZoneCards } from "@/components/public/ZoneCards";
 import { themeLayoutOf } from "@/lib/page-layout";
-import { normalizeMotifs } from "@/lib/theme";
+import { motifPhotos, normalizeMotifs } from "@/lib/theme";
 
 export function ThemeView() {
   const state = useSiteContent();
@@ -48,7 +48,7 @@ export function ThemeView() {
                 there.
               </p>
             </div>
-            <MotifMap photo={v.motif_photo_path ?? null} motifs={motifs} />
+            <MotifMap photos={motifPhotos(v)} motifs={motifs} />
           </GlassPanel>
         </section>
       )}
