@@ -23,6 +23,7 @@ export function Carousel<T extends Slide>({
   variant = "framed",
   showCaption = true,
   footerClassName = "px-5 sm:px-12",
+  bordered = true,
 }: {
   slides: T[];
   label: string;
@@ -30,6 +31,8 @@ export function Carousel<T extends Slide>({
   variant?: "framed" | "bare";
   showCaption?: boolean;
   footerClassName?: string;
+  /** Thin line around a framed track. */
+  bordered?: boolean;
 }) {
   const trackRef = useRef<HTMLUListElement>(null);
   const [index, setIndex] = useState(0);
@@ -158,7 +161,7 @@ export function Carousel<T extends Slide>({
             aria-label={`${label}, ${n} photo${n === 1 ? "" : "s"}${n > 1 ? ". Use the arrow keys to move." : ""}`}
             className={`m-0 flex list-none snap-x snap-mandatory overflow-x-auto overscroll-x-contain p-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
               variant === "framed"
-                ? "rounded-[36px] border border-white/10"
+                ? `rounded-[36px] ${bordered ? "border border-white/10" : ""}`
                 : ""
             }`}
             style={{ cursor: n > 1 ? "grab" : undefined }}
@@ -252,9 +255,10 @@ export function Carousel<T extends Slide>({
   );
 }
 
-/** Frame of a History slide (4:3 on phones, 16:9 from tablets, at most 78% of the screen height). */
+/** Frame of a History slide (4:3 on phones, 16:9 from tablets); its maximum height is set per page (default 78% of the screen). */
 export const SLIDE_FRAME =
-  "relative aspect-[4/3] max-h-[78vh] w-full overflow-hidden sm:aspect-[16/9]";
+  "relative aspect-[4/3] w-full overflow-hidden sm:aspect-[16/9]";
+const frameHeight = (vh = 78) => ({ maxHeight: `${vh}vh` });
 
 /**
  * One History photo, shown whole (contain) so a cut-out car is never cropped,
@@ -264,13 +268,16 @@ export function FramedPhoto({
   photo,
   alt,
   className = "",
+  maxVh,
 }: {
   photo: Pick<BonusMedia, "path" | "layout">;
   alt: string;
   className?: string;
+  /** Maximum height, % of the screen height. */
+  maxVh?: number;
 }) {
   return (
-    <div className={`${SLIDE_FRAME} ${className}`}>
+    <div className={`${SLIDE_FRAME} ${className}`} style={frameHeight(maxVh)}>
       <div
         className="absolute inset-0"
         style={{ transform: heroTransform(normalizeLayout(photo.layout)) }}
@@ -289,17 +296,26 @@ export function FramedPhoto({
 }
 
 /** One slide: a photo (whole, with its position & size) or a video, in the slide frame. */
-export function FramedMedia({ m, alt }: { m: BonusMedia; alt: string }) {
+export function FramedMedia({
+  m,
+  alt,
+  maxVh,
+}: {
+  m: BonusMedia;
+  alt: string;
+  maxVh?: number;
+}) {
   if (m.kind === "photo")
     return (
       <FramedPhoto
         photo={m}
         alt={alt}
+        maxVh={maxVh}
         className="pointer-events-none select-none"
       />
     );
   return (
-    <div className={`${SLIDE_FRAME} bg-black`}>
+    <div className={`${SLIDE_FRAME} bg-black`} style={frameHeight(maxVh)}>
       <VideoPlayer m={m} title={alt} />
     </div>
   );
@@ -309,9 +325,15 @@ export function FramedMedia({ m, alt }: { m: BonusMedia; alt: string }) {
 export function PhotoSlider({
   photos,
   label,
+  maxVh,
+  bordered = true,
 }: {
   photos: BonusMedia[];
   label: string;
+  /** Maximum slide height, % of the screen height. */
+  maxVh?: number;
+  /** Thin line around the slider. */
+  bordered?: boolean;
 }) {
   const slides = photos.length
     ? photos
@@ -320,9 +342,11 @@ export function PhotoSlider({
     <Carousel
       slides={slides}
       label={label}
+      bordered={bordered}
       renderSlide={(s, i) => (
         <FramedMedia
           m={s}
+          maxVh={maxVh}
           alt={s.caption || `Black Amatis, ${s.kind} ${i + 1}`}
         />
       )}

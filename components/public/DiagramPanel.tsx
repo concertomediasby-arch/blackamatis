@@ -21,7 +21,8 @@ const HINT = <Hint>Click a product to see its specs</Hint>;
 
 /**
  * A diagram section on the Installation page: the team's own diagram image when
- * uploaded (devices clickable), with the generated interactive diagram as a second tab.
+ * uploaded (devices clickable), with the generated interactive diagram as a
+ * second tab unless `secondTab` is off. Without an image, the generated diagram.
  */
 export function DiagramPanel({
   imageUrl,
@@ -37,6 +38,7 @@ export function DiagramPanel({
   circuit,
   imageHint = "Click a device on the diagram to see its specs",
   circuits,
+  secondTab = true,
 }: {
   imageUrl: string | null;
   imageAlt: string;
@@ -57,6 +59,8 @@ export function DiagramPanel({
   imageHint?: string;
   /** Cable diagram runs (power, ground, cables per device); used instead of per-component areas when any is marked. */
   circuits?: Circuit[];
+  /** Offer the generated diagram as a second tab when the team's image is shown (off: the image only). */
+  secondTab?: boolean;
 }) {
   const [view, setView] = useState<View>("image");
   const showImage = !!imageUrl && view === "image";
@@ -79,19 +83,26 @@ export function DiagramPanel({
     <>
       <div className="flex flex-wrap items-end justify-between gap-5">
         {heading}
-        <SegmentedTabs
-          options={[
-            { key: "image", label: tabs[0] },
-            { key: "interactive", label: tabs[1] },
-          ]}
-          value={view}
-          onChange={setView}
-          label={`${tabs[0]} view`}
-          mode="tabs"
-          idPrefix={idPrefix}
-        />
+        {secondTab && (
+          <SegmentedTabs
+            options={[
+              { key: "image", label: tabs[0] },
+              { key: "interactive", label: tabs[1] },
+            ]}
+            value={view}
+            onChange={setView}
+            label={`${tabs[0]} view`}
+            mode="tabs"
+            idPrefix={idPrefix}
+          />
+        )}
       </div>
-      <div id={`${idPrefix}-panel`} role="tabpanel" aria-labelledby={`${idPrefix}-tab-${view}`} className="flex flex-col gap-4">
+      <div
+        id={`${idPrefix}-panel`}
+        role={secondTab ? "tabpanel" : undefined}
+        aria-labelledby={secondTab ? `${idPrefix}-tab-${view}` : undefined}
+        className="flex flex-col gap-4"
+      >
         {showImage ? (
           <>
             {clickable && (
@@ -108,9 +119,11 @@ export function DiagramPanel({
               <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-semibold text-amber hover:text-lemon">
                 Open full size ↗
               </a>
-              <button type="button" onClick={() => setView("interactive")} className="inline-flex min-h-11 cursor-pointer items-center font-semibold text-amber hover:text-lemon">
-                See the spec sheet of each product →
-              </button>
+              {secondTab && (
+                <button type="button" onClick={() => setView("interactive")} className="inline-flex min-h-11 cursor-pointer items-center font-semibold text-amber hover:text-lemon">
+                  See the spec sheet of each product →
+                </button>
+              )}
             </div>
             {textList && textList.items.length > 0 && (
               <div className="sr-only">

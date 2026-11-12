@@ -7,7 +7,7 @@ import { CarPhoto } from "./CarPhoto";
 import { Carousel } from "./PhotoSlider";
 import { EditPencil } from "./EditMode";
 import type { CarPhotoLayout } from "@/lib/photo";
-import { headlineCss, type HeadlineStyle } from "@/lib/page-layout";
+import { headlineCss, type HeadlineStyle, type HomeLayout } from "@/lib/page-layout";
 import { SiteHeader } from "./SiteHeader";
 
 type Face = "dark" | "light";
@@ -59,8 +59,8 @@ const SECTIONS = [
 ];
 
 type Props = {
-  /** Paragraph style of the headline (editor › Page layouts › Home). */
-  headline: HeadlineStyle;
+  /** Paragraph style of the headline and the phone gap under the car (editor › Page layouts › Home). */
+  headline: HomeLayout;
   /** The team's hero text (lib/home.ts › heroText). */
   text: {
     eyebrow: string;
@@ -134,7 +134,10 @@ export function Hero({
 
       <SiteHeader face={face} inHero />
 
-      <div className="relative z-10 grid flex-1 grid-cols-1 gap-6 px-8 pb-6 pt-6 sm:px-[72px] lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:pr-[140px] lg:pl-[88px]">
+      <div
+        className="relative z-10 grid flex-1 grid-cols-1 content-start gap-6 px-8 pb-6 pt-6 sm:px-[72px] lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:content-stretch lg:pr-[140px] lg:pl-[88px]"
+        style={{ "--phg": `${headline.phone_gap}px` } as React.CSSProperties}
+      >
         {/* Car */}
         <div className="relative flex flex-col items-center justify-center gap-4 lg:order-2 lg:pt-6">
           <EditPencil
@@ -194,7 +197,7 @@ export function Hero({
         </div>
 
         {/* Headline, bottom left */}
-        <div className="relative flex flex-col justify-end pt-10 lg:order-1 lg:pb-10">
+        <div className="relative flex flex-col justify-end pt-[var(--phg)] lg:order-1 lg:pb-10 lg:pt-10">
           <EditPencil
             href="/editor/vehicle/#home-hero"
             label="Landing page text"

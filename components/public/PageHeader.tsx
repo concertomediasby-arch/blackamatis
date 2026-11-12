@@ -42,11 +42,14 @@ export function PageHeader({
   page,
   layout: l,
   text,
+  bottom = 64,
   children,
 }: {
   page: PageKey;
   layout: PageLayout;
   text?: string | null;
+  /** Space under the header, px (History: up to its slider). */
+  bottom?: number;
   children?: React.ReactNode;
 }) {
   const copy = PAGE_COPY[page];
@@ -56,6 +59,7 @@ export function PageHeader({
     "--hg": `${l.gap}px`,
     "--sw": `${l.width}px`,
     "--hs": `${l.spacing}px`,
+    "--hb": `${bottom}px`,
   } as React.CSSProperties;
   const grid = beside
     ? `md:grid-cols-[auto_minmax(0,var(--sw))] ${l.align === "center" ? "md:justify-center" : l.align === "spread" ? "md:justify-between" : "md:justify-start"} ${l.valign === "start" ? "md:items-start" : "md:items-end"}`
@@ -68,7 +72,7 @@ export function PageHeader({
   return (
     <section
       style={vars}
-      className={`relative grid grid-cols-1 gap-8 px-5 pb-16 pt-24 md:gap-[var(--hg)] md:px-[var(--hm)] ${grid}`}
+      className={`relative grid grid-cols-1 gap-8 px-5 pt-24 pb-[var(--hb)] md:gap-[var(--hg)] md:px-[var(--hm)] ${grid}`}
     >
       {children}
       <div className="flex flex-col gap-[var(--hs)]">

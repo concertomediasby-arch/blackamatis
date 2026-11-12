@@ -239,7 +239,12 @@ export function themeLayoutOf(v: { page_layouts?: unknown }): ThemeLayout {
 }
 
 /** Home: the hero headline ("One car. Two faces."). Stored in `vehicle.page_layouts.home`. */
-export type HomeLayout = HeadlineStyle;
+export type HomeLayout = HeadlineStyle & {
+  /** Phones: space between the car and the headline under it, px. */
+  phone_gap: number;
+};
+
+export const PHONE_GAP_LIMITS = [0, 120] as const;
 
 /** The hero as designed: full size, line spacing 0.92, 20 px between its lines of content. */
 export const DEFAULT_HOME_LAYOUT: HomeLayout = {
@@ -247,6 +252,7 @@ export const DEFAULT_HOME_LAYOUT: HomeLayout = {
   leading: 92,
   tracking: 0,
   spacing: 20,
+  phone_gap: 16,
 };
 
 /** The saved Home layout, or the default. */
@@ -257,5 +263,52 @@ export function homeLayoutOf(v: { page_layouts?: unknown }): HomeLayout {
   const o = (
     all.home && typeof all.home === "object" ? all.home : {}
   ) as Record<string, unknown>;
-  return normalizeHeadline(o, DEFAULT_HOME_LAYOUT);
+  return {
+    ...normalizeHeadline(o, DEFAULT_HOME_LAYOUT),
+    phone_gap: clamp(
+      o.phone_gap,
+      PHONE_GAP_LIMITS,
+      DEFAULT_HOME_LAYOUT.phone_gap,
+    ),
+  };
+}
+
+/** History: the photo slider under the story. Stored in `vehicle.page_layouts.history_slider`. */
+export type HistorySlider = {
+  /** Maximum height of the slide, % of the screen height. */
+  height: number;
+  /** Space between the story and the slider, px. */
+  space: number;
+  /** Thin line around the slider. */
+  frame: boolean;
+};
+
+export const HISTORY_SLIDER_LIMITS = {
+  height: [40, 90],
+  space: [0, 160],
+} as const;
+
+/** The History slider without a frame line, otherwise as before (78 % of the screen, 64 px under the story). */
+export const DEFAULT_HISTORY_SLIDER: HistorySlider = {
+  height: 78,
+  space: 64,
+  frame: false,
+};
+
+/** The saved History slider settings, or the default. */
+export function historySliderOf(v: { page_layouts?: unknown }): HistorySlider {
+  const all = (
+    v.page_layouts && typeof v.page_layouts === "object" ? v.page_layouts : {}
+  ) as Record<string, unknown>;
+  const o = (
+    all.history_slider && typeof all.history_slider === "object"
+      ? all.history_slider
+      : {}
+  ) as Record<string, unknown>;
+  const d = DEFAULT_HISTORY_SLIDER;
+  return {
+    height: clamp(o.height, HISTORY_SLIDER_LIMITS.height, d.height),
+    space: clamp(o.space, HISTORY_SLIDER_LIMITS.space, d.space),
+    frame: typeof o.frame === "boolean" ? o.frame : d.frame,
+  };
 }

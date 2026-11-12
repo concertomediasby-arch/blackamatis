@@ -3,7 +3,9 @@ import {
   DEFAULT_HISTORY_LAYOUT,
   DEFAULT_PAGE_LAYOUTS,
   normalizeHistoryLayout,
+  DEFAULT_HISTORY_SLIDER,
   DEFAULT_HOME_LAYOUT,
+  historySliderOf,
   DEFAULT_THEME_LAYOUT,
   headlineCss,
   homeLayoutOf,
@@ -126,5 +128,27 @@ describe("headline style on every page", () => {
       lineHeight: 1,
       letterSpacing: "0.04em",
     });
+  });
+});
+
+describe("historySliderOf", () => {
+  it("defaults to no frame line and clamps saved values", () => {
+    expect(historySliderOf({})).toEqual(DEFAULT_HISTORY_SLIDER);
+    expect(
+      historySliderOf({
+        page_layouts: {
+          history_slider: { height: 20, space: 500, frame: true },
+        },
+      }),
+    ).toEqual({ height: 40, space: 160, frame: true });
+  });
+});
+
+describe("homeLayoutOf phone gap", () => {
+  it("defaults to 16 px and clamps", () => {
+    expect(homeLayoutOf({}).phone_gap).toBe(16);
+    expect(
+      homeLayoutOf({ page_layouts: { home: { phone_gap: 400 } } }).phone_gap,
+    ).toBe(120);
   });
 });
