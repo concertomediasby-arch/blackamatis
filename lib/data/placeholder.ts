@@ -180,6 +180,7 @@ export const PLACEHOLDER: SiteContent = {
     dark_side_points: [],
     light_side_points: [],
     motif_photo_path: null,
+    motif_photos: [],
     motifs: [],
     car_photo_layout: null,
     system_diagram_path: null,

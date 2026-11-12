@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element -- the click overlay must match the image box exactly */
 import { useState } from "react";
-import { normalizeMotifs, normalizePoints } from "@/lib/theme";
+import { motifPhotos, normalizeMotifs, normalizePoints } from "@/lib/theme";
 import { storageUrl } from "@/lib/supabase/env";
 import type { Motif, Vehicle } from "@/lib/types";
 import { MotifMap } from "@/components/public/MotifMap";
@@ -135,13 +135,29 @@ export function TwoSidesEditor() {
   );
 }
 
-/** Editor › Theme › Motifs: one photo, the motifs with their meaning, and a click on the photo places the selected motif's point. */
+/**
+ * Editor › Theme › Motifs: one or more photos (e.g. both sides of the car), the
+ * motifs with their meaning, and a click on the photo shown places the selected
+ * motif's point on that photo.
+ */
 export function MotifsEditor() {
   const { v, set } = useVehicle();
   const motifs = normalizeMotifs(v.motifs);
+  const photos = motifPhotos(v);
   const [sel, setSel] = useState<string | null>(motifs[0]?.id ?? null);
-  const url = storageUrl(v.motif_photo_path);
+  const [shown, setShown] = useState(0);
+  const cur = Math.min(shown, Math.max(0, photos.length - 1));
+  const url = storageUrl(photos[cur] ?? null);
   const save = (next: Motif[]) => set({ motifs: next });
+  const savePhotos = (next: string[]) =>
+    set({ motif_photos: next, motif_photo_path: next[0] ?? null });
+  const removePhoto = (i: number) => {
+    const onIt = motifs.filter((m) => (m.photo ?? 0) === i).length;
+    if (onIt && !window.confirm(`${onIt} motif(s) sit on this photo. They move to the first photo; place them again there.`)) return;
+    savePhotos(photos.filter((_, j) => j !== i));
+    save(motifs.map((m) => ((m.photo ?? 0) === i ? { ...m, photo: 0 } : (m.photo ?? 0) > i ? { ...m, photo: (m.photo ?? 0) - 1 } : m)));
+    setShown(0);
+  };
   const patch = (id: string, p: Partial<Motif>) =>
     save(motifs.map((m) => (m.id === id ? { ...m, ...p } : m)));
   const move = (i: number, d: -1 | 1) => {
@@ -158,14 +174,52 @@ export function MotifsEditor() {
         click a number to read it. The section stays hidden on the site until at
         least one motif has a name or a meaning.
       </p>
-      <UploadZone
-        label="Motif photo"
-        kind="photo"
-        folder="theme"
-        value={v.motif_photo_path ?? null}
-        onChange={(p) => set({ motif_photo_path: p })}
-        hint="A clear side or three-quarter photo where the motifs are visible."
-      />
+      <div className="flex flex-col gap-3">
+        {[...photos, null].map((p, i) =>
+          p === null && i > 0 && photos.length > 0 ? null : (
+            <div key={i} className="flex items-start gap-2">
+              <div className="flex-1">
+                <UploadZone
+                  label={`Motif photo ${i + 1}`}
+                  kind="photo"
+                  folder="theme"
+                  value={p}
+                  onChange={(path) =>
+                    path
+                      ? savePhotos(i < photos.length ? photos.map((x, j) => (j === i ? path : x)) : [...photos, path])
+                      : removePhoto(i)
+                  }
+                  hint="A clear side or three-quarter photo where the motifs are visible."
+                />
+              </div>
+              {p && photos.length > 1 && (
+                <button type="button" className={`${btn.ghost} mt-7`} onClick={() => removePhoto(i)} aria-label={`Remove motif photo ${i + 1}`}>
+                  ✕
+                </button>
+              )}
+            </div>
+          ),
+        )}
+        {photos.length > 0 && (
+          <AddPhoto onAdd={(path) => savePhotos([...photos, path])} n={photos.length + 1} />
+        )}
+      </div>
+      {photos.length > 1 && (
+        <div role="group" aria-label="Photo to place motifs on" className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-semibold">Placing on:</span>
+          {photos.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              aria-pressed={i === cur}
+              onClick={() => setShown(i)}
+              className={`${btn.secondary} min-h-9 ${i === cur ? "!bg-prussian !text-lemon" : ""}`}
+            >
+              Photo {i + 1}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="self-start rounded-xl bg-prussian p-3 xl:sticky xl:top-24">
           {url ? (
@@ -179,6 +233,7 @@ export function MotifsEditor() {
                 patch(sel, {
                   x: Math.round(((e.clientX - r.left) / r.width) * 1000) / 10,
                   y: Math.round(((e.clientY - r.top) / r.height) * 1000) / 10,
+                  photo: cur,
                 });
               }}
             >
@@ -188,7 +243,7 @@ export function MotifsEditor() {
                 draggable={false}
                 className="block h-auto w-full rounded-lg"
               />
-              {motifs.map((m, i) => (
+              {motifs.map((m, i) => (m.photo ?? 0) !== cur ? null : (
                 <span
                   key={m.id}
                   className={`pointer-events-none absolute flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 font-mono text-[12px] font-bold ${
@@ -220,11 +275,15 @@ export function MotifsEditor() {
                     type="button"
                     className={`${btn.secondary} min-h-9`}
                     aria-pressed={m.id === sel}
-                    onClick={() => setSel(m.id)}
+                    onClick={() => {
+                      setSel(m.id);
+                      if ((m.photo ?? 0) < photos.length) setShown(m.photo ?? 0);
+                    }}
                   >
                     {m.id === sel
                       ? `Placing ${i + 1} — click the photo`
                       : `Place ${i + 1} on the photo`}
+                    {photos.length > 1 && ` · photo ${Math.min(m.photo ?? 0, photos.length - 1) + 1}`}
                   </button>
                   <div className="flex gap-1">
                     <button
@@ -283,6 +342,7 @@ export function MotifsEditor() {
                 meaning: "",
                 x: 50,
                 y: 50,
+                photo: cur,
               };
               save([...motifs, m]);
               setSel(m.id);
@@ -297,9 +357,33 @@ export function MotifsEditor() {
         width={1280}
       >
         <div className="p-10">
-          <MotifMap photo={v.motif_photo_path ?? null} motifs={motifs} />
+          <MotifMap photos={motifPhotos(v)} motifs={motifs} />
         </div>
       </ScaledPreview>
     </Card>
+  );
+}
+
+/** "+ Add motif photo": an empty upload box; the photo joins the list once uploaded. */
+function AddPhoto({ onAdd, n }: { onAdd: (path: string) => void; n: number }) {
+  const [open, setOpen] = useState(false);
+  if (!open)
+    return (
+      <button type="button" className={`${btn.secondary} self-start`} onClick={() => setOpen(true)}>
+        + Add motif photo
+      </button>
+    );
+  return (
+    <UploadZone
+      label={`Motif photo ${n}`}
+      kind="photo"
+      folder="theme"
+      value={null}
+      onChange={(path) => {
+        if (path) onAdd(path);
+        setOpen(false);
+      }}
+      hint="For example the other side of the car."
+    />
   );
 }

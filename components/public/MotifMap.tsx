@@ -7,19 +7,28 @@ import type { Motif } from "@/lib/types";
 const pad = (n: number) => String(n).padStart(2, "0");
 
 /**
- * A photo of the car with numbered points; a point (or its row in the list)
- * opens the motif's meaning. The list doubles as the text version for screen
- * readers and phones.
+ * Photos of the car with numbered points (one or more photos, e.g. both
+ * sides); a point (or its row in the list) opens the motif's meaning and shows
+ * the photo it sits on. Dots and arrows switch photos. Numbers run across all
+ * photos. The list doubles as the text version for screen readers and phones.
  */
 export function MotifMap({
-  photo,
+  photos,
   motifs,
 }: {
-  photo: string | null;
+  photos: string[];
   motifs: Motif[];
 }) {
   const [open, setOpen] = useState<string | null>(motifs[0]?.id ?? null);
   const active = motifs.find((m) => m.id === open) ?? null;
+  const count = Math.max(1, photos.length);
+  // A motif on a photo that was removed shows on the first photo.
+  const photoOf = (m: Motif) => ((m.photo ?? 0) < count ? (m.photo ?? 0) : 0);
+  const [shown, setShown] = useState(active ? photoOf(active) : 0);
+  const pick = (m: Motif) => {
+    setOpen(m.id);
+    setShown(photoOf(m));
+  };
   const detailRef = useRef<HTMLDivElement>(null);
   const first = useRef(true);
 
@@ -33,15 +42,31 @@ export function MotifMap({
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)]">
+      <div className="flex flex-col gap-3">
       <div className="relative">
         <Placeholder
-          path={photo}
+          key={shown}
+          path={photos[shown] ?? null}
           label="Car photo with motifs"
-          alt="Black Amethyst with its motifs"
+          alt={`Black Amethyst with its motifs${count > 1 ? `, photo ${shown + 1} of ${count}` : ""}`}
           className="aspect-[16/10] w-full rounded-[28px] border border-white/10"
           sizes="(max-width: 1024px) 100vw, 60vw"
         />
+        {count > 1 &&
+          (["prev", "next"] as const).map((d) => (
+            <button
+              key={d}
+              type="button"
+              aria-label={d === "prev" ? "Previous photo" : "Next photo"}
+              disabled={d === "prev" ? shown === 0 : shown === count - 1}
+              onClick={() => setShown((x) => x + (d === "prev" ? -1 : 1))}
+              className={`absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/25 bg-black/45 text-ink backdrop-blur-md hover:bg-black/65 disabled:pointer-events-none disabled:opacity-0 ${d === "prev" ? "left-3" : "right-3"}`}
+            >
+              <span aria-hidden="true">{d === "prev" ? "←" : "→"}</span>
+            </button>
+          ))}
         {motifs.map((m, i) => {
+          if (photoOf(m) !== shown) return null;
           const on = m.id === open;
           return (
             <button
@@ -49,7 +74,7 @@ export function MotifMap({
               type="button"
               aria-pressed={on}
               aria-label={`Motif ${i + 1}: ${m.title || "untitled"}`}
-              onClick={() => setOpen(m.id)}
+              onClick={() => pick(m)}
               className="absolute flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center"
               style={{ left: `${m.x}%`, top: `${m.y}%` }}
             >
@@ -71,6 +96,23 @@ export function MotifMap({
             </button>
           );
         })}
+      </div>
+      {count > 1 && (
+        <div role="group" aria-label="Choose a photo" className="flex justify-center">
+          {Array.from({ length: count }, (_, i) => (
+            <button
+              key={i}
+              type="button"
+              aria-label={`Photo ${i + 1}`}
+              aria-current={i === shown ? "true" : undefined}
+              onClick={() => setShown(i)}
+              className="flex h-11 w-7 cursor-pointer items-center justify-center"
+            >
+              <span className={`block h-2 w-2 rounded-full transition-colors ${i === shown ? "bg-amber" : "bg-white/35"}`} />
+            </button>
+          ))}
+        </div>
+      )}
       </div>
 
       <div className="flex flex-col gap-4">
@@ -100,7 +142,7 @@ export function MotifMap({
                 <button
                   type="button"
                   aria-pressed={m.id === open}
-                  onClick={() => setOpen(m.id)}
+                  onClick={() => pick(m)}
                   className={`flex min-h-12 w-full cursor-pointer items-center gap-4 border-b border-white/10 py-2 text-left ${m.id === open ? "text-ink" : "text-muted hover:text-ink"}`}
                 >
                   <span

@@ -33,6 +33,8 @@ export type Vehicle = {
   light_side_points?: string[] | null;
   /** Theme page: one car photo with numbered points, each motif with its meaning. */
   motif_photo_path?: string | null;
+  /** All motif photos in order (the first is also motif_photo_path); motifs[].photo points into it. */
+  motif_photos?: string[] | null;
   motifs?: Motif[] | null;
   /** More cut-out car photos for the landing hero slider (after car_photo_path), in order. */
   hero_photos?: BonusMedia[] | null;
@@ -64,7 +66,7 @@ export type Vehicle = {
 };
 
 /** A motif on the car: a point on the motif photo (in %) with its title and meaning. */
-export type Motif = { id: string; title: string; meaning: string; x: number; y: number };
+export type Motif = { id: string; title: string; meaning: string; x: number; y: number; /** Index of the motif photo the point sits on (0 = first). */ photo?: number };
 
 export type Milestone = {
   id: string;
