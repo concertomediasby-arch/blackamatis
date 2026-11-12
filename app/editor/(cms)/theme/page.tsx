@@ -5,7 +5,7 @@ import { RowActions } from "@/components/editor/RowActions";
 import { MediaListEditor } from "@/components/editor/sections/MediaListEditor";
 import { moveItem, newId, useList } from "@/components/editor/useList";
 import { ScaledPreview } from "@/components/editor/ScaledPreview";
-import { ZoneCards, zoneMedia } from "@/components/public/ZoneCards";
+import { ZoneCards, zoneEditMedia } from "@/components/public/ZoneCards";
 import { fieldErrors, zoneSchema } from "@/lib/editor/schemas";
 import {
   MotifsEditor,
@@ -75,7 +75,7 @@ export default function ThemeEditorPage() {
                     intro="Shown as a slider at the top of the zone card: visitors swipe or use the arrows. Videos start muted. Set the crop focus so the card shows the right part. The caption is optional."
                     folder="theme"
                     numbered={false}
-                    value={zoneMedia(z).filter((m) => m.path || m.url)}
+                    value={zoneEditMedia(z)}
                     onChange={(list) =>
                       zones.patch(z.id, {
                         media: list,
