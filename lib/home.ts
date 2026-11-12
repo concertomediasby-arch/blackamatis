@@ -12,6 +12,9 @@ export type HomeSettings = {
   show_strip: boolean;
   /** Label in the header (top right of every page) and on the print QR; empty = "EMMA 2026 · <category>". */
   label: string;
+  /** "Built by" card on the home page: one line about the workshop and its logo (name = installer). */
+  workshop_line: string;
+  workshop_logo: string | null;
 };
 
 export const HOME_DEFAULTS = {
@@ -27,6 +30,7 @@ export const HOME_LIMITS = {
   intro: 240,
   cta: 30,
   label: 48,
+  workshop_line: 160,
 } as const;
 
 const str = (v: unknown, max: number) =>
@@ -42,6 +46,11 @@ export function normalizeHome(v: unknown): HomeSettings {
     cta: str(o.cta, HOME_LIMITS.cta),
     show_strip: o.show_strip !== false,
     label: str(o.label, HOME_LIMITS.label),
+    workshop_line: str(o.workshop_line, HOME_LIMITS.workshop_line),
+    workshop_logo:
+      typeof o.workshop_logo === "string" && o.workshop_logo
+        ? o.workshop_logo
+        : null,
   };
 }
 

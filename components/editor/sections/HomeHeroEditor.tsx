@@ -9,6 +9,7 @@ import {
 } from "@/lib/home";
 import { useEditor } from "../EditorProvider";
 import { Card, Checkbox, TextArea, TextField } from "../Field";
+import { UploadZone } from "../UploadZone";
 
 /** Editor › Vehicle & Story › Landing page: the hero text and whether the vehicle data strip shows. Empty = default text. */
 export function HomeHeroEditor() {
@@ -90,6 +91,51 @@ export function HomeHeroEditor() {
         checked={h.show_strip}
         onChange={(e) => set({ show_strip: e.target.checked })}
       />
+    </Card>
+  );
+}
+
+/** Editor › Vehicle & Story › Workshop card: the "Built by" card on the home page. Name = installer, link = Instagram (Team & links). */
+export function WorkshopCardEditor() {
+  const { content, update } = useEditor();
+  const v = content.vehicle;
+  const h = normalizeHome(v.home);
+  const set = (p: Partial<HomeSettings>) =>
+    update((c) => ({
+      ...c,
+      vehicle: {
+        ...c.vehicle,
+        home: { ...normalizeHome(c.vehicle.home), ...p },
+      },
+    }));
+  return (
+    <Card title="Workshop card (Built by)" id="workshop">
+      <p className="m-0 text-sm text-[#4a4852]">
+        One card on the home page under &ldquo;The people behind it&rdquo;: the
+        workshop&apos;s logo, its name (the Installer / workshop field above:{" "}
+        <b>{v.installer || "not filled in"}</b>), one line about it, and a link
+        to the Instagram account above.
+      </p>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <UploadZone
+          label="Workshop logo"
+          kind="photo"
+          folder="team"
+          focusable={false}
+          value={h.workshop_logo}
+          onChange={(p) => set({ workshop_logo: p })}
+          hint="A transparent PNG works best."
+        />
+        <TextArea
+          label="One line about the workshop"
+          rows={3}
+          maxLength={HOME_LIMITS.workshop_line}
+          value={h.workshop_line}
+          placeholder="e.g. Installation, fabrication, design and tuning."
+          onChange={(e) => set({ workshop_line: e.target.value })}
+          hint={`${HOME_LIMITS.workshop_line - h.workshop_line.length} characters left`}
+        />
+      </div>
     </Card>
   );
 }
