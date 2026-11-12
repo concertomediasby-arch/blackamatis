@@ -6,7 +6,6 @@ import { Placeholder } from "@/components/ui/Placeholder";
 import type { BonusMedia } from "@/lib/types";
 import { PlayIcon, VideoPlayer, VideoStill } from "./MediaPlayer";
 
-const pad = (n: number) => String(n).padStart(2, "0");
 
 /**
  * Square tiles of photos and videos filling the row from edge to edge (2 per
@@ -135,10 +134,7 @@ export function MediaGallery({
             className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-3 bg-[rgba(0,2,49,0.94)] p-3 outline-none sm:p-8"
             onClick={(e) => e.target === e.currentTarget && close()}
           >
-            <div className="flex w-full max-w-[1200px] items-center justify-between gap-3 text-ink">
-              <span className="font-mono text-[12px] tracking-[0.14em] text-muted-2">
-                <span className="text-amber">{pad(open + 1)}</span> / {pad(n)}
-              </span>
+            <div className="flex w-full max-w-[1200px] items-center justify-end gap-3 text-ink">
               <button
                 type="button"
                 onClick={close}
@@ -181,6 +177,22 @@ export function MediaGallery({
                   </button>
                 ))}
             </div>
+            {n > 1 && (
+              <div role="group" aria-label="Choose a photo" className="flex max-w-[1200px] flex-wrap justify-center">
+                {items.map((m, i) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    aria-label={`Photo ${i + 1}`}
+                    aria-current={i === open ? "true" : undefined}
+                    onClick={() => setOpen(i)}
+                    className="flex h-11 w-7 cursor-pointer items-center justify-center"
+                  >
+                    <span className={`block h-2 w-2 rounded-full transition-colors ${i === open ? "bg-amber" : "bg-white/35"}`} />
+                  </button>
+                ))}
+              </div>
+            )}
             {cur.caption && (
               <p className="m-0 max-w-[900px] text-center text-[15px] leading-relaxed text-muted">
                 {cur.caption}

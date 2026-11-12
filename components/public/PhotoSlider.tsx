@@ -6,13 +6,11 @@ import { heroTransform, normalizeLayout } from "@/lib/photo";
 import { VideoPlayer } from "./MediaPlayer";
 import type { BonusMedia } from "@/lib/types";
 
-const pad = (n: number) => String(n).padStart(2, "0");
-
 type Slide = { id: string; caption?: string };
 
 /**
  * Swipeable carousel: native horizontal scroll with snap (touch swipe,
- * trackpad), mouse drag, previous/next buttons, dots, a 01 / 03 counter and
+ * trackpad), mouse drag, previous/next buttons, dots (no counter) and
  * arrow keys. `framed` puts the track in a rounded border (photos); `bare`
  * leaves it open (cut-out car over the hero).
  */
@@ -231,9 +229,6 @@ export function Carousel<T extends Slide>({
           </p>
           {n > 1 && (
             <div className="flex items-center gap-4">
-              <span className="font-mono text-[12px] tracking-[0.14em] text-muted-2">
-                <span className="text-amber">{pad(index + 1)}</span> / {pad(n)}
-              </span>
               <div role="group" aria-label="Choose a photo" className="flex">
                 {slides.map((s, i) => (
                   <button
@@ -245,7 +240,7 @@ export function Carousel<T extends Slide>({
                     className="flex h-11 w-7 cursor-pointer items-center justify-center"
                   >
                     <span
-                      className={`block h-1.5 rounded-full transition-all ${i === index ? "w-5 bg-amber" : "w-1.5 bg-white/35"}`}
+                      className={`block h-2 w-2 rounded-full transition-colors ${i === index ? "bg-amber" : "bg-white/35"}`}
                     />
                   </button>
                 ))}
