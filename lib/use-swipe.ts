@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 
 /**
  * Swipe left / right on an element (touch, pen or mouse drag) to go to the
@@ -43,4 +43,47 @@ export function useSwipe(onNext: () => void, onPrev: () => void, enabled = true)
     },
     style: enabled ? ({ touchAction: "pan-y" } as React.CSSProperties) : undefined,
   };
+}
+
+/**
+ * Two-finger swipe on a laptop touchpad (a sideways wheel scroll) goes to the
+ * next / previous photo, one photo per gesture, instead of letting the browser
+ * read it as "go back a page". Vertical scrolling is left alone. Returns a ref
+ * for the element.
+ */
+export function useWheelSwipe(onNext: () => void, onPrev: () => void, enabled = true) {
+  const cb = useRef({ onNext, onPrev, enabled });
+  cb.current = { onNext, onPrev, enabled };
+  const cleanup = useRef<(() => void) | null>(null);
+  return useCallback((el: HTMLElement | null) => {
+    cleanup.current?.();
+    cleanup.current = null;
+    if (!el) return;
+    let sum = 0;
+    let locked = false;
+    let timer = 0;
+    const onWheel = (e: WheelEvent) => {
+      if (!cb.current.enabled || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      // The gesture (and the touchpad's momentum after it) ends after a short pause.
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        sum = 0;
+        locked = false;
+      }, 220);
+      if (locked) return;
+      sum += e.deltaX;
+      if (Math.abs(sum) > 60) {
+        locked = true;
+        if (sum > 0) cb.current.onNext();
+        else cb.current.onPrev();
+        sum = 0;
+      }
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    cleanup.current = () => {
+      el.removeEventListener("wheel", onWheel);
+      window.clearTimeout(timer);
+    };
+  }, []);
 }

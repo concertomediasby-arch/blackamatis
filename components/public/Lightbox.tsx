@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { photoAspect, photoZoom } from "@/lib/photo";
 import { storageUrl } from "@/lib/supabase/env";
-import { useSwipe } from "@/lib/use-swipe";
+import { useSwipe, useWheelSwipe } from "@/lib/use-swipe";
 import type { BonusMedia } from "@/lib/types";
 import { VideoPlayer } from "./MediaPlayer";
 
@@ -77,6 +77,7 @@ export function Lightbox({
     [index, n, onIndex],
   );
   const swipe = useSwipe(() => go(1), () => go(-1), n > 1);
+  const wheel = useWheelSwipe(() => go(1), () => go(-1), n > 1);
 
   useEffect(() => {
     dialogRef.current?.focus();
@@ -88,9 +89,14 @@ export function Lightbox({
     document.addEventListener("keydown", onKey);
     const { overflow } = document.body.style;
     document.body.style.overflow = "hidden";
+    // No "back a page" from a sideways touchpad swipe while the window is open.
+    const root = document.documentElement;
+    const { overscrollBehaviorX } = root.style;
+    root.style.overscrollBehaviorX = "none";
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = overflow;
+      root.style.overscrollBehaviorX = overscrollBehaviorX;
     };
   }, [go, n, onClose]);
 
@@ -98,7 +104,10 @@ export function Lightbox({
   if (!cur) return null;
   return createPortal(
     <div
-      ref={dialogRef}
+      ref={(el) => {
+        dialogRef.current = el;
+        wheel(el);
+      }}
       role="dialog"
       aria-modal="true"
       aria-label={title(cur, index)}

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { heroTransform, normalizeLayout } from "@/lib/photo";
 import { VideoPlayer } from "./MediaPlayer";
+import { useWheelSwipe } from "@/lib/use-swipe";
 import type { BonusMedia } from "@/lib/types";
 import { ZoomablePhoto } from "./Lightbox";
 
@@ -102,6 +103,9 @@ export function Carousel<T extends Slide>({
     [n, stacked],
   );
 
+  // Two-finger touchpad swipe on the stacked (hero) slides; the scroll track handles it natively.
+  const wheel = useWheelSwipe(() => go(index + 1), () => go(index - 1), stacked && n > 1);
+
   // Mouse drag for desktops without a trackpad.
   const drag = useRef<{ x: number; left: number } | null>(null);
   // A mouse drag must not also count as a click on the photo (which opens it large).
@@ -140,6 +144,7 @@ export function Carousel<T extends Slide>({
           <ul
             tabIndex={n > 1 ? 0 : -1}
             aria-label={`${label}, ${n} photo${n === 1 ? "" : "s"}${n > 1 ? ". Use the arrow keys or swipe to move." : ""}`}
+            ref={wheel}
             className="m-0 grid list-none p-0 [touch-action:pan-y]"
             style={{ cursor: n > 1 ? "grab" : undefined }}
             onPointerDown={(e) => {
