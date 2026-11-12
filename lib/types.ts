@@ -44,6 +44,8 @@ export type Vehicle = {
   history_layout?: unknown;
   /** Headline / intro placement per page: { installation, bonus, judge } (lib/page-layout.ts). */
   page_layouts?: unknown;
+  /** Landing-page text and options (lib/home.ts). */
+  home?: unknown;
   /** Hero car position and size per screen size (see lib/photo.ts). */
   car_photo_layout: CarPhotoLayout | null;
   /** Uploaded system diagram for the Installation page, and its text description. */

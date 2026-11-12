@@ -13,6 +13,7 @@ import {
 } from "@/components/editor/Field";
 import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
+import { HomeHeroEditor } from "@/components/editor/sections/HomeHeroEditor";
 import { PageLayoutsEditor } from "@/components/editor/sections/PageLayoutsEditor";
 import { PartnersEditor } from "@/components/editor/sections/PartnersEditor";
 import { MediaListEditor } from "@/components/editor/sections/MediaListEditor";
@@ -255,6 +256,8 @@ export default function VehiclePage() {
           />
         </div>
       </Card>
+
+      <HomeHeroEditor />
 
       <PageLayoutsEditor />
 

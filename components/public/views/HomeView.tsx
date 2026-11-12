@@ -16,6 +16,7 @@ import { storageUrl } from "@/lib/supabase/env";
 import { instagramHref } from "@/lib/format";
 import { EditPencil } from "@/components/public/EditMode";
 import { PartnerLogo } from "@/components/public/PartnerLogo";
+import { categoryLabel, heroText } from "@/lib/home";
 import { visiblePartners } from "@/lib/partners";
 
 /** Two ways in: visitors (lemon, light face) and judges (dark face). */
@@ -76,10 +77,14 @@ export function HomeView() {
   const c = state.content;
   const v = c.vehicle;
 
+  const hero = heroText(v.home, CLASS_INFO[v.class].name);
   const data = [
     { k: "Car", v: v.model },
     { k: "Year / generation", v: v.year },
-    { k: "EMMA category", v: `${v.category} · ${CLASS_INFO[v.class].name}` },
+    {
+      k: "EMMA category",
+      v: categoryLabel(v.category, CLASS_INFO[v.class].name),
+    },
     { k: "Owner", v: v.owner },
     { k: "Installer", v: v.installer },
     // A field left empty in the editor (e.g. an owner who prefers not to be named) is not shown.
@@ -96,7 +101,7 @@ export function HomeView() {
           .filter((u): u is string => !!u)}
         carLayout={normalizeCarLayout(v.car_photo_layout)}
         instagramUrl={instagramHref(v.instagram)}
-        classLabel={CLASS_INFO[v.class].name}
+        text={hero}
         judgeThumbUrl={storageUrl(v.system_diagram_path)}
       />
 
@@ -156,27 +161,29 @@ export function HomeView() {
         })}
       </section>
 
-      <GlassPanel
-        as="section"
-        id="vehicle"
-        aria-label="Vehicle data"
-        className="relative mx-3 mt-8 overflow-hidden rounded-[28px] sm:mx-6 lg:mx-10"
-      >
-        <EditPencil href="/editor/vehicle/#vehicle" label="Vehicle data" />
-        <dl className="m-0 grid sm:px-6 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
-          {data.map((d) => (
-            <div
-              key={d.k}
-              className="flex flex-col gap-2 border-b border-white/10 px-6 py-7 sm:border-b-0 sm:border-r last:border-0"
-            >
-              <dt className="label text-muted-2">{d.k}</dt>
-              <dd className="m-0 font-display text-[28px] font-bold leading-tight">
-                {d.v}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </GlassPanel>
+      {hero.showStrip && data.length > 0 && (
+        <GlassPanel
+          as="section"
+          id="vehicle"
+          aria-label="Vehicle data"
+          className="relative mx-3 mt-8 overflow-hidden rounded-[28px] sm:mx-6 lg:mx-10"
+        >
+          <EditPencil href="/editor/vehicle/#vehicle" label="Vehicle data" />
+          <dl className="m-0 grid sm:px-6 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
+            {data.map((d) => (
+              <div
+                key={d.k}
+                className="flex flex-col gap-2 border-b border-white/10 px-6 py-7 sm:border-b-0 sm:border-r last:border-0"
+              >
+                <dt className="label text-muted-2">{d.k}</dt>
+                <dd className="m-0 font-display text-[28px] font-bold leading-tight">
+                  {d.v}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </GlassPanel>
+      )}
 
       <section
         aria-labelledby="statement"

@@ -139,7 +139,8 @@ Shared: floating glass header (wordmark, nav: History · Theme · Installation �
 ### Home `/`
 - **Hero** (landing page, one screen tall): the word **AMATIS** large and faint behind everything; the cut-out car photo (transparent PNG; silhouette until uploaded) on the right, swipeable when there are more (`vehicle.hero_photos` after `car_photo_path`, same position & size; buttons, dots and counter under the car); bottom left the label `EMMA 2026 · <class>`, headline "One car. Two faces.", short copy and the CTA "Explore the build" (to the ways in); bottom right a card "For judges · Check the install" (system diagram thumbnail, to Judge Mode); section dots and a vertical "Scroll to explore" on the right edge. The hero keeps both palettes in code but shows the dark face (no face or category switch on the page).
 - **Ways in**, right under the hero: "For visitors · See the build" (lemon: Theme, Bonus Point, History) and "For judges · Check the install" (dark: Judge Mode, Power & fuses, Photo log).
-- Vehicle data strip (Car, Year, EMMA category, Owner, Installer), project statement, **Team & partners** (4 people + 6 partner logos), footer with `id="contact"`.
+- The hero text is editable in **editor › Vehicle & Story › Landing page** (`vehicle.home` jsonb: eyebrow, headline with one line per line break, short copy, button text; empty = default, eyebrow default `EMMA 2026 · <class>`), which also turns the vehicle data strip on or off.
+- Vehicle data strip (Car, Year, EMMA category, Owner, Installer; empty fields are hidden, a category that only repeats the class name shows once), project statement, **Team & partners** (4 people + 6 partner logos), footer with `id="contact"`.
 
 ### History `/history`
 - No before/after slider (removed on purpose; the `before_after` table is kept but unused).
@@ -238,7 +239,7 @@ Other rules used in the UI: main fuse ≤ 40 cm from each positive battery post;
 
 ```
 vehicle(id, name, model, year, category, class, event, dark_side_name, light_side_name, car_photo_path, car_photo_layout jsonb,
-        history_photos jsonb, history_gallery jsonb, history_layout jsonb, page_layouts jsonb, hero_photos jsonb, dark_side_photo_path, light_side_photo_path, dark_side_points jsonb,
+        history_photos jsonb, history_gallery jsonb, history_layout jsonb, page_layouts jsonb, home jsonb, hero_photos jsonb, dark_side_photo_path, light_side_photo_path, dark_side_points jsonb,
         light_side_points jsonb, motif_photo_path, motifs jsonb,
         statement, owner, installer, designer, tuner, instagram, website, updated_at)
 milestones(id, when_label, title, body, photo_path, sort)

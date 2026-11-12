@@ -58,7 +58,14 @@ const SECTIONS = [
 ];
 
 type Props = {
-  classLabel: string;
+  /** The team's hero text (lib/home.ts › heroText). */
+  text: {
+    eyebrow: string;
+    titleLines: string[];
+    intro: string;
+    cta: string;
+    showStrip: boolean;
+  };
   /** Cut-out car photos: the main one first, then the extra hero photos. */
   carPhotoUrls: string[];
   carLayout: CarPhotoLayout;
@@ -73,7 +80,7 @@ type Props = {
  * a section index and a vertical scroll cue on the right edge.
  */
 export function Hero({
-  classLabel,
+  text,
   carPhotoUrls,
   carLayout,
   instagramUrl,
@@ -184,11 +191,17 @@ export function Hero({
 
         {/* Headline, bottom left */}
         <div className="relative flex flex-col justify-end gap-5 pt-10 lg:order-1 lg:pb-10">
+          <EditPencil
+            href="/editor/vehicle/#home-hero"
+            label="Landing page text"
+            className="right-0 top-2"
+            tone={pencilTone}
+          />
           <span
             className="font-mono text-[12px] uppercase tracking-[0.16em]"
             style={{ color: f.accent }}
           >
-            EMMA 2026 · {classLabel}
+            {text.eyebrow}
           </span>
           <h1
             className="display m-0 font-black"
@@ -197,23 +210,24 @@ export function Hero({
               lineHeight: 0.92,
             }}
           >
-            One car.
-            <br />
-            Two faces.
+            {text.titleLines.map((line, i) => (
+              <span key={i} className="block">
+                {line}
+              </span>
+            ))}
           </h1>
           <p
             className="m-0 max-w-[380px] text-[17px] leading-relaxed"
             style={{ color: f.muted }}
           >
-            A Honda Odyssey built for EMMA 2026. One two-face concept, from the
-            exterior through the interior to the trunk.
+            {text.intro}
           </p>
           <a
             href="#start"
             className="group inline-flex min-h-12 items-center gap-3 self-start rounded-full border py-1.5 pl-6 pr-1.5 font-semibold uppercase tracking-[0.06em]"
             style={{ borderColor: f.line, color: f.ink }}
           >
-            Explore the build
+            {text.cta}
             <span
               className="flex h-10 w-10 items-center justify-center rounded-full transition-transform group-hover:translate-x-0.5"
               style={{ background: f.ctaBg, color: f.ctaFg }}
@@ -312,20 +326,22 @@ export function Hero({
         aria-label="Sections"
         className="absolute right-10 top-1/2 z-10 hidden -translate-y-1/2 flex-col gap-1 lg:flex"
       >
-        {SECTIONS.map((x, i) => (
-          <a
-            key={x.href}
-            href={x.href}
-            className="flex h-8 w-8 items-center justify-center"
-            aria-label={x.label}
-            aria-current={i === 0 ? "true" : undefined}
-          >
-            <span
-              className="h-2 w-2 rounded-full"
-              style={{ background: i === 0 ? f.accent : f.line }}
-            />
-          </a>
-        ))}
+        {SECTIONS.filter((x) => text.showStrip || x.href !== "#vehicle").map(
+          (x, i) => (
+            <a
+              key={x.href}
+              href={x.href}
+              className="flex h-8 w-8 items-center justify-center"
+              aria-label={x.label}
+              aria-current={i === 0 ? "true" : undefined}
+            >
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ background: i === 0 ? f.accent : f.line }}
+              />
+            </a>
+          ),
+        )}
       </nav>
       <a
         href="#start"
