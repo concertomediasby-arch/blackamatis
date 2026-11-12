@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
 import type { Motif } from "@/lib/types";
+import { useSwipe } from "@/lib/use-swipe";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -29,6 +30,12 @@ export function MotifMap({
     setOpen(m.id);
     setShown(photoOf(m));
   };
+  // Swipe the photo (or drag with the mouse) to the next / previous one.
+  const swipe = useSwipe(
+    () => setShown((x) => Math.min(count - 1, x + 1)),
+    () => setShown((x) => Math.max(0, x - 1)),
+    count > 1,
+  );
   const detailRef = useRef<HTMLDivElement>(null);
   const first = useRef(true);
 
@@ -43,7 +50,7 @@ export function MotifMap({
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)]">
       <div className="flex flex-col gap-3">
-      <div className="relative">
+      <div className={`relative ${count > 1 ? "cursor-grab select-none active:cursor-grabbing" : ""}`} {...swipe}>
         <Placeholder
           key={shown}
           path={photos[shown] ?? null}
