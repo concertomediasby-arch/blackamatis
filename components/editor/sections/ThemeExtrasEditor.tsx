@@ -5,7 +5,11 @@ import { useState } from "react";
 import { normalizeMotifs, normalizePoints } from "@/lib/theme";
 import { storageUrl } from "@/lib/supabase/env";
 import type { Motif, Vehicle } from "@/lib/types";
+import { MotifMap } from "@/components/public/MotifMap";
+import { ThemeSides } from "@/components/public/ThemeSides";
+import { themeLayoutOf } from "@/lib/page-layout";
 import { useEditor } from "../EditorProvider";
+import { ScaledPreview } from "../ScaledPreview";
 import { Card, TextArea, TextField, btn } from "../Field";
 import { UploadZone } from "../UploadZone";
 
@@ -122,6 +126,11 @@ export function TwoSidesEditor() {
           />
         </div>
       </div>
+      <ScaledPreview label="Preview of the two side cards">
+        <div className="pb-8">
+          <ThemeSides v={v} layout={themeLayoutOf(v)} />
+        </div>
+      </ScaledPreview>
     </Card>
   );
 }
@@ -146,8 +155,8 @@ export function MotifsEditor() {
       <p className="m-0 text-sm text-[#4a4852]">
         A photo of the car and the motifs on it. Add a motif, then click on the
         photo to place its number. Write what it is and what it means; visitors
-        click a number to read it. The section stays hidden on the site until
-        at least one motif has a name or a meaning.
+        click a number to read it. The section stays hidden on the site until at
+        least one motif has a name or a meaning.
       </p>
       <UploadZone
         label="Motif photo"
@@ -283,6 +292,14 @@ export function MotifsEditor() {
           </button>
         </div>
       </div>
+      <ScaledPreview
+        label="Preview of the motifs as visitors see them"
+        width={1280}
+      >
+        <div className="p-10">
+          <MotifMap photo={v.motif_photo_path ?? null} motifs={motifs} />
+        </div>
+      </ScaledPreview>
     </Card>
   );
 }

@@ -24,10 +24,19 @@ const TABS: { key: BonusTab; label: string }[] = [
  * Bonus requests as a showcase: each row opens its Idea, Process and Result.
  * Scores and the Submit choice stay in the editor.
  */
-export function BonusList({ initial }: { initial: PublicBonusRequest[] }) {
+export function BonusList({
+  initial,
+  preview = false,
+}: {
+  initial: PublicBonusRequest[];
+  /** Editor preview: no filter pills, the first row open on Idea. */
+  preview?: boolean;
+}) {
   const rows = [...initial].sort((a, b) => a.sort - b.sort);
   const [filter, setFilter] = useState<Filter>("all");
-  const [open, setOpen] = useState<Record<string, BonusTab | undefined>>({});
+  const [open, setOpen] = useState<Record<string, BonusTab | undefined>>(
+    preview && rows[0] ? { [rows[0].id]: "idea" } : {},
+  );
 
   const counts = Object.fromEntries(
     BONUS_GROUPS.map((g) => [
@@ -46,13 +55,15 @@ export function BonusList({ initial }: { initial: PublicBonusRequest[] }) {
 
   return (
     <div className="flex flex-col gap-7">
-      <SegmentedTabs
-        options={filters}
-        value={filter}
-        onChange={setFilter}
-        label="Filter by group"
-        tone="light"
-      />
+      {!preview && (
+        <SegmentedTabs
+          options={filters}
+          value={filter}
+          onChange={setFilter}
+          label="Filter by group"
+          tone="light"
+        />
+      )}
 
       <ol
         className="m-0 flex list-none flex-col gap-2 p-0"

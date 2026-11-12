@@ -6,8 +6,10 @@ import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 import { criterionByKey } from "@/lib/emma/criteria";
 import { PHOTO_AREAS, type Photo, type PhotoArea } from "@/lib/types";
 
-export function PhotoLog({ photos }: { photos: Photo[] }) {
-  const [area, setArea] = useState<PhotoArea>("engine");
+/** Photo log with area tabs; `area` fixes the tab from outside (the editor's preview follows its own area tabs). */
+export function PhotoLog({ photos, area: fixed }: { photos: Photo[]; area?: PhotoArea }) {
+  const [picked, setArea] = useState<PhotoArea>("engine");
+  const area = fixed ?? picked;
   const list = photos.filter((p) => p.area === area).sort((a, b) => a.sort - b.sort);
   const options = PHOTO_AREAS.map((a) => ({ key: a.key, label: a.label, count: photos.filter((p) => p.area === a.key).length }));
   const areaLabel = PHOTO_AREAS.find((a) => a.key === area)!.label;

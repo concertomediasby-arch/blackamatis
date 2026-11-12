@@ -5,6 +5,8 @@ import { Card, PageTitle, SelectField, TextField, btn } from "@/components/edito
 import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
 import { CraftCloseups } from "@/components/editor/sections/CraftCloseups";
+import { ScaledPreview } from "@/components/editor/ScaledPreview";
+import { PhotoLog } from "@/components/public/PhotoLog";
 import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 import { photoSchema } from "@/lib/editor/schemas";
 import { CRITERIA } from "@/lib/emma/criteria";
@@ -118,6 +120,13 @@ export default function PhotosPage() {
         >
           + Add slot
         </button>
+        <div className="mt-6">
+          <ScaledPreview label="Preview of the photo log" tone="light">
+            <div className="p-12">
+              <PhotoLog photos={content.photos} area={area} />
+            </div>
+          </ScaledPreview>
+        </div>
       </div>
       <CraftCloseups />
     </div>

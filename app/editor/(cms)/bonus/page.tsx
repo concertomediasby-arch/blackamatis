@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Card, Checkbox, PageTitle, SelectField, TextArea, TextField, btn } from "@/components/editor/Field";
+import { ScaledPreview } from "@/components/editor/ScaledPreview";
+import { BonusList } from "@/components/public/BonusList";
 import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
 import { MediaListEditor } from "@/components/editor/sections/MediaListEditor";
@@ -21,7 +23,7 @@ import {
   type BonusGroup,
   type Strength,
 } from "@/lib/emma/bonus-locations";
-import type { BonusMedia, BonusRequest } from "@/lib/types";
+import type { BonusMedia, BonusRequest, PublicBonusRequest } from "@/lib/types";
 
 const STRENGTH_STYLE: Record<Strength, string> = {
   strong: "bg-emerald-100 text-emerald-900 border-emerald-300",
@@ -197,6 +199,16 @@ function BonusDrawer({ request, isNew, onSave, onClose }: { request: BonusReques
   const e = formState.errors;
   const group = watch("group");
   const element = watch("element");
+  // What visitors would see for this request, as the form stands (no strength, no scores).
+  const live = watch();
+  const preview = {
+    ...request,
+    ...live,
+    code: bonusCode(group, request.no),
+    process: (live.process ?? []) as BonusMedia[],
+    result: (live.result ?? []) as BonusMedia[],
+    strength: null,
+  } as PublicBonusRequest;
 
   useEffect(() => {
     const d = ref.current;
@@ -305,6 +317,11 @@ function BonusDrawer({ request, isNew, onSave, onClose }: { request: BonusReques
             />
           )}
         />
+        <ScaledPreview label="Preview of this request on the Bonus Point page" tone="light" width={960} interactive note="Preview · as on the Bonus Point page (click Idea / Process / Result)">
+          <div className="p-8">
+            <BonusList key={request.id} initial={[preview]} preview />
+          </div>
+        </ScaledPreview>
         <p className="m-0 text-[13px] text-[#55535c]">Below is for the team only; the public page shows no scores.</p>
         <div className="flex flex-wrap gap-x-6">
           <Checkbox label="Submit with the presentation" {...register("submit")} />
