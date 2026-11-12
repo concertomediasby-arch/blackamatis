@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { HOME_DEFAULTS, categoryLabel, heroText, normalizeHome } from "./home";
+import {
+  HOME_DEFAULTS,
+  categoryLabel,
+  headerLabel,
+  heroText,
+  normalizeHome,
+} from "./home";
 
 describe("heroText", () => {
   it("uses the defaults when nothing is set", () => {
@@ -43,5 +49,17 @@ describe("categoryLabel", () => {
     );
     expect(categoryLabel("Install", "Expert")).toBe("Install · Expert");
     expect(categoryLabel("", "Master")).toBe("Master");
+  });
+});
+
+describe("headerLabel", () => {
+  it("uses the team's label, else EMMA 2026 · category", () => {
+    expect(headerLabel(null, "Expert Unlimited")).toBe(
+      "EMMA 2026 · Expert Unlimited",
+    );
+    expect(headerLabel({ label: "  EMMA Asia Final 2026 " }, "X")).toBe(
+      "EMMA Asia Final 2026",
+    );
+    expect(headerLabel({}, "")).toBe("EMMA 2026 · …");
   });
 });

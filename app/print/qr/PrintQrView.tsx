@@ -1,11 +1,12 @@
 "use client";
 
+import { headerLabel } from "@/lib/home";
 import { useVehicleField } from "@/components/public/ContentProvider";
 
 const INSIDE = ["The two-face story", "System & wiring diagrams", "Spec sheet for every component", "Photo log behind the panels"];
 
 export function PrintQrView({ svg, display }: { svg: string; display: string }) {
-  const category = useVehicleField("category") ?? "…";
+  const label = headerLabel(useVehicleField("home"), useVehicleField("category"));
   const instagram = useVehicleField("instagram") ?? "";
   const installer = useVehicleField("installer") ?? "…";
   return (
@@ -17,7 +18,7 @@ export function PrintQrView({ svg, display }: { svg: string; display: string }) 
         <div className="a4-body">
           <div className="a4-top">
             <span className="a4-word">BLACK AMATIS</span>
-            <span className="a4-pill">EMMA 2026 · {category}</span>
+            <span className="a4-pill">{label}</span>
           </div>
           <span className="a4-eyebrow">HONDA ODYSSEY · TWO-FACE CONCEPT</span>
           <h1 className="a4-title">

@@ -73,6 +73,18 @@ export function HomeHeroEditor() {
           hint={left("intro")}
         />
       </div>
+      <TextField
+        label="Label at the top right of every page (and on the print QR)"
+        value={h.label}
+        maxLength={HOME_LIMITS.label}
+        placeholder={`EMMA 2026 · ${v.category || "…"}`}
+        onChange={(e) => set({ label: e.target.value })}
+        hint={
+          h.label
+            ? left("label")
+            : 'Empty = "EMMA 2026 · " + the EMMA category above. Shown in capitals.'
+        }
+      />
       <Checkbox
         label="Show the vehicle data strip (car, year, category, owner, installer) under the ways in"
         checked={h.show_strip}
