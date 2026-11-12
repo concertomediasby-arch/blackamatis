@@ -6,12 +6,8 @@ import { RowActions } from "../RowActions";
 import { UploadZone } from "../UploadZone";
 import { moveItem, newId, useList } from "../useList";
 import { PartnerLogo } from "@/components/public/PartnerLogo";
-import {
-  DEFAULT_HERO_LAYOUT,
-  LAYOUT_LIMITS,
-  normalizeLayout,
-  type HeroLayout,
-} from "@/lib/photo";
+import type { HeroLayout } from "@/lib/photo";
+import { LayoutSliders } from "../LayoutSliders";
 import type { Partner } from "@/lib/types";
 
 /** Partner / sponsor logos shown under "Supported by" on the home page. */
@@ -137,74 +133,17 @@ function LogoPosition({
   partner: Partner;
   onChange: (l: HeroLayout) => void;
 }) {
-  const l = normalizeLayout(partner.logo_layout);
-  const set = (k: keyof HeroLayout, v: number) => onChange({ ...l, [k]: v });
-  const sliders: {
-    k: keyof HeroLayout;
-    label: string;
-    min: number;
-    max: number;
-    unit: string;
-  }[] = [
-    {
-      k: "scale",
-      label: "Size",
-      min: LAYOUT_LIMITS.minScale,
-      max: LAYOUT_LIMITS.maxScale,
-      unit: "%",
-    },
-    {
-      k: "x",
-      label: "Left / right",
-      min: -LAYOUT_LIMITS.offset,
-      max: LAYOUT_LIMITS.offset,
-      unit: "",
-    },
-    {
-      k: "y",
-      label: "Up / down",
-      min: -LAYOUT_LIMITS.offset,
-      max: LAYOUT_LIMITS.offset,
-      unit: "",
-    },
-  ];
   return (
-    <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-editor-border p-3">
-      <legend className="px-1 text-sm font-semibold">
-        Position &amp; size
-      </legend>
-      <div className="rounded-xl bg-prussian p-3 text-ink">
-        <div className="mx-auto max-w-[300px]">
-          <PartnerLogo partner={{ ...partner, logo_layout: l }} />
+    <LayoutSliders
+      value={partner.logo_layout}
+      onChange={onChange}
+      preview={(l) => (
+        <div className="rounded-xl bg-prussian p-3 text-ink">
+          <div className="mx-auto max-w-[300px]">
+            <PartnerLogo partner={{ ...partner, logo_layout: l }} />
+          </div>
         </div>
-      </div>
-      {sliders.map((x) => (
-        <label
-          key={x.k}
-          className="grid grid-cols-[110px_1fr_48px] items-center gap-3 text-[13px] font-semibold"
-        >
-          {x.label}
-          <input
-            type="range"
-            min={x.min}
-            max={x.max}
-            value={l[x.k]}
-            onChange={(e) => set(x.k, Number(e.target.value))}
-            className="accent-prussian"
-          />
-          <span className="text-right font-mono text-[12px]">
-            {l[x.k]}
-            {x.unit}
-          </span>
-        </label>
-      ))}
-      <button
-        type="button"
-        className={`${btn.secondary} self-start`}
-        onClick={() => onChange(DEFAULT_HERO_LAYOUT)}
-      >
-        Reset
-      </button>
-    </fieldset>
+      )}
+    />
   );
 }

@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
+import { heroTransform, normalizeLayout } from "@/lib/photo";
+import { VideoPlayer } from "./MediaPlayer";
 import type { BonusMedia } from "@/lib/types";
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -250,7 +252,60 @@ export function Carousel<T extends Slide>({
   );
 }
 
-/** Photo slider for the History page; one placeholder slide until photos are uploaded. */
+/** Frame of a History slide (4:3 on phones, 16:9 from tablets, at most 78% of the screen height). */
+export const SLIDE_FRAME =
+  "relative aspect-[4/3] max-h-[78vh] w-full overflow-hidden sm:aspect-[16/9]";
+
+/**
+ * One History photo, shown whole (contain) so a cut-out car is never cropped,
+ * then moved and scaled by its saved position & size.
+ */
+export function FramedPhoto({
+  photo,
+  alt,
+  className = "",
+}: {
+  photo: Pick<BonusMedia, "path" | "layout">;
+  alt: string;
+  className?: string;
+}) {
+  return (
+    <div className={`${SLIDE_FRAME} ${className}`}>
+      <div
+        className="absolute inset-0"
+        style={{ transform: heroTransform(normalizeLayout(photo.layout)) }}
+      >
+        <Placeholder
+          path={photo.path}
+          label="Car photo"
+          alt={alt}
+          fit="contain"
+          className="h-full w-full"
+          sizes="100vw"
+        />
+      </div>
+    </div>
+  );
+}
+
+/** One slide: a photo (whole, with its position & size) or a video, in the slide frame. */
+export function FramedMedia({ m, alt }: { m: BonusMedia; alt: string }) {
+  if (m.kind === "photo")
+    return (
+      <FramedPhoto
+        photo={m}
+        alt={alt}
+        className="pointer-events-none select-none"
+      />
+    );
+  return (
+    <div className={`${SLIDE_FRAME} bg-black`}>
+      <VideoPlayer m={m} title={alt} />
+    </div>
+  );
+}
+
+/** Photo / video slider for the History page; one placeholder slide until something is uploaded. */
 export function PhotoSlider({
   photos,
   label,
@@ -266,12 +321,9 @@ export function PhotoSlider({
       slides={slides}
       label={label}
       renderSlide={(s, i) => (
-        <Placeholder
-          path={s.path}
-          label="Car photo"
-          alt={s.caption || `Black Amatis, photo ${i + 1}`}
-          className="pointer-events-none aspect-[4/3] w-full select-none sm:aspect-[16/9] xl:aspect-[21/9]"
-          sizes="100vw"
+        <FramedMedia
+          m={s}
+          alt={s.caption || `Black Amatis, ${s.kind} ${i + 1}`}
         />
       )}
     />

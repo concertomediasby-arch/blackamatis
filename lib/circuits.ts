@@ -1,5 +1,5 @@
 import { normalizeHotspots } from "./photo";
-import type { ChainItem, Circuit, SideCable } from "./types";
+import type { ChainItem, Circuit, PathPart, SideCable } from "./types";
 
 const str = (v: unknown) => (typeof v === "string" ? v : "");
 const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : typeof v === "string" && v.trim() !== "" && Number.isFinite(Number(v)) ? Number(v) : null);
@@ -30,6 +30,16 @@ export function normalizeCables(v: unknown): SideCable[] {
   });
 }
 
+export function normalizeParts(v: unknown): PathPart[] {
+  return arr(v).flatMap((raw, i): PathPart[] => {
+    const o = obj(raw);
+    const box = o && normalizeHotspots([o])[0];
+    if (!o || !box) return [];
+    const run = o.run === "power" || o.run === "ground" ? o.run : "both";
+    return [{ ...box, id: idOf(o, i, "p"), label: str(o.label), run }];
+  });
+}
+
 /** Accepts a row from the database (or a draft) and returns a safe circuit. */
 export function normalizeCircuit(c: Partial<Circuit> & { id: string }): Circuit {
   return {
@@ -44,6 +54,7 @@ export function normalizeCircuit(c: Partial<Circuit> & { id: string }): Circuit 
     ground: normalizeChain(c.ground),
     cables: normalizeCables(c.cables),
     wiring_hotspots: normalizeHotspots(c.wiring_hotspots),
+    parts: normalizeParts(c.parts),
     sort: typeof c.sort === "number" ? c.sort : 0,
   };
 }

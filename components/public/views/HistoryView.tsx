@@ -4,6 +4,7 @@ import {
   ContentFallback,
   useSiteContent,
 } from "@/components/public/ContentProvider";
+import { MediaGallery } from "@/components/public/MediaGallery";
 import { PhotoSlider } from "@/components/public/PhotoSlider";
 import { normalizeMedia } from "@/lib/bonus-media";
 import { EditPencil } from "@/components/public/EditMode";
@@ -31,9 +32,18 @@ export function HistoryView() {
             to the stage.
           </h1>
         </div>
-        <p className="m-0 max-w-[620px] text-lg leading-[1.7] text-muted md:justify-self-end">
-          {c.vehicle.story}
-        </p>
+        <div className="flex max-w-[620px] flex-col gap-4 text-lg leading-[1.7] text-muted md:justify-self-end">
+          {/* Each line or blank-line-separated block of the story is its own paragraph. */}
+          {(c.vehicle.story ?? "")
+            .split(/\n+/)
+            .map((p) => p.trim())
+            .filter(Boolean)
+            .map((p, i) => (
+              <p key={i} className="m-0">
+                {p}
+              </p>
+            ))}
+        </div>
       </section>
       <section
         aria-label="The car"
@@ -46,7 +56,21 @@ export function HistoryView() {
         />
         <PhotoSlider
           photos={normalizeMedia(c.vehicle.history_photos)}
-          label="Photos of Black Amatis"
+          label="Photos and videos of Black Amatis"
+        />
+      </section>
+      <section
+        aria-label="Gallery"
+        className="relative px-3 pb-24 sm:px-6 lg:px-10"
+      >
+        <EditPencil
+          href="/editor/vehicle/#f-history-gallery"
+          label="History gallery"
+          className="-top-5 right-8"
+        />
+        <MediaGallery
+          items={normalizeMedia(c.vehicle.history_gallery)}
+          label="Gallery of Black Amatis"
         />
       </section>
     </>

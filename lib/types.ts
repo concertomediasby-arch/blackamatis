@@ -38,6 +38,8 @@ export type Vehicle = {
   hero_photos?: BonusMedia[] | null;
   /** Photos of the car under the story on the History page (slider), in order. */
   history_photos?: BonusMedia[] | null;
+  /** Square tiles of photos / videos under the History slider. */
+  history_gallery?: BonusMedia[] | null;
   /** Hero car position and size per screen size (see lib/photo.ts). */
   car_photo_layout: CarPhotoLayout | null;
   /** Uploaded system diagram for the Installation page, and its text description. */
@@ -201,6 +203,8 @@ export type BonusMedia = {
   path: string | null;
   url?: string | null;
   caption: string;
+  /** Position & size of the photo in its frame (History slider). */
+  layout?: HeroLayout | null;
 };
 
 /** What public pages receive: no `strength`. */
@@ -293,8 +297,20 @@ export type Circuit = {
   power: ChainItem[];
   ground: ChainItem[];
   cables: SideCable[];
+  /** Click areas on the device itself (the amplifier, speaker, …). */
   wiring_hotspots: Hotspot[];
+  /** Parts on the cable diagram this run passes through (fuse holder, distribution, ground block, …). */
+  parts: PathPart[];
   sort: number;
+};
+
+/** A marked part on the cable diagram: lit up with every circuit that runs through it. */
+export type PathPart = Hotspot & {
+  id: string;
+  /** Shown on the diagram, e.g. "Fuse A7", "Distribution A", "Ground block A". */
+  label: string;
+  /** Which run it belongs to: + only, − only, or both (ultracap, VSS). */
+  run: "power" | "ground" | "both";
 };
 
 export type SiteContent = {

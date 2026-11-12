@@ -141,7 +141,7 @@ Shared: floating glass header (wordmark, nav: History · Theme · Installation �
 
 ### History `/history`
 - No before/after slider (removed on purpose; the `before_after` table is kept but unused).
-- The headline, the story (`vehicle.story`) and a swipeable slider of car photos under it (`vehicle.history_photos` jsonb, each with crop focus and an optional caption; swipe, drag, ← → buttons, dots and arrow keys; placeholder until uploaded). No build timeline and no competition history (both removed on purpose; the `milestones` and `competitions` tables are kept but unused).
+- The headline, the story (`vehicle.story`, one paragraph per line) and a swipeable slider under it (`vehicle.history_photos` jsonb; each slide a photo or a video: uploaded file or YouTube link, each with crop focus and an optional caption; swipe, drag, ← → buttons, dots and arrow keys; placeholder until uploaded). Photos show whole (contain, 16:9 frame, 4:3 on phones, max 78vh); each has **Position & size** (sliders with live preview, stored as `layout` on the photo item). Under the slider, a **gallery of square tiles** (`vehicle.history_gallery` jsonb, photos or videos with optional caption) filling the row edge to edge (2 per row on phones, 3 on tablets, 6 on wide screens); a tile opens a lightbox (previous / next, Esc). No build timeline and no competition history (both removed on purpose; the `milestones` and `competitions` tables are kept but unused).
 
 ### Theme `/theme`
 - Two-face split hero (dark glass + lemon glass cards): per side the name, description, up to 5 short points (`vehicle.dark_side_points` / `light_side_points`) and a photo (`dark_side_photo_path` / `light_side_photo_path`).
@@ -154,7 +154,7 @@ Shared: floating glass header (wordmark, nav: History · Theme · Installation �
 In this order:
 1. **System diagram — Signal flow**: if the team uploaded their own diagram image (editor › Components › *System diagram image*, `vehicle.system_diagram_path` + `system_diagram_alt`), it is shown first with *Open full size*; the interactive diagram below stays as a second tab (*Specs per product*). Devices on the image are clickable: in the editor, pick a component and drag a box over it (several boxes per component allowed; stored in `components.hotspots` as % of the image); a click opens that component's spec popover (beside the device on wide screens, below the image on phones). The interactive diagram: Head Unit → DSP → Amplifier A / Amplifier B → Tweeter, Midrange, Midbass (from Amp A) and Subwoofer (from Amp B). Default front stage is 3-way; it must be data-driven.
 2. **Wiring diagram — Power & fuses**: Main Battery → Main Fuse (≤ 40 cm from + post) → Distribution → Amp A, Amp B, DSP, Head Unit; dashed line to Chassis Ground. Cable size labels on links, `[__ mm²] · [__ A]` on each output.
-   - If the team uploaded their own cable diagram (`vehicle.wiring_diagram_path`), it is shown first. Its clickable areas belong to **circuits** (table `circuits`, editor › Components › *Cable diagram circuits*): a *main run* (Battery + → main fuse → ultracap → VSS → fuse → distribution; Battery − → … → ground block) and one *circuit* per device that continues from a main run. A click opens the circuit card: power (+) and ground (−) runs with cable name, AWG, length and fuses, signal (RCA) and speaker cables, and a VW75212 check of every fused cable against the nearest fuse before it (by AWG; cables before the first fuse against the 40 cm rule). The generated diagram stays as the second tab (*Cable sizes & fuses*).
+   - If the team uploaded their own cable diagram (`vehicle.wiring_diagram_path`), it is shown first. Its clickable areas belong to **circuits** (table `circuits`, editor › Components › *Cable diagram circuits*): a *main run* (Battery + → main fuse → ultracap → VSS → fuse → distribution; Battery − → … → ground block) and one *circuit* per device that continues from a main run. A click opens the circuit card: power (+) and ground (−) runs with cable name, AWG, length and fuses, signal (RCA) and speaker cables, and a VW75212 check of every fused cable against the nearest fuse before it (by AWG; cables before the first fuse against the 40 cm rule). Each circuit also has **parts** (`circuits.parts` jsonb: label, run `power|ground|both`, box in %): for a main run Battery +, main fuse, ultracap, VSS, fuse, distribution block, ground block; for a device circuit its fuse holder and its ground-block terminal. A click lights up the whole path (parts of the + main run, parts of the − main run, own parts, the device) and dims the rest; parts are clickable too (a fuse holder opens its circuit). Name tags show from 640 px wide; on phones the path shows first with a small bar and **Details** opens the card. The generated diagram stays as the second tab (*Cable sizes & fuses*).
 3. **Photo log — "Behind the panels"** (lemon glass): area tabs Engine Bay, Doors, Dashboard, Trunk, Under Floor; each photo has a code (`EB-01`), caption and a "✓ proves: <criterion>" pill.
 4. **Craftsmanship close-up**: tabs Wiring, Head Unit, Amplifiers, Speakers, Other Components; 3 close-ups + "What to look at" checklist; note "M: 2 pts · X: 10 pts per category".
 
@@ -236,7 +236,7 @@ Other rules used in the UI: main fuse ≤ 40 cm from each positive battery post;
 
 ```
 vehicle(id, name, model, year, category, class, event, dark_side_name, light_side_name, car_photo_path, car_photo_layout jsonb,
-        history_photos jsonb, hero_photos jsonb, dark_side_photo_path, light_side_photo_path, dark_side_points jsonb,
+        history_photos jsonb, history_gallery jsonb, hero_photos jsonb, dark_side_photo_path, light_side_photo_path, dark_side_points jsonb,
         light_side_points jsonb, motif_photo_path, motifs jsonb,
         statement, owner, installer, designer, tuner, instagram, website, updated_at)
 milestones(id, when_label, title, body, photo_path, sort)
@@ -255,7 +255,7 @@ moodboard_items(id, caption, path, sort)
 partners(id, name, logo_path, url, logo_layout jsonb, sort)
 before_after(id, view, before_path, after_path)
 circuits(id, name, kind ('trunk'|'channel'), component_key, power_from, ground_from,
-         power jsonb, ground jsonb, cables jsonb, wiring_hotspots jsonb, sort)
+         power jsonb, ground jsonb, cables jsonb, wiring_hotspots jsonb, parts jsonb, sort)
 ```
 - RLS: public `select` on all content tables; `insert/update/delete` only for authenticated editors (table `editors(user_id, role)` with `owner | editor`). Only `owner` can publish.
 - Storage buckets: `photos` (public read), `pdfs` (public read). Resize uploads to max 2400 px, WebP.

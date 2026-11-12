@@ -3,7 +3,9 @@
 import { MAX_VIDEO_MB } from "@/lib/editor/upload";
 import { youtubeId } from "@/lib/bonus-media";
 import type { BonusMedia } from "@/lib/types";
+import { FramedPhoto } from "@/components/public/PhotoSlider";
 import { TextArea, TextField, btn } from "../Field";
+import { LayoutSliders } from "../LayoutSliders";
 import { UploadZone } from "../UploadZone";
 
 /**
@@ -18,6 +20,7 @@ export function MediaListEditor({
   value,
   onChange,
   photosOnly = false,
+  positionable = false,
 }: {
   label: string;
   intro: string;
@@ -26,6 +29,8 @@ export function MediaListEditor({
   numbered: boolean;
   /** Offer only "+ Add photo" (e.g. the History slider). */
   photosOnly?: boolean;
+  /** Each photo gets Position & size in its slider frame (History). */
+  positionable?: boolean;
   value: BonusMedia[];
   onChange: (next: BonusMedia[]) => void;
 }) {
@@ -101,6 +106,7 @@ export function MediaListEditor({
                     folder={folder}
                     value={m.path}
                     onChange={(path) => patch(m.id, { path })}
+                    focusable={!positionable}
                   />
                 ) : (
                   <>
@@ -159,6 +165,21 @@ export function MediaListEditor({
                     )}
                   </>
                 )}
+                {positionable && m.kind === "photo" && m.path && (
+                  <LayoutSliders
+                    value={m.layout}
+                    onChange={(layout) => patch(m.id, { layout })}
+                    preview={(l) => (
+                      <div className="rounded-xl bg-prussian p-3">
+                        <FramedPhoto
+                          photo={{ path: m.path, layout: l }}
+                          alt=""
+                          className="rounded-lg border border-white/10"
+                        />
+                      </div>
+                    )}
+                  />
+                )}
                 <TextArea
                   label="Caption"
                   rows={2}
@@ -168,7 +189,9 @@ export function MediaListEditor({
                   hint={
                     numbered
                       ? "What happens in this step."
-                      : "What the result shows."
+                      : photosOnly
+                        ? "Optional, shown under the photo."
+                        : "What the result shows."
                   }
                 />
               </li>
