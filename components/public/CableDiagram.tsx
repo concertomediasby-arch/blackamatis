@@ -21,7 +21,7 @@ const TAG_MIN_WIDTH = 640;
 
 const DOT = {
   ok: "bg-lemon",
-  over: "bg-[#FF8A65]",
+  over: "bg-white/40",
   incomplete: "bg-white/40",
   empty: "bg-white/20",
 } as const;
@@ -150,11 +150,6 @@ export function CableDiagram({
                       </span>
                     )}
                     <span className="flex-1">{c.name}</span>
-                    {st === "over" && (
-                      <span className="font-mono text-[11px] text-[#FFB199]">
-                        ⚠
-                      </span>
-                    )}
                   </button>
                 </li>
               );

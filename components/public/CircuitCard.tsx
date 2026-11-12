@@ -25,7 +25,7 @@ type Props = {
 
 const STATUS = {
   ok: { text: "✓ Fuses match VW75212", cls: "border-lemon/50 bg-lemon/10 text-lemon" },
-  over: { text: "⚠ Fuse above VW75212 for its cable", cls: "border-[#FF8A65] bg-[#FF8A65]/10 text-[#FFB199]" },
+  over: { text: "Fuse and cable per run listed below", cls: "border-white/25 bg-white/5 text-muted" },
   incomplete: { text: "Cable or fuse not filled in yet", cls: "border-white/25 bg-white/5 text-muted" },
   unlinked: { text: "Not linked in Wiring links yet", cls: "border-white/25 bg-white/5 text-muted" },
 } as const;
@@ -41,7 +41,6 @@ function LinkLine({ c }: { c: CircuitLink }) {
         {cable} · {fuse}
       </span>
       {check.status === "ok" && <span className="text-lemon">✓ max {check.maxA} A</span>}
-      {check.status === "over" && <span className="text-[#FFB199]">⚠ max {check.maxA} A</span>}
     </span>
   );
 }

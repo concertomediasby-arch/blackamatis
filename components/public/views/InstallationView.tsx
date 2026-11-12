@@ -12,7 +12,6 @@ import { DiagramPanel } from "@/components/public/DiagramPanel";
 import { storageUrl } from "@/lib/supabase/env";
 import { PhotoLog } from "@/components/public/PhotoLog";
 import { GlassPanel } from "@/components/ui/GlassPanel";
-import { checkFuse } from "@/lib/emma/fuses";
 import { isPlaceholder } from "@/lib/format";
 import type { AudioComponent, WiringLink } from "@/lib/types";
 import { EditPencil } from "@/components/public/EditMode";
@@ -90,13 +89,12 @@ export function InstallationView() {
   const wirNodes: DiagramNode[] = wir.map((x) => {
     const l = incoming.get(x.key);
     const isOutput = l && !parents.has(x.key);
-    const chk = checkFuse(l?.cable_mm2, l?.fuse_a);
     return {
       key: x.key,
       title: x.title,
       sub: brandModel(x),
       extra: isOutput ? linkLabel(l) : undefined,
-      warn: chk.status === "over",
+      warn: false, // no warning on the public site (team decision)
       component: x,
     };
   });
