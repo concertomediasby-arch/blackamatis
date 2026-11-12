@@ -141,7 +141,7 @@ Shared: floating glass header (wordmark, nav: History · Theme · Installation �
 
 ### History `/history`
 - No before/after slider (removed on purpose; the `before_after` table is kept but unused).
-- The headline, the story (`vehicle.story`, one paragraph per line) and a swipeable slider under it (`vehicle.history_photos` jsonb; each slide a photo or a video: uploaded file or YouTube link, each with crop focus and an optional caption; swipe, drag, ← → buttons, dots and arrow keys; placeholder until uploaded). Photos show whole (contain, 16:9 frame, 4:3 on phones, max 78vh); each has **Position & size** (sliders with live preview, stored as `layout` on the photo item). Under the slider, a **gallery of square tiles** (`vehicle.history_gallery` jsonb, photos or videos with optional caption) filling the row edge to edge (2 per row on phones, 3 on tablets, 6 on wide screens); a tile opens a lightbox (previous / next, Esc). No build timeline and no competition history (both removed on purpose; the `milestones` and `competitions` tables are kept but unused).
+- The headline and story are placed by **History layout** (editor › Vehicle & Story; `vehicle.history_layout` jsonb: story beside / under the headline, block left / centre / spread, top / bottom line-up, gap, story width, page margin; live preview at 1440 px; phones always stack). The headline, the story (`vehicle.story`, one paragraph per line) and a swipeable slider under it (`vehicle.history_photos` jsonb; each slide a photo or a video: uploaded file or YouTube link, each with crop focus and an optional caption; swipe, drag, ← → buttons, dots and arrow keys; placeholder until uploaded). Photos show whole (contain, 16:9 frame, 4:3 on phones, max 78vh); each has **Position & size** (sliders with live preview, stored as `layout` on the photo item). Under the slider, a **gallery of square tiles** (`vehicle.history_gallery` jsonb, photos or videos with optional caption) filling the row edge to edge (2 per row on phones, 3 on tablets, 6 on wide screens); a tile opens a lightbox (previous / next, Esc). No build timeline and no competition history (both removed on purpose; the `milestones` and `competitions` tables are kept but unused).
 
 ### Theme `/theme`
 - Two-face split hero (dark glass + lemon glass cards): per side the name, description, up to 5 short points (`vehicle.dark_side_points` / `light_side_points`) and a photo (`dark_side_photo_path` / `light_side_photo_path`).
@@ -236,7 +236,7 @@ Other rules used in the UI: main fuse ≤ 40 cm from each positive battery post;
 
 ```
 vehicle(id, name, model, year, category, class, event, dark_side_name, light_side_name, car_photo_path, car_photo_layout jsonb,
-        history_photos jsonb, history_gallery jsonb, hero_photos jsonb, dark_side_photo_path, light_side_photo_path, dark_side_points jsonb,
+        history_photos jsonb, history_gallery jsonb, history_layout jsonb, hero_photos jsonb, dark_side_photo_path, light_side_photo_path, dark_side_points jsonb,
         light_side_points jsonb, motif_photo_path, motifs jsonb,
         statement, owner, installer, designer, tuner, instagram, website, updated_at)
 milestones(id, when_label, title, body, photo_path, sort)
