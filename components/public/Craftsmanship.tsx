@@ -5,12 +5,14 @@ import { Placeholder } from "@/components/ui/Placeholder";
 import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 import { CRAFT_CHECKLIST } from "@/lib/data/craft";
 import { CRAFT_CATEGORIES, type CraftCategory, type CraftPhoto } from "@/lib/types";
+import { ZoomablePhoto } from "./Lightbox";
 
 /** Close-ups per category; `category` fixes the tab from outside (the editor's preview). */
 export function Craftsmanship({ photos, category }: { photos: CraftPhoto[]; category?: CraftCategory }) {
   const [picked, setCat] = useState<CraftCategory>("wiring");
   const cat = category ?? picked;
   const list = photos.filter((p) => p.category === cat).sort((a, b) => a.sort - b.sort).slice(0, 3);
+  const group = list.filter((p) => p.path).map((p) => ({ id: p.id, kind: "photo" as const, path: p.path, url: null, caption: p.caption }));
   return (
     <div className="flex flex-col gap-8">
       <SegmentedTabs options={CRAFT_CATEGORIES} value={cat} onChange={setCat} label="Craftsmanship category" mode="tabs" idPrefix="craft" />
@@ -18,7 +20,9 @@ export function Craftsmanship({ photos, category }: { photos: CraftPhoto[]; cate
         <ul className="m-0 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-3">
           {list.map((p) => (
             <li key={p.id} className="flex flex-col gap-2">
-              <Placeholder path={p.path} label={`Close-up: ${p.caption}`} alt={p.caption} className="aspect-[3/4] rounded-3xl" sizes="(max-width: 640px) 100vw, 22vw" />
+              <ZoomablePhoto group={group} index={group.findIndex((g) => g.id === p.id)} label={p.caption} className="overflow-hidden rounded-3xl">
+                <Placeholder path={p.path} label={`Close-up: ${p.caption}`} alt={p.caption} className="aspect-[3/4] rounded-3xl" sizes="(max-width: 640px) 100vw, 22vw" />
+              </ZoomablePhoto>
               <span className="text-sm text-muted">{p.caption}</span>
             </li>
           ))}

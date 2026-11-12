@@ -208,7 +208,7 @@ function ComponentEditor({ component, all, onRemove }: { component: AudioCompone
       <TextArea label="EMMA note" rows={2} {...register("note")} error={e.note?.message} hint="Shown at the bottom of the spec popover." />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <UploadZone label="Product photo (transparent PNG)" kind="photo" focusable={false} folder="components" value={watch("photo_path")} onChange={(p) => setValue("photo_path", p, { shouldDirty: true })} />
+        <UploadZone label="Product photo (transparent PNG)" kind="photo" cropMode="whole" folder="components" value={watch("photo_path")} onChange={(p) => setValue("photo_path", p, { shouldDirty: true })} />
         <UploadZone label="Spec sheet (PDF)" kind="pdf" folder="components" value={watch("pdf_path")} onChange={(p) => setValue("pdf_path", p, { shouldDirty: true })} />
       </div>
 

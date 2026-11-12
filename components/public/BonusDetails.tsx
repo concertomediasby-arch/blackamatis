@@ -5,6 +5,7 @@ import { normalizeMedia, youtubeId } from "@/lib/bonus-media";
 import { splitPhoto } from "@/lib/photo";
 import { storageUrl } from "@/lib/supabase/env";
 import type { BonusMedia, PublicBonusRequest } from "@/lib/types";
+import { ZoomablePhoto } from "./Lightbox";
 
 export type BonusTab = "idea" | "process" | "result";
 
@@ -13,10 +14,14 @@ function MediaItem({
   m,
   step,
   name,
+  group,
+  index,
 }: {
   m: BonusMedia;
   step?: number;
   name: string;
+  group: BonusMedia[];
+  index: number;
 }) {
   const label = m.caption || (step ? `Step ${step}` : "Result");
   const yt = m.kind === "video" ? youtubeId(m.url) : null;
@@ -27,13 +32,7 @@ function MediaItem({
   if (m.kind === "photo") {
     const full = storageUrl(splitPhoto(m.path).path);
     media = full ? (
-      <a
-        href={full}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`${box} block`}
-        aria-label={`${label}: open photo full size`}
-      >
+      <ZoomablePhoto group={group} index={index} label={label} className={box}>
         <Placeholder
           path={m.path}
           label="Photo"
@@ -42,7 +41,7 @@ function MediaItem({
           className="h-full w-full"
           sizes="(max-width: 768px) 100vw, 33vw"
         />
-      </a>
+      </ZoomablePhoto>
     ) : (
       <Placeholder
         path={null}
@@ -156,7 +155,7 @@ function MediaGrid({
     <ol className="m-0 grid list-none grid-cols-1 gap-5 p-0 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((m, i) => (
         <li key={m.id}>
-          <MediaItem m={m} step={steps ? i + 1 : undefined} name={name} />
+          <MediaItem m={m} step={steps ? i + 1 : undefined} name={name} group={items.filter((x) => x.kind === "photo")} index={items.filter((x) => x.kind === "photo").indexOf(m)} />
         </li>
       ))}
     </ol>

@@ -5,6 +5,7 @@ import { Placeholder } from "@/components/ui/Placeholder";
 import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 import { criterionByKey } from "@/lib/emma/criteria";
 import { PHOTO_AREAS, type Photo, type PhotoArea } from "@/lib/types";
+import { ZoomablePhoto } from "./Lightbox";
 
 /** Photo log with area tabs; `area` fixes the tab from outside (the editor's preview follows its own area tabs). */
 export function PhotoLog({ photos, area: fixed }: { photos: Photo[]; area?: PhotoArea }) {
@@ -13,6 +14,8 @@ export function PhotoLog({ photos, area: fixed }: { photos: Photo[]; area?: Phot
   const list = photos.filter((p) => p.area === area).sort((a, b) => a.sort - b.sort);
   const options = PHOTO_AREAS.map((a) => ({ key: a.key, label: a.label, count: photos.filter((p) => p.area === a.key).length }));
   const areaLabel = PHOTO_AREAS.find((a) => a.key === area)!.label;
+  // The area's photos, for the large view.
+  const group = list.filter((p) => p.path).map((p) => ({ id: p.id, kind: "photo" as const, path: p.path, url: null, caption: `${p.code} · ${p.caption}` }));
 
   return (
     <div className="flex flex-col gap-8">
@@ -26,7 +29,9 @@ export function PhotoLog({ photos, area: fixed }: { photos: Photo[]; area?: Phot
             const proves = p.proves_criterion ? criterionByKey(p.proves_criterion)?.name : null;
             return (
               <li key={p.id} className="flex flex-col overflow-hidden rounded-3xl border border-black/15 bg-white/45">
-                <Placeholder path={p.path} label={`${p.code} photo`} alt={p.caption} tone="light" className="aspect-[4/3] border-0 border-b" sizes="(max-width: 768px) 100vw, 25vw" />
+                <ZoomablePhoto group={group} index={group.findIndex((g) => g.id === p.id)} label={`${p.code} ${p.caption}`}>
+                  <Placeholder path={p.path} label={`${p.code} photo`} alt={p.caption} tone="light" className="aspect-[4/3] border-0 border-b" sizes="(max-width: 768px) 100vw, 25vw" />
+                </ZoomablePhoto>
                 <div className="flex flex-1 flex-col gap-3 p-5">
                   <span className="font-mono text-xs font-medium tracking-[0.12em] text-navy">{p.code}</span>
                   <span className="text-[15px] font-semibold leading-snug">{p.caption}</span>

@@ -1,5 +1,6 @@
 import { Placeholder } from "@/components/ui/Placeholder";
 import type { NewsPost } from "@/lib/types";
+import { ZoomablePhoto } from "./Lightbox";
 
 export const newsDate = (iso: string) => {
   const d = new Date(iso);
@@ -24,13 +25,15 @@ export function NewsList({ posts }: { posts: NewsPost[] }) {
       {list.map((p) => (
         <li key={p.id} id={`news-${p.id}`} className="glass-dark scroll-mt-28 overflow-hidden rounded-[32px]">
           {p.photo_path && (
-            <Placeholder
-              path={p.photo_path}
-              label="News photo"
-              alt={p.title}
-              className="aspect-[16/9] w-full border-0 border-b"
-              sizes="(max-width: 1024px) 100vw, 960px"
-            />
+            <ZoomablePhoto group={[{ id: p.id, kind: "photo", path: p.photo_path, url: null, caption: p.title }]} label={p.title}>
+              <Placeholder
+                path={p.photo_path}
+                label="News photo"
+                alt={p.title}
+                className="aspect-[16/9] w-full border-0 border-b"
+                sizes="(max-width: 1024px) 100vw, 960px"
+              />
+            </ZoomablePhoto>
           )}
           <article className="flex flex-col gap-4 p-7 sm:p-10">
             <time dateTime={p.published_at} className="font-mono text-[12px] tracking-[0.14em] text-amber">

@@ -5,6 +5,7 @@ import { VideoPlayer } from "@/components/public/MediaPlayer";
 import { Carousel } from "@/components/public/PhotoSlider";
 import { normalizeMedia } from "@/lib/bonus-media";
 import type { BonusMedia, SiteContent, ThemeZone } from "@/lib/types";
+import { ZoomablePhoto } from "@/components/public/Lightbox";
 
 /** The zone's media list as the editor edits it: its photos and videos (empty slots included), or the older single photo. */
 export function zoneEditMedia(z: ThemeZone): BonusMedia[] {
@@ -35,13 +36,15 @@ function ZoneSlides({ z }: { z: ThemeZone }) {
             <VideoPlayer m={m} title={alt} muted />
           </div>
         ) : (
-          <Placeholder
-            path={m.path}
-            label={`${z.name} photo`}
-            alt={alt}
-            className="pointer-events-none h-[260px] w-full select-none border-0"
-            sizes="(max-width: 768px) 100vw, 33vw"
-          />
+          <ZoomablePhoto group={zoneMedia(z)} index={i} label={alt}>
+            <Placeholder
+              path={m.path}
+              label={`${z.name} photo`}
+              alt={alt}
+              className="pointer-events-none h-[260px] w-full select-none border-0"
+              sizes="(max-width: 768px) 100vw, 33vw"
+            />
+          </ZoomablePhoto>
         );
       }}
     />

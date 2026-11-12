@@ -3,7 +3,7 @@
 import { useId, useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { uploadFile } from "@/lib/editor/upload";
-import { splitPhoto } from "@/lib/photo";
+import { photoZoom, splitPhoto } from "@/lib/photo";
 import { storageUrl } from "@/lib/supabase/env";
 import { FocusPicker } from "./FocusPicker";
 
@@ -15,18 +15,20 @@ type Props = {
   onChange: (path: string | null) => void;
   hint?: string;
   className?: string;
-  /** Offer a focus point for photos the site crops (default true). Off for logos and the hero car. */
+  /** Offer Crop & position (focus + zoom) for photos the site crops (default true). Off for logos, product cut-outs, diagrams and the hero car, which have their own position & size or must stay whole. */
   focusable?: boolean;
+  /** "whole": the site shows this photo uncut (logo, product cut-out): zoom and move it inside its box. */
+  cropMode?: "cover" | "whole";
 };
 
 /** Drop or choose a file. Photos are resized to max 2400 px WebP before upload. */
-export function UploadZone({ label, kind, folder, value, onChange, hint, className = "", focusable = true }: Props) {
+export function UploadZone({ label, kind, folder, value, onChange, hint, className = "", focusable = true, cropMode = "cover" }: Props) {
   const id = useId();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [over, setOver] = useState(false);
   const [focusOpen, setFocusOpen] = useState(false);
-  const hasFocus = !!splitPhoto(value).focus;
+  const hasFocus = !!splitPhoto(value).focus || photoZoom(value) > 100;
 
   const handle = async (f?: File | null) => {
     if (!f) return;
@@ -90,7 +92,7 @@ export function UploadZone({ label, kind, folder, value, onChange, hint, classNa
                 onClick={() => setFocusOpen((o) => !o)}
                 className="pill cursor-pointer border border-editor-border bg-white px-4"
               >
-                {focusOpen ? "Done" : hasFocus ? "Crop focus ✓" : "Set crop focus"}
+                {focusOpen ? "Done" : hasFocus ? "Crop & position ✓" : "Crop & position"}
               </button>
             )}
             {value && (
@@ -108,7 +110,7 @@ export function UploadZone({ label, kind, folder, value, onChange, hint, classNa
           </div>
         </div>
       </div>
-      {focusOpen && value && kind === "photo" && <FocusPicker value={value} onChange={onChange} />}
+      {focusOpen && value && kind === "photo" && <FocusPicker value={value} onChange={onChange} mode={cropMode} />}
       {err && (
         <span role="alert" className="text-[13px] text-red-700">
           {err}

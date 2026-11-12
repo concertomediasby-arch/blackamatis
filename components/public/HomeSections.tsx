@@ -63,6 +63,7 @@ export function WorkshopCard({
         label="Logo"
         alt={`${workshop} logo`}
         fit="contain"
+        cropWhole
         className="h-24 w-24 flex-none rounded-2xl text-[9px]"
         sizes="96px"
       />

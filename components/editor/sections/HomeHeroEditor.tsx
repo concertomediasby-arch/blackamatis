@@ -134,7 +134,7 @@ export function WorkshopCardEditor() {
           label="Workshop logo"
           kind="photo"
           folder="team"
-          focusable={false}
+          cropMode="whole"
           value={h.workshop_logo}
           onChange={(p) => set({ workshop_logo: p })}
           hint="A transparent PNG works best."
