@@ -201,6 +201,8 @@ export type BonusMedia = {
   path: string | null;
   url?: string | null;
   caption: string;
+  /** Position & size of the photo in its frame (History slider). */
+  layout?: HeroLayout | null;
 };
 
 /** What public pages receive: no `strength`. */

@@ -225,10 +225,11 @@ export default function VehiclePage() {
         <div id="f-history-photo">
           <MediaListEditor
             label="History photos (slider)"
-            intro="Photos of the car under the story, shown as a slider visitors can swipe. Landscape works best; set the crop focus on each. The caption is optional."
+            intro="Photos of the car under the story, shown as a slider visitors can swipe. Each photo shows whole in its frame; use Position & size to move or enlarge it. The caption is optional."
             folder="history"
             numbered={false}
             photosOnly
+            positionable
             value={normalizeMedia(v.history_photos)}
             onChange={(list) =>
               update((c) => ({

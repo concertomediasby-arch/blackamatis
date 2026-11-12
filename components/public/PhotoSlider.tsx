@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
+import { heroTransform, normalizeLayout } from "@/lib/photo";
 import type { BonusMedia } from "@/lib/types";
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -250,10 +251,43 @@ export function Carousel<T extends Slide>({
   );
 }
 
+/** Frame of a History slide (4:3 on phones, 16:9 from tablets, at most 78% of the screen height). */
+export const SLIDE_FRAME =
+  "relative aspect-[4/3] max-h-[78vh] w-full overflow-hidden sm:aspect-[16/9]";
+
 /**
- * Photo slider for the History page; one placeholder slide until photos are
- * uploaded. Photos are shown whole (contain), so a cut-out car is never cropped.
+ * One History photo, shown whole (contain) so a cut-out car is never cropped,
+ * then moved and scaled by its saved position & size.
  */
+export function FramedPhoto({
+  photo,
+  alt,
+  className = "",
+}: {
+  photo: Pick<BonusMedia, "path" | "layout">;
+  alt: string;
+  className?: string;
+}) {
+  return (
+    <div className={`${SLIDE_FRAME} ${className}`}>
+      <div
+        className="absolute inset-0"
+        style={{ transform: heroTransform(normalizeLayout(photo.layout)) }}
+      >
+        <Placeholder
+          path={photo.path}
+          label="Car photo"
+          alt={alt}
+          fit="contain"
+          className="h-full w-full"
+          sizes="100vw"
+        />
+      </div>
+    </div>
+  );
+}
+
+/** Photo slider for the History page; one placeholder slide until photos are uploaded. */
 export function PhotoSlider({
   photos,
   label,
@@ -269,13 +303,10 @@ export function PhotoSlider({
       slides={slides}
       label={label}
       renderSlide={(s, i) => (
-        <Placeholder
-          path={s.path}
-          label="Car photo"
+        <FramedPhoto
+          photo={s}
           alt={s.caption || `Black Amatis, photo ${i + 1}`}
-          fit="contain"
-          className="pointer-events-none aspect-[4/3] max-h-[78vh] w-full select-none sm:aspect-[16/9]"
-          sizes="100vw"
+          className="pointer-events-none select-none"
         />
       )}
     />

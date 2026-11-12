@@ -141,7 +141,7 @@ Shared: floating glass header (wordmark, nav: History · Theme · Installation �
 
 ### History `/history`
 - No before/after slider (removed on purpose; the `before_after` table is kept but unused).
-- The headline, the story (`vehicle.story`) and a swipeable slider of car photos under it (`vehicle.history_photos` jsonb, each with crop focus and an optional caption; swipe, drag, ← → buttons, dots and arrow keys; placeholder until uploaded). No build timeline and no competition history (both removed on purpose; the `milestones` and `competitions` tables are kept but unused).
+- The headline, the story (`vehicle.story`) and a swipeable slider of car photos under it (`vehicle.history_photos` jsonb, each with crop focus and an optional caption; swipe, drag, ← → buttons, dots and arrow keys; placeholder until uploaded). Photos show whole (contain, 16:9 frame, 4:3 on phones, max 78vh); each has **Position & size** (sliders with live preview, stored as `layout` on the photo item). No build timeline and no competition history (both removed on purpose; the `milestones` and `competitions` tables are kept but unused).
 
 ### Theme `/theme`
 - Two-face split hero (dark glass + lemon glass cards): per side the name, description, up to 5 short points (`vehicle.dark_side_points` / `light_side_points`) and a photo (`dark_side_photo_path` / `light_side_photo_path`).
