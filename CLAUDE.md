@@ -183,7 +183,7 @@ Spec fields by type:
 - **Request list** inside a lemon glass panel, a read-only showcase (no scores, Submit ticks or estimate on the public page; those stay in the editor):
   - Filter pills with counts: All · Glass · Lights · Rims & Wheels · Body · Interior · Trunk & Audio · (New, shown when it has rows).
   - Row: photo thumb · group · element A–D · name; the whole row is a button. The code (auto: group prefix + number, e.g. `L05`; new ones `N62…`) is editor-only and not shown on the public page.
-  - Clicking a row opens a panel under it with tabs **Idea · Process · Result** (Idea first): **Idea** = text (`description`); **Process** = numbered photos/videos, each with a caption (`process` jsonb); **Result** = photos/videos with captions (`result` jsonb). Videos: uploaded file or link (YouTube plays inline, other links open in a new tab).
+  - Clicking a row opens a panel under it with tabs **Idea · Process · Result** (Idea first): **Idea** = text (`description`); **Process** = numbered photos/videos, each with a caption (`process` jsonb); **Result** = photos/videos with captions (`result` jsonb). Videos: uploaded file or link (YouTube plays inline, other links open in a new tab); bonus videos start muted (uploaded files `muted`, YouTube `mute=1`), visitors can turn the sound on.
 - Editor › Bonus Requests keeps the class limits: Limited ≤ 20 requests / 15 pts, Unlimited ≤ 50 requests / 100 pts, with "Submitted n / max".
 - `strength` is editor-only and never reaches a public page (column not readable by `anon`; stripped in queries).
 - Group codes: Glass `G`, Lights `L`, Rims & Wheels `R`, Body `B`, Interior `I`, Trunk & Audio `T`, New `N`. New requests are numbered after the 61-spot location catalogue (`lib/emma/bonus-locations.ts`).
