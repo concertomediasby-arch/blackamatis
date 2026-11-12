@@ -36,7 +36,7 @@ function EvidencePack({ c, cls }: { c: SiteContent; cls: EmmaClass }) {
       <Page size="A4" style={st.page}>
         <Text style={st.h1}>BLACK AMATIS - EVIDENCE PACK</Text>
         <Text style={st.meta}>{safe(`${v.model} · ${v.event} · Class ${CLASS_INFO[cls].label} (${CLASS_INFO[cls].name}) · Category ${v.category}`)}</Text>
-        <Text style={st.meta}>{safe(`Owner ${v.owner} · Installer ${v.installer}`)}</Text>
+        <Text style={st.meta}>{safe([v.owner?.trim() && `Owner ${v.owner}`, `Installer ${v.installer}`].filter(Boolean).join(" · "))}</Text>
         <Text style={st.summary}>{safe(`Evidence ready: ${r.readyPts} / ${r.total} points (${r.pct}%) · ${r.count} judged criteria`)}</Text>
         {r.groups.map((g) => (
           <View key={g.title}>

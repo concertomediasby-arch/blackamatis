@@ -40,6 +40,8 @@ export type Vehicle = {
   history_photos?: BonusMedia[] | null;
   /** Square tiles of photos / videos under the History slider. */
   history_gallery?: BonusMedia[] | null;
+  /** Headline / story placement on the History page (lib/history-layout.ts). */
+  history_layout?: unknown;
   /** Hero car position and size per screen size (see lib/photo.ts). */
   car_photo_layout: CarPhotoLayout | null;
   /** Uploaded system diagram for the Installation page, and its text description. */

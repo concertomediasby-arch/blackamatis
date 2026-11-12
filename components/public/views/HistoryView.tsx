@@ -4,6 +4,7 @@ import {
   ContentFallback,
   useSiteContent,
 } from "@/components/public/ContentProvider";
+import { HistoryHeader } from "@/components/public/HistoryHeader";
 import { MediaGallery } from "@/components/public/MediaGallery";
 import { PhotoSlider } from "@/components/public/PhotoSlider";
 import { normalizeMedia } from "@/lib/bonus-media";
@@ -15,36 +16,13 @@ export function HistoryView() {
   const c = state.content;
   return (
     <>
-      <section className="px-8 sm:px-[72px] lg:px-[88px] relative grid grid-cols-1 items-end gap-12 pb-16 pt-24 md:grid-cols-2">
+      <HistoryHeader story={c.vehicle.story} layout={c.vehicle.history_layout}>
         <EditPencil
           href="/editor/vehicle/#f-story"
           label="History summary"
           className="right-5 top-20 sm:right-10"
         />
-        <div className="flex flex-col gap-4">
-          <span className="eyebrow text-amber">01 — History</span>
-          <h1
-            className="display m-0 font-black"
-            style={{ fontSize: "clamp(64px, 9vw, 128px)", lineHeight: 0.85 }}
-          >
-            From stock
-            <br />
-            to the stage.
-          </h1>
-        </div>
-        <div className="flex max-w-[620px] flex-col gap-4 text-lg leading-[1.7] text-muted md:justify-self-end">
-          {/* Each line or blank-line-separated block of the story is its own paragraph. */}
-          {(c.vehicle.story ?? "")
-            .split(/\n+/)
-            .map((p) => p.trim())
-            .filter(Boolean)
-            .map((p, i) => (
-              <p key={i} className="m-0">
-                {p}
-              </p>
-            ))}
-        </div>
-      </section>
+      </HistoryHeader>
       <section
         aria-label="The car"
         className="relative px-3 pb-24 sm:px-6 lg:px-10"

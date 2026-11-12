@@ -13,6 +13,7 @@ import {
 } from "@/components/editor/Field";
 import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
+import { HistoryLayoutEditor } from "@/components/editor/sections/HistoryLayoutEditor";
 import { PartnersEditor } from "@/components/editor/sections/PartnersEditor";
 import { MediaListEditor } from "@/components/editor/sections/MediaListEditor";
 import { normalizeMedia } from "@/lib/bonus-media";
@@ -255,12 +256,15 @@ export default function VehiclePage() {
         </div>
       </Card>
 
+      <HistoryLayoutEditor />
+
       <Card title="Team & links" id="team">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <TextField
             label="Owner"
             {...register("owner")}
             error={e.owner?.message}
+            hint="Leave empty to keep the owner's name off the site and the evidence pack."
           />
           <TextField
             label="Installer / workshop"
