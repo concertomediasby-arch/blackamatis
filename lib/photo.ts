@@ -22,15 +22,65 @@ export function splitPhoto(path: string | null | undefined): { path: string | nu
   return { path: base || null, focus: m ? { x: clamp(Math.round(Number(m[1])), 0, 100), y: clamp(Math.round(Number(m[2])), 0, 100) } : null };
 }
 
-/** Path with the focus fragment set (or removed when focus is null or centred). */
-export function withFocus(path: string | null, focus: Focus | null): string | null {
+export const ZOOM_LIMITS = { min: 100, max: 300 } as const;
+
+/** Crop zoom stored on the path ("#…&z=150"), in % (100 = no extra crop). */
+export function photoZoom(path: string | null | undefined): number {
+  const hash = path ? path.indexOf("#") : -1;
+  if (!path || hash < 0) return 100;
+  const m = /(?:^|&)z=(\d+(?:\.\d+)?)/.exec(path.slice(hash + 1));
+  return m ? clamp(Math.round(Number(m[1])), ZOOM_LIMITS.min, ZOOM_LIMITS.max) : 100;
+}
+
+/** Path with the crop set: focus point (object-position) and zoom. Centred / 100 % leave the path plain. */
+export function withCrop(path: string | null, focus: Focus | null, zoom = 100): string | null {
   const { path: base } = splitPhoto(path);
   if (!base) return null;
-  if (!focus || (focus.x === 50 && focus.y === 50)) return base;
-  return `${base}#fp=${clamp(Math.round(focus.x), 0, 100)},${clamp(Math.round(focus.y), 0, 100)}`;
+  const parts: string[] = [];
+  if (focus && !(Math.round(focus.x) === 50 && Math.round(focus.y) === 50))
+    parts.push(`fp=${clamp(Math.round(focus.x), 0, 100)},${clamp(Math.round(focus.y), 0, 100)}`);
+  const z = clamp(Math.round(zoom), ZOOM_LIMITS.min, ZOOM_LIMITS.max);
+  if (z > 100) parts.push(`z=${z}`);
+  return parts.length ? `${base}#${parts.join("&")}` : base;
+}
+
+/** Path with the focus fragment set (or removed when focus is null or centred); keeps the zoom. */
+export function withFocus(path: string | null, focus: Focus | null): string | null {
+  return withCrop(path, focus, photoZoom(path));
 }
 
 export const objectPosition = (focus: Focus | null) => (focus ? `${focus.x}% ${focus.y}%` : undefined);
+
+/** CSS for a cropped (object-fit: cover) photo: its focus point, zoomed in around that point. */
+export function cropStyle(path: string | null | undefined): { objectPosition?: string; transform?: string; transformOrigin?: string } {
+  const { focus } = splitPhoto(path);
+  const z = photoZoom(path);
+  const pos = objectPosition(focus) ?? (z > 100 ? "50% 50%" : undefined);
+  return z > 100 ? { objectPosition: pos, transform: `scale(${z / 100})`, transformOrigin: pos } : { objectPosition: pos };
+}
+
+/** Width / height of the visible part (fractions of the photo) in a frame, cover-fitted and zoomed. */
+function cropSize(imageRatio: number, frameRatio: number, zoom: number) {
+  const z = Math.max(1, zoom / 100);
+  return { w: 1 / (z * Math.max(1, imageRatio / frameRatio)), h: 1 / (z * Math.max(1, frameRatio / imageRatio)) };
+}
+
+/** The part of the photo a frame shows, in % of the photo (x, y = top left). */
+export function cropRect(imageRatio: number, frameRatio: number, focus: Focus | null, zoom = 100) {
+  const f = focus ?? { x: 50, y: 50 };
+  const { w, h } = cropSize(imageRatio, frameRatio, zoom);
+  const r = (v: number) => Math.round(v * 1000) / 10;
+  return { x: r((f.x / 100) * (1 - w)), y: r((f.y / 100) * (1 - h)), w: r(w), h: r(h) };
+}
+
+/** Focus point that centres the frame on a point of the photo (cx, cy in %). */
+export function focusForCentre(imageRatio: number, frameRatio: number, zoom: number, cx: number, cy: number, prev: Focus | null): Focus {
+  const { w, h } = cropSize(imageRatio, frameRatio, zoom);
+  const axis = (c: number, size: number, old: number) =>
+    size >= 0.999 ? old : clamp(Math.round(((c / 100 - size / 2) / (1 - size)) * 100), 0, 100);
+  const p = prev ?? { x: 50, y: 50 };
+  return { x: axis(cx, w, p.x), y: axis(cy, h, p.y) };
+}
 
 export type HeroLayout = { x: number; y: number; scale: number };
 export type CarPhotoLayout = { desktop: HeroLayout; mobile: HeroLayout };

@@ -63,6 +63,7 @@ export const SpecPopover = forwardRef<HTMLDivElement, Props>(
             className="h-[72px] w-[72px] flex-none rounded-2xl text-[9px]"
             sizes="72px"
             fit="contain"
+            cropWhole
           />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <span className="font-mono text-[10px] tracking-[0.14em] text-amber">
