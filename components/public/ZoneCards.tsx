@@ -6,11 +6,17 @@ import { Carousel } from "@/components/public/PhotoSlider";
 import { normalizeMedia } from "@/lib/bonus-media";
 import type { BonusMedia, SiteContent, ThemeZone } from "@/lib/types";
 
-/** A zone's slides: its photos and videos, or the older single photo, or one placeholder. */
+/** The zone's media list as the editor edits it: its photos and videos (empty slots included), or the older single photo. */
+export function zoneEditMedia(z: ThemeZone): BonusMedia[] {
+  if (Array.isArray(z.media) && z.media.length) return normalizeMedia(z.media);
+  return z.photo_path ? [{ id: "cover", kind: "photo", path: z.photo_path, url: null, caption: "" }] : [];
+}
+
+/** A zone's slides on the site: its uploaded photos and videos, or one placeholder. */
 export function zoneMedia(z: ThemeZone): BonusMedia[] {
-  const media = normalizeMedia(z.media);
+  const media = zoneEditMedia(z).filter((m) => m.path || m.url);
   if (media.length) return media;
-  return [{ id: "cover", kind: "photo", path: z.photo_path, url: null, caption: "" }];
+  return [{ id: "cover", kind: "photo", path: null, url: null, caption: "" }];
 }
 
 /** The photos and videos of one zone as a slider at the top of its card. */
