@@ -34,7 +34,7 @@ export function SiteHeader({ face = "dark", inHero = false }: { face?: Face; inH
     >
       <div className="flex items-center justify-between gap-3">
         <Link href="/" className="flex min-h-11 items-center font-display text-[24px] font-extrabold tracking-[0.08em] lg:text-[28px]">
-          BLACK AMATIS
+          BLACK AMETHYST
         </Link>
 
         <nav aria-label="Main menu" className="hidden items-center gap-1.5 lg:flex">

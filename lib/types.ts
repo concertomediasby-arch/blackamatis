@@ -38,6 +38,8 @@ export type Vehicle = {
   hero_photos?: BonusMedia[] | null;
   /** Photos of the car under the story on the History page (slider), in order. */
   history_photos?: BonusMedia[] | null;
+  /** Optional text on the left of the History slider (one paragraph per line). */
+  history_side_text?: string | null;
   /** Square tiles of photos / videos under the History slider. */
   history_gallery?: BonusMedia[] | null;
   /** Headline / story placement on the History page (lib/page-layout.ts). */

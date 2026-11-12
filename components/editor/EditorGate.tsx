@@ -49,7 +49,7 @@ export function EditorGate({ children }: { children: React.ReactNode }) {
   return (
     <div className="editor flex min-h-screen items-center justify-center bg-editor p-4 text-[#14141a]">
       <div role={state.kind === "loading" ? "status" : "alert"} className="flex max-w-[440px] flex-col gap-4 rounded-2xl border border-editor-border bg-white p-8">
-        <span className="font-display text-2xl font-extrabold tracking-[0.08em] text-prussian">BLACK AMATIS · EDITOR</span>
+        <span className="font-display text-2xl font-extrabold tracking-[0.08em] text-prussian">BLACK AMETHYST · EDITOR</span>
         {state.kind === "loading" && <p className="m-0">Checking your login…</p>}
         {state.kind === "not-editor" && (
           <>

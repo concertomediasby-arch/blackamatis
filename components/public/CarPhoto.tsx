@@ -31,7 +31,7 @@ export function CarPhoto({
       <div className={`absolute inset-0 ${transform}`} style={vars}>
         <Image
           src={url}
-          alt="Black Amatis, Honda Odyssey"
+          alt="Black Amethyst, Honda Odyssey"
           fill
           priority
           unoptimized={/^(blob:|data:)/.test(url)}

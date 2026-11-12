@@ -11,8 +11,8 @@ type Screen = "desktop" | "mobile";
 
 /** Stage proportions that mimic the home-page hero on each screen size. */
 const STAGE: Record<Screen, { maxW: string; aspect: string; box: string; word: string }> = {
-  desktop: { maxW: "max-w-[640px]", aspect: "aspect-[16/7]", box: "w-[62%]", word: "27cqw" },
-  mobile: { maxW: "max-w-[320px]", aspect: "aspect-[5/4]", box: "w-[90%]", word: "40cqw" },
+  desktop: { maxW: "max-w-[640px]", aspect: "aspect-[16/7]", box: "w-[62%]", word: "19.5cqw" },
+  mobile: { maxW: "max-w-[320px]", aspect: "aspect-[5/4]", box: "w-[90%]", word: "29cqw" },
 };
 
 /**
@@ -60,7 +60,7 @@ export function CarPositioner({ path, layout, onChange }: { path: string | null;
             className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center font-display font-black leading-[0.8] text-amber"
             style={{ fontSize: st.word }}
           >
-            AMATIS
+            AMETHYST
           </span>
           <div
             ref={boxRef}

@@ -1,13 +1,13 @@
 # Deploy: GitHub Pages + DNS Hostinger + Supabase
 
-Alamat situs: **https://blackamatis.concerto.id**
+Alamat situs: **https://blackamethyst.concerto.id**
 
-Situs Black Amatis adalah **situs statis** yang di-hosting di **GitHub Pages**, sama seperti subdomain `hub` dan `dealer`.
+Situs Black Amethyst adalah **situs statis** yang di-hosting di **GitHub Pages**, sama seperti subdomain `hub` dan `dealer`.
 Hostinger hanya dipakai untuk **DNS** domain `concerto.id`. Data, login editor, serta foto/PDF ada di **Supabase**
 (project `black-amatis`, region Singapore) dan diambil langsung oleh browser.
 
 > **Penting**
-> - Jangan ubah nameserver atau record DNS yang sudah ada (`www`, `hub`, `dealer`, `app`, `@`). Yang ditambahkan hanya **satu** record baru: `blackamatis`.
+> - Jangan ubah nameserver atau record DNS yang sudah ada (`www`, `hub`, `dealer`, `app`, `@`). Yang ditambahkan hanya **satu** record baru: `blackamethyst`.
 > - Jangan pernah menaruh *service-role key* / *secret key* Supabase di repo. Repo ini publik dan situsnya statis.
 
 ---
@@ -30,7 +30,7 @@ hPanel → **Domain** → `concerto.id` → **DNS / Nameserver** → **Kelola DN
 
 | Tipe | Nama | Value / Target | TTL |
 |---|---|---|---|
-| `CNAME` | `blackamatis` | `concertomediasby-arch.github.io` | biarkan default |
+| `CNAME` | `blackamethyst` | `concertomediasby-arch.github.io` | biarkan default |
 
 Klik **Tambah Record**. Jangan klik *Impor*, dan jangan edit atau hapus record lain.
 
@@ -39,24 +39,24 @@ GitHub → **Actions** → **Deploy to GitHub Pages** → **Run workflow** (bran
 Tunggu sampai centang hijau (sekitar 2–4 menit).
 
 ### 6. Pasang domain dan HTTPS
-**Settings → Pages → Custom domain**: isi `blackamatis.concerto.id` → **Save**.
+**Settings → Pages → Custom domain**: isi `blackamethyst.concerto.id` → **Save**.
 Tunggu sampai *DNS check successful* (bisa beberapa menit sampai beberapa jam), lalu centang **Enforce HTTPS**.
 
 ### 7. Atur Supabase
 Supabase Dashboard → project **black-amatis** → **Authentication → URL Configuration**:
-- **Site URL**: `https://blackamatis.concerto.id`
-- **Redirect URLs**: `https://blackamatis.concerto.id/**`
+- **Site URL**: `https://blackamethyst.concerto.id`
+- **Redirect URLs**: `https://blackamethyst.concerto.id/**`
 
 ### 8. Template email kode login
 Login editor memakai **kode sekali pakai lewat email** (tanpa password). Supaya kodenya muncul di email:
 
 Supabase Dashboard → **Authentication → Emails → Templates → Magic Link**:
 
-- **Subject**: `Black Amatis editor login code`
+- **Subject**: `Black Amethyst editor login code`
 - **Body** (ganti seluruh isinya):
 
 ```html
-<h2>Black Amatis · Editor</h2>
+<h2>Black Amethyst · Editor</h2>
 <p>Your login code:</p>
 <p style="font-size:28px;font-weight:bold;letter-spacing:6px">{{ .Token }}</p>
 <p>Or <a href="{{ .ConfirmationURL }}">click here to sign in</a>.</p>
@@ -73,7 +73,7 @@ Beri tahu developer email-email tersebut beserta perannya (`owner` boleh Publish
 supaya ditambahkan ke tabel `editors`.
 
 ### Cara login editor
-1. Buka `https://blackamatis.concerto.id/editor/login/`, isi email, klik **Send login code**.
+1. Buka `https://blackamethyst.concerto.id/editor/login/`, isi email, klik **Send login code**.
 2. Buka email dari Supabase, ketik kodenya, klik **Sign in** (atau klik link di email).
 3. Kode berlaku 1 jam. Kalau tidak masuk, cek folder Spam, atau klik **Send a new code** setelah 60 detik.
    Layanan email bawaan Supabase membatasi jumlah email per jam; kalau muncul pesan *Too many emails sent*, tunggu beberapa menit.
@@ -94,16 +94,16 @@ Nilai build (URL Supabase, *publishable key*, alamat situs) ada di `.env.product
 
 Buka di browser (juga di HP):
 
-- `https://blackamatis.concerto.id/`
-- `https://blackamatis.concerto.id/installation/` → klik produk di diagram, popover spesifikasi muncul
-- `https://blackamatis.concerto.id/judge/` → tombol *Download evidence pack (PDF)*
-- `https://blackamatis.concerto.id/editor/login/` → login dengan akun tim, coba *Save draft* dan *Publish*
-- `https://blackamatis.concerto.id/halaman-asal` → harus muncul halaman 404
+- `https://blackamethyst.concerto.id/`
+- `https://blackamethyst.concerto.id/installation/` → klik produk di diagram, popover spesifikasi muncul
+- `https://blackamethyst.concerto.id/judge/` → tombol *Download evidence pack (PDF)*
+- `https://blackamethyst.concerto.id/editor/login/` → login dengan akun tim, coba *Save draft* dan *Publish*
+- `https://blackamethyst.concerto.id/halaman-asal` → harus muncul halaman 404
 
 ## D. QR code untuk display A4
 
-QR dibuat saat build dari `NEXT_PUBLIC_SITE_URL` (`https://blackamatis.concerto.id`).
-Setelah situs online, buka `https://blackamatis.concerto.id/print/qr/`, pindai QR dengan HP untuk memastikan,
+QR dibuat saat build dari `NEXT_PUBLIC_SITE_URL` (`https://blackamethyst.concerto.id`).
+Setelah situs online, buka `https://blackamethyst.concerto.id/print/qr/`, pindai QR dengan HP untuk memastikan,
 lalu cetak (A4, tanpa margin).
 
 ## Build manual (opsional)

@@ -1,8 +1,8 @@
-# CLAUDE.md — Black Amatis · EMMA 2026 Portfolio
+# CLAUDE.md — Black Amethyst · EMMA 2026 Portfolio
 
 ## Project
 
-Web portfolio for **Black Amatis**, a Honda Odyssey car-audio build in a **two-face** style, competing in **EMMA (European Mobile Media Association) 2026**. The site has two faces of its own:
+Web portfolio for **Black Amethyst**, a Honda Odyssey car-audio build in a **two-face** style, competing in **EMMA (European Mobile Media Association) 2026**. The site has two faces of its own:
 
 1. **Public site (UI)**: for spectators and EMMA judges. Read-only, fast, mobile-friendly; reached by a QR code at the car.
 2. **Editor (CMS)**: for the owner and team, behind login. Everything on the public site is edited here.
@@ -11,13 +11,13 @@ The approved prototype (design canvas) is the visual reference:
 https://claude.ai/artifact/QPLWhofacbUMACm7aXsG7m
 
 ### Hosting
-- Site: **https://blackamatis.concerto.id**, static export on **GitHub Pages** (public repo `concertomediasby-arch/blackamatis`, same setup as the `hub` and `dealer` subdomains). Deployed by `.github/workflows/deploy.yml` on push to `main`.
-- The Hostinger plan for `concerto.id` is Website Builder (no file hosting); Hostinger is used **only for DNS**: one record `CNAME blackamatis → concertomediasby-arch.github.io`. Never change other DNS records or the nameservers.
+- Site: **https://blackamethyst.concerto.id**, static export on **GitHub Pages** (public repo `concertomediasby-arch/blackamatis`, same setup as the `hub` and `dealer` subdomains). Deployed by `.github/workflows/deploy.yml` on push to `main`.
+- The Hostinger plan for `concerto.id` is Website Builder (no file hosting); Hostinger is used **only for DNS**: one record `CNAME blackamethyst → concertomediasby-arch.github.io` (the old record `blackamatis` may stay; the site moved from blackamatis.concerto.id). Never change other DNS records or the nameservers.
 - Data, auth and storage on **Supabase** project `black-amatis` (ref `ddxcjzykcrozxqwubexr`, region Singapore).
 - Static export: `output: 'export'`, `trailingSlash: true`, `images.unoptimized`. No Route Handlers, Server Actions, middleware or `revalidatePath`.
 - Public pages fetch published content in the browser (anon key + RLS) with loading skeletons and an error state. Editor is client-only (Supabase Auth). Evidence-pack PDF is built in the browser (`@react-pdf/renderer`).
 - Public build values in `.env.production` (committed, public by design). Never commit a service-role / secret key; the repo is public.
-- `NEXT_PUBLIC_SITE_URL` = `https://blackamatis.concerto.id`; the print QR is generated from it at build time.
+- `NEXT_PUBLIC_SITE_URL` = `https://blackamethyst.concerto.id`; the print QR is generated from it at build time.
 - Deploy guide (Indonesian): `docs/DEPLOY.md`.
 
 ### Open decision
@@ -28,7 +28,7 @@ The car is lime green + black with gold, purple and white line art; the site pal
 - **Never invent product specs, scores, dates or names.** Unknown values stay as visible placeholders like `[BRAND / MODEL]`, `[__ mm²]`, `[OWNER NAME]` until the editor fills them.
 - EMMA rule numbers in this file come from the *EMMA Install Judge Book 2026* and *EMMA Rulebook 2026*. Do not change them without a newer rulebook.
 - No "Face 01 / Face 02" labels anywhere in the UI; the two faces are shown through colour only.
-- No logo mark: the brand is the wordmark **BLACK AMATIS** alone.
+- No logo mark: the brand is the wordmark **BLACK AMETHYST** alone.
 - Small, reviewable commits. Run lint, typecheck and tests before each commit.
 
 ## Stack
@@ -137,14 +137,14 @@ Calm and functional, not glass: surface `#F4F2EC`, cards white with `#D9D6CC` bo
 Shared: floating glass header (wordmark, nav: History · Theme · Installation · Bonus Point · Judge Mode, `EMMA 2026 · [CATEGORY]` pill), glass footer with prev/next links. Fluid layout, max-width ~1280–1360px, works at 360px wide.
 
 ### Home `/`
-- **Hero** (landing page, one screen tall): the word **AMATIS** large and faint behind everything; the cut-out car photo (transparent PNG; silhouette until uploaded) on the right, swipeable when there are more (`vehicle.hero_photos` after `car_photo_path`, same position & size; buttons, dots and counter under the car); bottom left the label `EMMA 2026 · <class>`, headline "One car. Two faces.", short copy and the CTA "Explore the build" (to the ways in); bottom right a card "For judges · Check the install" (system diagram thumbnail, to Judge Mode); section dots and a vertical "Scroll to explore" on the right edge. The hero keeps both palettes in code but shows the dark face (no face or category switch on the page).
+- **Hero** (landing page, one screen tall): the word **AMETHYST** large and faint behind everything; the cut-out car photo (transparent PNG; silhouette until uploaded) on the right, swipeable when there are more (`vehicle.hero_photos` after `car_photo_path`, same position & size; buttons, dots and counter under the car); bottom left the label `EMMA 2026 · <class>`, headline "One car. Two faces.", short copy and the CTA "Explore the build" (to the ways in); bottom right a card "For judges · Check the install" (system diagram thumbnail, to Judge Mode); section dots and a vertical "Scroll to explore" on the right edge. The hero keeps both palettes in code but shows the dark face (no face or category switch on the page).
 - **Ways in**, right under the hero: "For visitors · See the build" (lemon: Theme, Bonus Point, History) and "For judges · Check the install" (dark: Judge Mode, Power & fuses, Photo log).
 - The hero text is editable in **editor › Vehicle & Story › Landing page** (`vehicle.home` jsonb: eyebrow, headline with one line per line break, short copy, button text; empty = default, eyebrow default `EMMA 2026 · <class>`), which also turns the vehicle data strip on or off and sets the **label** at the top right of every page and on the print QR (`home.label`; empty = `EMMA 2026 · <category>`).
 - Vehicle data strip (Car, Year, EMMA category, Owner, Installer; empty fields are hidden, a category that only repeats the class name shows once), project statement, **Team & partners**: one **Built by** card for the workshop (name = `vehicle.installer`, logo and one line in `vehicle.home.workshop_logo` / `workshop_line`, Instagram link; editor › Vehicle & Story › Workshop card) and the partner logos; no individual team cards (removed on purpose; the `team` table is kept but unused), footer with `id="contact"`.
 
 ### History `/history`
 - No before/after slider (removed on purpose; the `before_after` table is kept but unused).
-- The headline and story are placed by **Page layouts › History** (see *Page layouts* below; stored in `vehicle.history_layout`). The headline, the story (`vehicle.story`, one paragraph per line) and a swipeable slider under it (`vehicle.history_photos` jsonb; each slide a photo or a video: uploaded file or YouTube link, each with crop focus and an optional caption; swipe, drag, ← → buttons, dots and arrow keys; placeholder until uploaded). Photos show whole (contain, 16:9 frame, 4:3 on phones); the slider's maximum height (40–90 % of the screen, default 78), the space between the story and the slider (0–160 px, default 64) and an optional thin frame line (default off) are set in Page layouts › History (`vehicle.page_layouts.history_slider`); each has **Position & size** (sliders with live preview, stored as `layout` on the photo item). Under the slider, a **gallery of square tiles** (`vehicle.history_gallery` jsonb, photos or videos with optional caption) filling the row edge to edge (2 per row on phones, 3 on tablets, 6 on wide screens); a tile opens a lightbox (previous / next, Esc). No build timeline and no competition history (both removed on purpose; the `milestones` and `competitions` tables are kept but unused).
+- The headline and story are placed by **Page layouts › History** (see *Page layouts* below; stored in `vehicle.history_layout`). The headline, the story (`vehicle.story`, one paragraph per line) and a swipeable slider under it (`vehicle.history_photos` jsonb; each slide a photo or a video: uploaded file or YouTube link, each with crop focus and an optional caption; swipe, drag, ← → buttons, dots and arrow keys; placeholder until uploaded). Optional text on the left of the slider (`vehicle.history_side_text`, one paragraph per line; above the slider on phones; empty = the slider fills the row as before). Photos show whole (contain, 16:9 frame, 4:3 on phones); the slider's maximum height (40–90 % of the screen, default 78), the space between the story and the slider (0–160 px, default 64) and an optional thin frame line (default off) are set in Page layouts › History (`vehicle.page_layouts.history_slider`); each has **Position & size** (sliders with live preview, stored as `layout` on the photo item). Under the slider, a **gallery of square tiles** (`vehicle.history_gallery` jsonb, photos or videos with optional caption) filling the row edge to edge (2 per row on phones, 3 on tablets, 6 on wide screens); a tile opens a lightbox (previous / next, Esc). No build timeline and no competition history (both removed on purpose; the `milestones` and `competitions` tables are kept but unused).
 
 ### Theme `/theme`
 - Two-face split hero (dark glass + lemon glass cards): per side the name, description, up to 5 short points (`vehicle.dark_side_points` / `light_side_points`) and a photo (`dark_side_photo_path` / `light_side_photo_path`).
@@ -239,7 +239,7 @@ Other rules used in the UI: main fuse ≤ 40 cm from each positive battery post;
 
 ```
 vehicle(id, name, model, year, category, class, event, dark_side_name, light_side_name, car_photo_path, car_photo_layout jsonb,
-        history_photos jsonb, history_gallery jsonb, history_layout jsonb, page_layouts jsonb, home jsonb, hero_photos jsonb, dark_side_photo_path, light_side_photo_path, dark_side_points jsonb,
+        history_photos jsonb, history_side_text, history_gallery jsonb, history_layout jsonb, page_layouts jsonb, home jsonb, hero_photos jsonb, dark_side_photo_path, light_side_photo_path, dark_side_points jsonb,
         light_side_points jsonb, motif_photo_path, motifs jsonb,
         statement, owner, installer, designer, tuner, instagram, website, updated_at)
 milestones(id, when_label, title, body, photo_path, sort)

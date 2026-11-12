@@ -135,7 +135,7 @@ export function InstallationView() {
           <DiagramPanel
             imageUrl={storageUrl(c.vehicle.system_diagram_path)}
             imageAlt={c.vehicle.system_diagram_alt}
-            defaultAlt="System diagram of Black Amatis: source, processing, amplification and speakers"
+            defaultAlt="System diagram of Black Amethyst: source, processing, amplification and speakers"
             interactive={
               <Diagram
                 label="Signal flow"
@@ -193,7 +193,7 @@ export function InstallationView() {
           <DiagramPanel
             imageUrl={storageUrl(c.vehicle.wiring_diagram_path)}
             imageAlt={c.vehicle.wiring_diagram_alt}
-            defaultAlt="Cable diagram of Black Amatis: battery, main fuses, distribution and every powered component"
+            defaultAlt="Cable diagram of Black Amethyst: battery, main fuses, distribution and every powered component"
             interactive={
               <Diagram
                 label="Power and fuses"

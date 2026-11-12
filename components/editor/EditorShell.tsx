@@ -63,7 +63,7 @@ export function EditorShell({ children }: { children: React.ReactNode }) {
         aria-label="Editor"
       >
         <div className="flex flex-col gap-1 px-2 pt-2">
-          <span className="font-display text-[22px] font-extrabold tracking-[0.08em]">BLACK AMATIS</span>
+          <span className="font-display text-[22px] font-extrabold tracking-[0.08em]">BLACK AMETHYST</span>
           <span className="font-mono text-[11px] tracking-[0.14em] text-muted-2">EDITOR</span>
         </div>
         <nav aria-label="Editor sections">

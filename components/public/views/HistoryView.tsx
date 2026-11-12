@@ -7,7 +7,7 @@ import {
 import { PageHeader } from "@/components/public/PageHeader";
 import { historySliderOf, pageLayoutOf } from "@/lib/page-layout";
 import { MediaGallery } from "@/components/public/MediaGallery";
-import { PhotoSlider } from "@/components/public/PhotoSlider";
+import { HistorySlides } from "@/components/public/HistorySlides";
 import { normalizeMedia } from "@/lib/bonus-media";
 import { EditPencil } from "@/components/public/EditMode";
 
@@ -39,11 +39,11 @@ export function HistoryView() {
           label="History photos"
           className="-top-5 right-8"
         />
-        <PhotoSlider
+        <HistorySlides
           photos={normalizeMedia(c.vehicle.history_photos)}
-          label="Photos and videos of Black Amatis"
-          maxVh={slider.height}
-          bordered={slider.frame}
+          text={c.vehicle.history_side_text}
+          slider={slider}
+          label="Photos and videos of Black Amethyst"
         />
       </section>
       <section
@@ -57,7 +57,7 @@ export function HistoryView() {
         />
         <MediaGallery
           items={normalizeMedia(c.vehicle.history_gallery)}
-          label="Gallery of Black Amatis"
+          label="Gallery of Black Amethyst"
         />
       </section>
     </>

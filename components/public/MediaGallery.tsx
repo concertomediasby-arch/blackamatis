@@ -73,7 +73,7 @@ export function MediaGallery({
 
   const cur = open != null ? items[open] : null;
   const title = (m: BonusMedia, i: number) =>
-    m.caption || `Black Amatis, ${m.kind} ${i + 1}`;
+    m.caption || `Black Amethyst, ${m.kind} ${i + 1}`;
 
   return (
     <>

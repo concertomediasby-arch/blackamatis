@@ -78,7 +78,7 @@ type Props = {
 };
 
 /**
- * Landing hero, one screen tall: AMATIS large and faint behind the car,
+ * Landing hero, one screen tall: AMETHYST large and faint behind the car,
  * the car on the right, the headline bottom left, a judges' card,
  * a section index and a vertical scroll cue on the right edge.
  */
@@ -116,7 +116,7 @@ export function Hero({
         />
       </div>
 
-      {/* AMATIS, large and faint, behind everything */}
+      {/* AMETHYST, large and faint, behind everything */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-[16%] z-0 flex justify-center"
@@ -124,11 +124,11 @@ export function Hero({
         <span
           className="select-none font-display font-black leading-[0.8]"
           style={{
-            fontSize: "clamp(140px, min(27vw, 46vh), 520px)",
+            fontSize: "clamp(100px, min(19.5vw, 33vh), 380px)",
             color: "rgba(242,240,230,0.06)",
           }}
         >
-          AMATIS
+          AMETHYST
         </span>
       </div>
 

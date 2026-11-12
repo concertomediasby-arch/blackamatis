@@ -29,13 +29,13 @@ const jetbrains = localFont({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: "Black Amatis · EMMA 2026", template: "%s · Black Amatis" },
+  title: { default: "Black Amethyst · EMMA 2026", template: "%s · Black Amethyst" },
   description:
-    "Black Amatis: a two-face Honda Odyssey car-audio build competing in EMMA 2026. System, wiring, evidence and story.",
+    "Black Amethyst: a two-face Honda Odyssey car-audio build competing in EMMA 2026. System, wiring, evidence and story.",
   openGraph: {
     type: "website",
-    siteName: "Black Amatis",
-    title: "Black Amatis · EMMA 2026",
+    siteName: "Black Amethyst",
+    title: "Black Amethyst · EMMA 2026",
     description: "One car. Two faces. A Honda Odyssey car-audio build for EMMA 2026.",
   },
 };

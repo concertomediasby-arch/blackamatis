@@ -4,7 +4,7 @@ export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""
 /** True when Supabase env vars are set. Without them the site runs on placeholder data. */
 export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://blackamatis.concerto.id";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://blackamethyst.concerto.id";
 
 export const STORAGE_BUCKETS = { photos: "photos", pdfs: "pdfs" } as const;
 
