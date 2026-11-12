@@ -15,7 +15,8 @@ export function HistoryView() {
   const c = state.content;
   return (
     <>
-      <section className="px-8 sm:px-[72px] lg:px-[88px] relative grid grid-cols-1 items-end gap-12 pb-16 pt-24 md:grid-cols-2">
+      {/* Headline and story as one block, aligned with the edges of the slider below; the story sits right beside the headline. */}
+      <section className="relative grid grid-cols-1 items-end gap-8 px-5 pb-16 pt-24 sm:px-8 md:grid-cols-[auto_minmax(0,640px)] md:justify-start md:gap-14 lg:gap-20 lg:px-12">
         <EditPencil
           href="/editor/vehicle/#f-story"
           label="History summary"
@@ -32,7 +33,7 @@ export function HistoryView() {
             to the stage.
           </h1>
         </div>
-        <div className="flex max-w-[620px] flex-col gap-4 text-lg leading-[1.7] text-muted md:justify-self-end">
+        <div className="flex max-w-[640px] flex-col gap-4 text-lg leading-[1.7] text-muted">
           {/* Each line or blank-line-separated block of the story is its own paragraph. */}
           {(c.vehicle.story ?? "")
             .split(/\n+/)
