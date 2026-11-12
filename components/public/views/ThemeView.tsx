@@ -8,34 +8,9 @@ import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { EditPencil } from "@/components/public/EditMode";
 import { MotifMap } from "@/components/public/MotifMap";
-import { normalizeMotifs, normalizePoints } from "@/lib/theme";
-
-/** Short points under a side's description. */
-function SidePoints({
-  points,
-  tone,
-}: {
-  points: string[];
-  tone: "dark" | "light";
-}) {
-  if (points.length === 0) return null;
-  return (
-    <ul className="m-0 flex list-none flex-col gap-2 p-0">
-      {points.map((p, i) => (
-        <li
-          key={i}
-          className={`flex gap-3 text-[15px] leading-snug ${tone === "dark" ? "text-ink" : "text-black"}`}
-        >
-          <span
-            aria-hidden="true"
-            className={`mt-[7px] h-1.5 w-1.5 flex-none rounded-full ${tone === "dark" ? "bg-amber" : "bg-navy"}`}
-          />
-          {p}
-        </li>
-      ))}
-    </ul>
-  );
-}
+import { ThemeSides } from "@/components/public/ThemeSides";
+import { themeLayoutOf } from "@/lib/page-layout";
+import { normalizeMotifs } from "@/lib/theme";
 
 export function ThemeView() {
   const state = useSiteContent();
@@ -45,83 +20,7 @@ export function ThemeView() {
   const motifs = normalizeMotifs(v.motifs);
   return (
     <>
-      <section
-        aria-labelledby="two-face"
-        className="grid grid-cols-1 gap-5 px-3 pt-8 sm:px-6 md:grid-cols-2 lg:px-10"
-      >
-        <GlassPanel className="relative flex flex-col gap-8 rounded-[36px] px-6 py-12 sm:px-12 sm:py-16">
-          <EditPencil
-            href="/editor/vehicle/#faces"
-            label="Dark side"
-            className="right-5 top-5"
-          />
-          <span className="eyebrow text-amber">02 — Theme</span>
-          <div className="flex flex-col gap-5">
-            <span className="label text-amber">{v.dark_side_name}</span>
-            <h1
-              id="two-face"
-              className="display m-0 font-black"
-              style={{ fontSize: "clamp(64px, 8vw, 120px)", lineHeight: 0.85 }}
-            >
-              TWO
-              <br />
-              FACE
-            </h1>
-            <p className="m-0 max-w-[460px] text-[17px] leading-[1.7] text-muted">
-              {v.dark_side_body}
-            </p>
-            <SidePoints
-              points={normalizePoints(v.dark_side_points)}
-              tone="dark"
-            />
-          </div>
-          <Placeholder
-            path={v.dark_side_photo_path ?? null}
-            label="Dark side photo"
-            alt={`${v.dark_side_name}: the dark side of Black Amatis`}
-            className="aspect-[16/10] w-full rounded-[24px] border border-white/10"
-            sizes="(max-width: 768px) 100vw, 50vw"
-          />
-        </GlassPanel>
-        <GlassPanel
-          tone="light"
-          className="relative flex flex-col justify-between gap-8 rounded-[36px] px-6 py-12 sm:px-12 sm:py-16"
-        >
-          <EditPencil
-            href="/editor/vehicle/#faces"
-            label="Light side"
-            className="right-5 top-5"
-            tone="light"
-          />
-          <div className="flex flex-col gap-5">
-            <span className="label text-navy">{v.light_side_name}</span>
-            <span
-              aria-hidden="true"
-              className="display font-black"
-              style={{ fontSize: "clamp(64px, 8vw, 120px)", lineHeight: 0.85 }}
-            >
-              BLACK
-              <br />
-              AMATIS
-            </span>
-            <p className="m-0 max-w-[460px] text-[17px] leading-[1.7] text-dark-muted">
-              {v.light_side_body}
-            </p>
-            <SidePoints
-              points={normalizePoints(v.light_side_points)}
-              tone="light"
-            />
-          </div>
-          <Placeholder
-            path={v.light_side_photo_path ?? null}
-            label="Light side photo"
-            alt={`${v.light_side_name}: the light side of Black Amatis`}
-            tone="light"
-            className="aspect-[16/10] w-full rounded-[24px] border border-black/15"
-            sizes="(max-width: 768px) 100vw, 50vw"
-          />
-        </GlassPanel>
-      </section>
+      <ThemeSides v={v} layout={themeLayoutOf(v)} />
 
       {/* Hidden until the team has written at least one motif (editor › Theme › Motifs). */}
       {motifs.some((m) => m.title.trim() || m.meaning.trim()) && (

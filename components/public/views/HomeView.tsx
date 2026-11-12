@@ -17,6 +17,7 @@ import { instagramHref } from "@/lib/format";
 import { EditPencil } from "@/components/public/EditMode";
 import { PartnerLogo } from "@/components/public/PartnerLogo";
 import { categoryLabel, heroText } from "@/lib/home";
+import { homeLayoutOf } from "@/lib/page-layout";
 import { visiblePartners } from "@/lib/partners";
 
 /** Two ways in: visitors (lemon, light face) and judges (dark face). */
@@ -102,6 +103,7 @@ export function HomeView() {
         carLayout={normalizeCarLayout(v.car_photo_layout)}
         instagramUrl={instagramHref(v.instagram)}
         text={hero}
+        headline={homeLayoutOf(v)}
         judgeThumbUrl={storageUrl(v.system_diagram_path)}
       />
 

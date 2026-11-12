@@ -1,4 +1,4 @@
-import { type PageKey, type PageLayout } from "@/lib/page-layout";
+import { headlineCss, type PageKey, type PageLayout } from "@/lib/page-layout";
 
 /** Eyebrow, headline lines and intro text of each page that has a headline header. */
 export const PAGE_COPY: Record<
@@ -55,6 +55,7 @@ export function PageHeader({
     "--hm": `${l.margin}px`,
     "--hg": `${l.gap}px`,
     "--sw": `${l.width}px`,
+    "--hs": `${l.spacing}px`,
   } as React.CSSProperties;
   const grid = beside
     ? `md:grid-cols-[auto_minmax(0,var(--sw))] ${l.align === "center" ? "md:justify-center" : l.align === "spread" ? "md:justify-between" : "md:justify-start"} ${l.valign === "start" ? "md:items-start" : "md:items-end"}`
@@ -70,11 +71,11 @@ export function PageHeader({
       className={`relative grid grid-cols-1 gap-8 px-5 pb-16 pt-24 md:gap-[var(--hg)] md:px-[var(--hm)] ${grid}`}
     >
       {children}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-[var(--hs)]">
         <span className="eyebrow text-amber">{copy.eyebrow}</span>
         <h1
           className="display m-0 font-black"
-          style={{ fontSize: "clamp(64px, 9vw, 128px)", lineHeight: 0.85 }}
+          style={headlineCss(l, 64, (k) => `${9 * k}vw`, 128)}
         >
           {copy.title[0]}
           <br />
