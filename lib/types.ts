@@ -345,4 +345,19 @@ export type SiteContent = {
   zones: ThemeZone[];
   moodboard: MoodItem[];
   circuits: Circuit[];
+  news: NewsPost[];
+};
+
+/** A news post about the car (public /news page; the owner can push it as a notification). */
+export type NewsPost = {
+  id: string;
+  title: string;
+  body: string;
+  photo_path: string | null;
+  /** Optional link (e.g. an Instagram post or a video). */
+  url: string | null;
+  published_at: string;
+  /** When subscribers were last notified about this post. */
+  notified_at: string | null;
+  sort: number;
 };

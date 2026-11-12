@@ -16,6 +16,7 @@ const PAGES = [
   { name: "Installation", href: "/installation/", edit: "/editor/components/", tables: ["components", "wiring_links", "photos", "craft_photos"] },
   { name: "Bonus Point", href: "/bonus/", edit: "/editor/bonus/", tables: ["bonus_requests"] },
   { name: "Judge Mode", href: "/judge/", edit: "/editor/#checklist", tables: [] },
+  { name: "News", href: "/news/", edit: "/editor/news/", tables: ["news"] },
 ];
 
 type PageStatus = { label: string; tone: "green" | "amber" | "grey"; last: string | null; lastBy: string | null };

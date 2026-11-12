@@ -21,6 +21,7 @@ export const CONTENT_TABLES: { key: ListKey; table: string; order?: string }[] =
   { key: "zones", table: "theme_zones", order: "sort" },
   { key: "moodboard", table: "moodboard_items", order: "sort" },
   { key: "circuits", table: "circuits", order: "sort" },
+  { key: "news", table: "news", order: "published_at" },
 ];
 
 /** Columns the public may read; `strength` on bonus requests is editor-only. */

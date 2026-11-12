@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NAV, normPath } from "@/lib/nav";
 import { useVehicleField } from "./ContentProvider";
+import { SettingsMenu } from "./SettingsMenu";
 
 type Face = "dark" | "light";
 
@@ -45,7 +46,7 @@ export function SiteHeader({ face = "dark", inHero = false }: { face?: Face; inH
                 key={n.href}
                 href={n.href}
                 aria-current={on ? "page" : undefined}
-                className={`pill min-h-12 px-5 text-[15px] font-semibold xl:text-[16px] ${on ? linkActive : linkIdle}`}
+                className={`pill min-h-12 px-3.5 text-[15px] font-semibold xl:px-5 xl:text-[16px] ${on ? linkActive : linkIdle}`}
               >
                 {n.label}
               </Link>
@@ -60,13 +61,14 @@ export function SiteHeader({ face = "dark", inHero = false }: { face?: Face; inH
             </a>
           ) : (
             <span
-              className={`hidden min-h-12 items-center rounded-full border px-5 font-mono text-[13px] tracking-[0.12em] sm:inline-flex ${
+              className={`hidden min-h-12 items-center rounded-full border px-5 font-mono text-[13px] tracking-[0.12em] sm:inline-flex lg:hidden 2xl:inline-flex ${
                 light ? "border-black/30" : "border-white/15 bg-white/10"
               }`}
             >
               {label}
             </span>
           )}
+          <SettingsMenu light={light} />
           <button
             type="button"
             className={`pill border lg:hidden ${light ? "border-black/40" : "border-white/30"}`}

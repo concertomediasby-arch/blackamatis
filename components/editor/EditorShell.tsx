@@ -14,6 +14,7 @@ const NAV = [
   { href: "/editor/components", label: "Components" },
   { href: "/editor/photos", label: "Photo Log" },
   { href: "/editor/bonus", label: "Bonus Requests" },
+  { href: "/editor/news", label: "News" },
 ];
 
 const time = (iso: string | null) => (iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : null);
