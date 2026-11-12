@@ -250,7 +250,10 @@ export function Carousel<T extends Slide>({
   );
 }
 
-/** Photo slider for the History page; one placeholder slide until photos are uploaded. */
+/**
+ * Photo slider for the History page; one placeholder slide until photos are
+ * uploaded. Photos are shown whole (contain), so a cut-out car is never cropped.
+ */
 export function PhotoSlider({
   photos,
   label,
@@ -270,7 +273,8 @@ export function PhotoSlider({
           path={s.path}
           label="Car photo"
           alt={s.caption || `Black Amatis, photo ${i + 1}`}
-          className="pointer-events-none aspect-[4/3] w-full select-none sm:aspect-[16/9] xl:aspect-[21/9]"
+          fit="contain"
+          className="pointer-events-none aspect-[4/3] max-h-[78vh] w-full select-none sm:aspect-[16/9]"
           sizes="100vw"
         />
       )}
