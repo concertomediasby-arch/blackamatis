@@ -5,6 +5,7 @@ import { headlineCss, type ThemeLayout } from "@/lib/page-layout";
 import { heroTransform, type HeroLayout } from "@/lib/photo";
 import { normalizePoints } from "@/lib/theme";
 import type { Vehicle } from "@/lib/types";
+import { ZoomablePhoto } from "@/components/public/Lightbox";
 
 /** Photo height in the two side cards (editor › Page layouts › Theme). */
 const PHOTO_ASPECT: Record<ThemeLayout["photo"], string> = {
@@ -67,7 +68,9 @@ function SidePhoto({
       />
     );
   return (
-    <div
+    <ZoomablePhoto
+      group={[{ id: label, kind: "photo", path, url: null, caption: alt }]}
+      label={alt}
       className={`${frame} relative w-full overflow-hidden rounded-[24px] border`}
     >
       <div
@@ -83,7 +86,7 @@ function SidePhoto({
           sizes="(max-width: 768px) 100vw, 50vw"
         />
       </div>
-    </div>
+    </ZoomablePhoto>
   );
 }
 

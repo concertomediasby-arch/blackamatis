@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
 import type { Motif } from "@/lib/types";
 import { useSwipe } from "@/lib/use-swipe";
+import { useLightbox } from "./Lightbox";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -30,6 +31,9 @@ export function MotifMap({
     setOpen(m.id);
     setShown(photoOf(m));
   };
+  // The photos for the large view (the numbers stay on this map).
+  const zoom = useLightbox();
+  const group = photos.map((path, i) => ({ id: `motif-photo-${i}`, kind: "photo" as const, path, url: null, caption: "" }));
   // Swipe the photo (or drag with the mouse) to the next / previous one.
   const swipe = useSwipe(
     () => setShown((x) => Math.min(count - 1, x + 1)),
@@ -59,6 +63,18 @@ export function MotifMap({
           className="aspect-[16/10] w-full rounded-[28px] border border-white/10"
           sizes="(max-width: 1024px) 100vw, 60vw"
         />
+        {zoom && photos[shown] && (
+          <button
+            type="button"
+            onClick={() => zoom(group, shown)}
+            aria-label="Open the photo larger"
+            className="absolute right-3 top-3 z-10 flex h-11 w-11 cursor-zoom-in items-center justify-center rounded-full border border-white/10 bg-black/25 text-ink opacity-70 backdrop-blur-sm hover:bg-black/45 hover:opacity-100 focus-visible:opacity-100"
+          >
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+            </svg>
+          </button>
+        )}
         {count > 1 &&
           (["prev", "next"] as const).map((d) => (
             <button

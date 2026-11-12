@@ -5,6 +5,7 @@ import { Placeholder } from "@/components/ui/Placeholder";
 import { heroTransform, normalizeLayout } from "@/lib/photo";
 import { VideoPlayer } from "./MediaPlayer";
 import type { BonusMedia } from "@/lib/types";
+import { ZoomablePhoto } from "./Lightbox";
 
 type Slide = { id: string; caption?: string };
 
@@ -83,6 +84,8 @@ export function Carousel<T extends Slide>({
 
   // Mouse drag for desktops without a trackpad.
   const drag = useRef<{ x: number; left: number } | null>(null);
+  // A mouse drag must not also count as a click on the photo (which opens it large).
+  const dragged = useRef(false);
   const endDrag = () => {
     if (!drag.current) return;
     drag.current = null;
@@ -168,6 +171,7 @@ export function Carousel<T extends Slide>({
             style={{ cursor: n > 1 ? "grab" : undefined }}
             onPointerDown={(e) => {
               if (e.pointerType !== "mouse" || n < 2) return;
+              dragged.current = false;
               drag.current = {
                 x: e.clientX,
                 left: trackRef.current!.scrollLeft,
@@ -176,10 +180,19 @@ export function Carousel<T extends Slide>({
             }}
             onPointerMove={(e) => {
               const d = drag.current;
-              if (d) trackRef.current!.scrollLeft = d.left - (e.clientX - d.x);
+              if (!d) return;
+              if (Math.abs(e.clientX - d.x) > 6) dragged.current = true;
+              trackRef.current!.scrollLeft = d.left - (e.clientX - d.x);
             }}
             onPointerUp={endDrag}
             onPointerLeave={endDrag}
+            onClickCapture={(e) => {
+              if (dragged.current) {
+                dragged.current = false;
+                e.preventDefault();
+                e.stopPropagation();
+              }
+            }}
           >
             {slides.map((s, i) => (
               <li
@@ -341,13 +354,15 @@ export function PhotoSlider({
       slides={slides}
       label={label}
       bordered={bordered}
-      renderSlide={(s, i) => (
-        <FramedMedia
-          m={s}
-          maxVh={maxVh}
-          alt={s.caption || `Black Amethyst, ${s.kind} ${i + 1}`}
-        />
-      )}
+      renderSlide={(s, i) =>
+        s.kind === "photo" ? (
+          <ZoomablePhoto group={slides} index={i} label={s.caption || `photo ${i + 1}`}>
+            <FramedMedia m={s} maxVh={maxVh} alt={s.caption || `Black Amethyst, ${s.kind} ${i + 1}`} />
+          </ZoomablePhoto>
+        ) : (
+          <FramedMedia m={s} maxVh={maxVh} alt={s.caption || `Black Amethyst, ${s.kind} ${i + 1}`} />
+        )
+      }
     />
   );
 }
