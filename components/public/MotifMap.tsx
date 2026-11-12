@@ -113,9 +113,9 @@ export function MotifMap({
               aria-label={`Photo ${i + 1}`}
               aria-current={i === shown ? "true" : undefined}
               onClick={() => setShown(i)}
-              className="flex h-11 w-7 cursor-pointer items-center justify-center"
+              className="flex h-11 w-6 cursor-pointer items-center justify-center"
             >
-              <span className={`block h-2 w-2 rounded-full transition-colors ${i === shown ? "bg-amber" : "bg-white/35"}`} />
+              <span className={`block h-1.5 w-1.5 rounded-full transition-colors ${i === shown ? "bg-amber" : "bg-white/35"}`} />
             </button>
           ))}
         </div>

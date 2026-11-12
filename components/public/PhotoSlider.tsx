@@ -237,10 +237,10 @@ export function Carousel<T extends Slide>({
                     aria-label={`Photo ${i + 1}`}
                     aria-current={i === index ? "true" : undefined}
                     onClick={() => go(i)}
-                    className="flex h-11 w-7 cursor-pointer items-center justify-center"
+                    className="flex h-11 w-6 cursor-pointer items-center justify-center"
                   >
                     <span
-                      className={`block h-2 w-2 rounded-full transition-colors ${i === index ? "bg-amber" : "bg-white/35"}`}
+                      className={`block h-1.5 w-1.5 rounded-full transition-colors ${i === index ? "bg-amber" : "bg-white/35"}`}
                     />
                   </button>
                 ))}
