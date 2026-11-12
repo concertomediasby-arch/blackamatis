@@ -239,7 +239,12 @@ export function themeLayoutOf(v: { page_layouts?: unknown }): ThemeLayout {
 }
 
 /** Home: the hero headline ("One car. Two faces."). Stored in `vehicle.page_layouts.home`. */
-export type HomeLayout = HeadlineStyle;
+export type HomeLayout = HeadlineStyle & {
+  /** Phones: space between the car and the headline under it, px. */
+  phone_gap: number;
+};
+
+export const PHONE_GAP_LIMITS = [0, 120] as const;
 
 /** The hero as designed: full size, line spacing 0.92, 20 px between its lines of content. */
 export const DEFAULT_HOME_LAYOUT: HomeLayout = {
@@ -247,6 +252,7 @@ export const DEFAULT_HOME_LAYOUT: HomeLayout = {
   leading: 92,
   tracking: 0,
   spacing: 20,
+  phone_gap: 16,
 };
 
 /** The saved Home layout, or the default. */
@@ -257,7 +263,14 @@ export function homeLayoutOf(v: { page_layouts?: unknown }): HomeLayout {
   const o = (
     all.home && typeof all.home === "object" ? all.home : {}
   ) as Record<string, unknown>;
-  return normalizeHeadline(o, DEFAULT_HOME_LAYOUT);
+  return {
+    ...normalizeHeadline(o, DEFAULT_HOME_LAYOUT),
+    phone_gap: clamp(
+      o.phone_gap,
+      PHONE_GAP_LIMITS,
+      DEFAULT_HOME_LAYOUT.phone_gap,
+    ),
+  };
 }
 
 /** History: the photo slider under the story. Stored in `vehicle.page_layouts.history_slider`. */

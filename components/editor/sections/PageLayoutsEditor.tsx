@@ -22,6 +22,8 @@ import {
   HEADLINE_LIMITS,
   homeLayoutOf,
   type HeadlineStyle,
+  type HomeLayout,
+  PHONE_GAP_LIMITS,
   THEME_LAYOUT_LIMITS,
   pageLayoutOf,
   themeLayoutOf,
@@ -156,7 +158,7 @@ function HomeLayoutFields() {
   const { content, update } = useEditor();
   const v = content.vehicle;
   const h = homeLayoutOf(v);
-  const set = (p: Partial<HeadlineStyle>) =>
+  const set = (p: Partial<HomeLayout>) =>
     update((c) => {
       const all = (
         c.vehicle.page_layouts && typeof c.vehicle.page_layouts === "object"
@@ -182,6 +184,21 @@ function HomeLayoutFields() {
         onChange={set}
         spacingLabel="Space between the lines of the block"
       />
+      <label className="grid grid-cols-[minmax(0,208px)_1fr_72px] items-center gap-3 rounded-xl border border-editor-border p-3 text-[13px] font-semibold">
+        Phones: space between the car and the headline
+        <input
+          type="range"
+          min={PHONE_GAP_LIMITS[0]}
+          max={PHONE_GAP_LIMITS[1]}
+          step={2}
+          value={h.phone_gap}
+          onChange={(e) => set({ phone_gap: Number(e.target.value) })}
+          className="accent-prussian"
+        />
+        <span className="text-right font-mono text-[12px]">
+          {h.phone_gap} px
+        </span>
+      </label>
       <button
         type="button"
         className={`${btn.secondary} self-start`}

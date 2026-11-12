@@ -143,3 +143,12 @@ describe("historySliderOf", () => {
     ).toEqual({ height: 40, space: 160, frame: true });
   });
 });
+
+describe("homeLayoutOf phone gap", () => {
+  it("defaults to 16 px and clamps", () => {
+    expect(homeLayoutOf({}).phone_gap).toBe(16);
+    expect(
+      homeLayoutOf({ page_layouts: { home: { phone_gap: 400 } } }).phone_gap,
+    ).toBe(120);
+  });
+});
