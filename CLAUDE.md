@@ -149,7 +149,7 @@ Shared: floating glass header (wordmark, nav: History · Theme · Installation �
 ### Theme `/theme`
 - Two-face split hero (dark glass + lemon glass cards): per side the name, description, up to 5 short points (`vehicle.dark_side_points` / `light_side_points`) and a photo (`dark_side_photo_path` / `light_side_photo_path`).
 - **Motifs & meaning**: one car photo (`vehicle.motif_photo_path`) with numbered points (`vehicle.motifs` jsonb: title, meaning, x/y in %); a point or its list row opens the motif's meaning. Text comes from the team only. The section is hidden until at least one motif has a name or a meaning.
-- "The theme in every zone": Exterior / Interior / Trunk cards (mapped in data to judge criteria *Overall design*, *Design of interior*, *Design of trunk*, but the card shows a zone number "Zone 01 / 03", not the criterion: no judging labels for visitors). The intro under the heading tells the result of the theme, not the judging rule.
+- "The theme in every zone": one card per zone, Exterior / Interior / Trunk to start, and the team can add, rename, reorder and remove zones (editor › Theme, "+ Add zone"; added zones get key `zone-…` and no criterion). Each card has its photos and videos as a slider (`theme_zones.media` jsonb; swipe, arrows, dots, caption; videos start muted; `photo_path` follows the first photo). The first three are *Overall design*, *Design of interior*, *Design of trunk*, but the card shows a zone number "Zone 01 / 03", not the criterion: no judging labels for visitors). The intro under the heading tells the result of the theme, not the judging rule.
 - No sketches & moodboard grid (removed on purpose; the `moodboard_items` table is kept but unused).
 - No palette/material section (removed on purpose).
 
@@ -257,6 +257,7 @@ team(id, role, name, line, photo_path, sort)
 moodboard_items(id, caption, path, sort)
 partners(id, name, logo_path, url, logo_layout jsonb, sort)
 before_after(id, view, before_path, after_path)
+theme_zones(id, key, name, criterion, photo_path, media jsonb, elements jsonb, sort)
 circuits(id, name, kind ('trunk'|'channel'), component_key, power_from, ground_from,
          power jsonb, ground jsonb, cables jsonb, wiring_hotspots jsonb, parts jsonb, sort)
 ```
@@ -271,7 +272,7 @@ Login: passwordless one-time code by email (Supabase email OTP, `shouldCreateUse
 - **Vehicle & Story**: vehicle fields, category/class selects, dark/light side names, statement (≤ 80 words, counter), team & links (no timeline and no team cards: removed on purpose), Workshop card (Built by).
 - **Components**: list on the left (select, add, reorder), form on the right: brand, model, type-specific spec fields, photo upload (transparent PNG), PDF upload, "Show in System / Wiring diagram" checkboxes; wiring link editor for cable size and fuse per link with an inline warning when the fuse exceeds the VW75212 table for that cable.
 - No History section in the editor: the History page shows only the story, edited in Vehicle & Story.
-- **Theme**: two sides (photo + up to 5 points each); motifs (photo, motifs with meaning, click the photo to place each number); theme zones (name, photo, up to 8 theme elements each). No moodboard (removed on purpose).
+- **Theme**: two sides (photo + up to 5 points each); motifs (photo, motifs with meaning, click the photo to place each number); theme zones (add / reorder / remove; name, photos and videos, up to 8 theme elements each). No moodboard (removed on purpose).
 - No tuning section (removed on purpose from the Installation page and the editor; the `tuning` table and `vehicle.tuning_*` columns are kept but unused).
 - **Photo Log**: area tabs, slots with upload, caption, "Proves" select (criteria list), add slot, drag to reorder; craftsmanship close-ups (3 per category).
 - **Vehicle & Story** also edits partner logos (name, logo, optional link, and the logo's position & size in its box: sliders with a live preview, stored in `partners.logo_layout`).

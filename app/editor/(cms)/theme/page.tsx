@@ -2,10 +2,10 @@
 
 import { Card, PageTitle, TextField, btn } from "@/components/editor/Field";
 import { RowActions } from "@/components/editor/RowActions";
-import { UploadZone } from "@/components/editor/UploadZone";
-import { useList } from "@/components/editor/useList";
+import { MediaListEditor } from "@/components/editor/sections/MediaListEditor";
+import { moveItem, newId, useList } from "@/components/editor/useList";
 import { ScaledPreview } from "@/components/editor/ScaledPreview";
-import { ZoneCards } from "@/components/public/ZoneCards";
+import { ZoneCards, zoneMedia } from "@/components/public/ZoneCards";
 import { fieldErrors, zoneSchema } from "@/lib/editor/schemas";
 import {
   MotifsEditor,
@@ -33,7 +33,7 @@ export default function ThemeEditorPage() {
           design idea. List what carries the theme in each zone.
         </p>
         <div className="flex flex-col gap-5">
-          {zones.items.map((z) => {
+          {[...zones.items].sort((a, b) => a.sort - b.sort).map((z, zi, sorted) => {
             const e = fieldErrors(zoneSchema, z);
             const setElements = (fn: (els: string[]) => string[]) =>
               zones.patch(z.id, { elements: fn(z.elements) });
@@ -42,11 +42,24 @@ export default function ThemeEditorPage() {
                 key={z.id}
                 className="m-0 grid grid-cols-1 gap-4 rounded-xl border border-editor-border p-4 lg:grid-cols-[1fr_1.4fr]"
               >
-                <legend className="px-1 text-sm font-bold">
-                  {z.name}{" "}
-                  <span className="font-normal text-[#55535c]">
-                    · judge criterion: {z.criterion}
+                <legend className="flex flex-wrap items-center gap-3 px-1 text-sm font-bold">
+                  <span>
+                    {z.name || "New zone"}
+                    {z.criterion && (
+                      <span className="font-normal text-[#55535c]">
+                        {" "}· judge criterion: {z.criterion}
+                      </span>
+                    )}
                   </span>
+                  <RowActions
+                    index={zi}
+                    count={sorted.length}
+                    label={`zone ${z.name || zi + 1}`}
+                    onMove={(to) => zones.setItems(() => moveItem(sorted, zi, to))}
+                    onRemove={() => {
+                      if (window.confirm(`Remove the zone "${z.name || "New zone"}" with its photos and elements?`)) zones.remove(z.id);
+                    }}
+                  />
                 </legend>
                 <div className="flex flex-col gap-4">
                   <TextField
@@ -57,12 +70,18 @@ export default function ThemeEditorPage() {
                     }
                     error={e.name}
                   />
-                  <UploadZone
-                    label="Zone photo"
-                    kind="photo"
+                  <MediaListEditor
+                    label="Photos and videos"
+                    intro="Shown as a slider at the top of the zone card: visitors swipe or use the arrows. Videos start muted. Set the crop focus so the card shows the right part. The caption is optional."
                     folder="theme"
-                    value={z.photo_path}
-                    onChange={(p) => zones.patch(z.id, { photo_path: p })}
+                    numbered={false}
+                    value={zoneMedia(z).filter((m) => m.path || m.url)}
+                    onChange={(list) =>
+                      zones.patch(z.id, {
+                        media: list,
+                        photo_path: list.find((m) => m.kind === "photo" && m.path)?.path ?? null,
+                      })
+                    }
                   />
                 </div>
                 <div className="flex flex-col gap-2">
@@ -115,6 +134,30 @@ export default function ThemeEditorPage() {
             );
           })}
         </div>
+        <button
+          type="button"
+          className={`${btn.secondary} self-start`}
+          onClick={() =>
+            zones.setItems((xs) => {
+              const id = newId();
+              return [
+                ...xs,
+                {
+                  id,
+                  sort: Math.max(0, ...xs.map((x) => x.sort)) + 1,
+                  key: `zone-${id.slice(0, 8)}`,
+                  name: "New zone",
+                  criterion: "",
+                  photo_path: null,
+                  media: [],
+                  elements: [],
+                },
+              ];
+            })
+          }
+        >
+          + Add zone
+        </button>
         <ScaledPreview label="Preview of the theme zones">
           <div className="pt-10">
             <ZoneCards

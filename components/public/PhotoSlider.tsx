@@ -24,6 +24,7 @@ export function Carousel<T extends Slide>({
   showCaption = true,
   footerClassName = "px-5 sm:px-12",
   bordered = true,
+  rounded = true,
 }: {
   slides: T[];
   label: string;
@@ -33,6 +34,8 @@ export function Carousel<T extends Slide>({
   footerClassName?: string;
   /** Thin line around a framed track. */
   bordered?: boolean;
+  /** Round the framed track's corners (off inside a card). */
+  rounded?: boolean;
 }) {
   const trackRef = useRef<HTMLUListElement>(null);
   const [index, setIndex] = useState(0);
@@ -161,7 +164,7 @@ export function Carousel<T extends Slide>({
             aria-label={`${label}, ${n} photo${n === 1 ? "" : "s"}${n > 1 ? ". Use the arrow keys to move." : ""}`}
             className={`m-0 flex list-none snap-x snap-mandatory overflow-x-auto overscroll-x-contain p-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
               variant === "framed"
-                ? `rounded-[36px] ${bordered ? "border border-white/10" : ""}`
+                ? `${rounded ? "rounded-[36px]" : ""} ${bordered ? "border border-white/10" : ""}`
                 : ""
             }`}
             style={{ cursor: n > 1 ? "grab" : undefined }}

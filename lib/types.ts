@@ -255,10 +255,15 @@ export type BeforeAfter = {
 export type ThemeZone = {
   id: string;
   sort: number;
-  key: "exterior" | "interior" | "trunk";
+  /** "exterior" | "interior" | "trunk" for the first three; zones the team adds get "zone-…". */
+  key: string;
   name: string;
+  /** Judge criterion the zone maps to (data only, not shown publicly); empty for added zones. */
   criterion: string;
+  /** Cover photo (kept in step with the first photo in `media`). */
   photo_path: string | null;
+  /** Photos and videos shown as a slider in the zone card. */
+  media?: BonusMedia[] | null;
   elements: string[];
 };
 
