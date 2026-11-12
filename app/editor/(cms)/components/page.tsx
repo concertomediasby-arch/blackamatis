@@ -11,7 +11,7 @@ import { CircuitsEditor } from "@/components/editor/sections/CircuitsEditor";
 import { componentSchema, type ComponentForm } from "@/lib/editor/schemas";
 import { ROLE_BY_TYPE, newComponent } from "@/lib/editor/components";
 import { FUSE_TABLE, checkFuse } from "@/lib/emma/fuses";
-import { SPEC_FIELDS, TYPE_LABELS, placeholderFor } from "@/lib/specs";
+import { SPEC_FIELDS, TYPE_LABELS, customSpecs, placeholderFor } from "@/lib/specs";
 import { COMPONENT_TYPES, type AudioComponent, type ComponentType, type WiringLink } from "@/lib/types";
 
 
@@ -137,11 +137,16 @@ function ComponentEditor({ component, all, onRemove }: { component: AudioCompone
     return () => sub.unsubscribe();
   }, [watch, update, component.id]);
 
+  const fixedKeys = SPEC_FIELDS[type];
   const specValue = (k: string) => specs.find((s) => s.k === k)?.v ?? "";
   const setSpec = (k: string, v: string) => {
-    const others = specs.filter((s) => s.k !== k);
-    setValue("specs", [...others, { k, v }], { shouldDirty: true });
+    const at = specs.findIndex((s) => s.k === k);
+    setValue("specs", at < 0 ? [...specs, { k, v }] : specs.map((s, i) => (i === at ? { k, v } : s)), { shouldDirty: true });
   };
+  // The editor's own rows (all rows for "Other"), edited by position so a label can change.
+  const own = customSpecs(type, specs);
+  const setOwn = (next: { k: string; v: string }[]) =>
+    setValue("specs", [...specs.filter((s) => fixedKeys.includes(s.k)), ...next], { shouldDirty: true });
 
   const feeders = all.filter((x) => x.id !== component.id && x.in_system);
 
@@ -182,11 +187,18 @@ function ComponentEditor({ component, all, onRemove }: { component: AudioCompone
 
       <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-editor-border p-4">
         <legend className="px-1 text-sm font-bold">Spec fields · {TYPE_LABELS[type]}</legend>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {SPEC_FIELDS[type].map((k) => (
-            <TextField key={`${type}-${k}`} label={k} placeholder={placeholderFor(k)} value={specValue(k)} onChange={(ev) => setSpec(k, ev.target.value)} />
-          ))}
-        </div>
+        {fixedKeys.length > 0 ? (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {fixedKeys.map((k) => (
+              <TextField key={`${type}-${k}`} label={k} placeholder={placeholderFor(k)} value={specValue(k)} onChange={(ev) => setSpec(k, ev.target.value)} />
+            ))}
+          </div>
+        ) : (
+          <p className="m-0 text-sm text-[#4a4852]">
+            This type has no fixed fields. Add the rows that fit this device (e.g. Capacity · 2 TB, Interface · USB 3.2 Gen 2). They show in this order on the spec sheet.
+          </p>
+        )}
+        <SpecRowsEditor rows={own} onChange={setOwn} extra={fixedKeys.length > 0} />
       </fieldset>
 
       <TextArea label="EMMA note" rows={2} {...register("note")} error={e.note?.message} hint="Shown at the bottom of the spec popover." />
@@ -213,6 +225,46 @@ function ComponentEditor({ component, all, onRemove }: { component: AudioCompone
         </SelectField>
       </div>
     </Card>
+  );
+}
+
+/** Own spec rows: label + value, reorder and remove. For "Other" these are all the specs. */
+function SpecRowsEditor({ rows, onChange, extra }: { rows: { k: string; v: string }[]; onChange: (r: { k: string; v: string }[]) => void; extra: boolean }) {
+  const set = (i: number, p: Partial<{ k: string; v: string }>) => onChange(rows.map((r, j) => (j === i ? { ...r, ...p } : r)));
+  const move = (i: number, d: -1 | 1) => {
+    const next = [...rows];
+    [next[i], next[i + d]] = [next[i + d], next[i]];
+    onChange(next);
+  };
+  const input = "min-h-11 w-full rounded-xl border border-editor-border bg-white px-3 text-[15px]";
+  return (
+    <div className="flex flex-col gap-2">
+      {extra && rows.length > 0 && <span className="mt-1 text-sm font-semibold">Extra rows</span>}
+      {rows.length > 0 && (
+        <ol className="m-0 flex list-none flex-col gap-2 p-0">
+          {rows.map((r, i) => (
+            <li key={i} className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto]">
+              <input aria-label={`Spec ${i + 1} label`} placeholder="Label, e.g. Capacity" maxLength={40} className={input} value={r.k} onChange={(e) => set(i, { k: e.target.value })} />
+              <input aria-label={`Spec ${i + 1} value`} placeholder="Value, e.g. 2 TB" maxLength={120} className={input} value={r.v} onChange={(e) => set(i, { v: e.target.value })} />
+              <div className="flex gap-1">
+                <button type="button" className={btn.ghost} disabled={i === 0} onClick={() => move(i, -1)} aria-label={`Move spec ${i + 1} up`}>
+                  ↑
+                </button>
+                <button type="button" className={btn.ghost} disabled={i === rows.length - 1} onClick={() => move(i, 1)} aria-label={`Move spec ${i + 1} down`}>
+                  ↓
+                </button>
+                <button type="button" className={btn.ghost} onClick={() => onChange(rows.filter((_, j) => j !== i))} aria-label={`Remove spec ${i + 1}`}>
+                  ✕
+                </button>
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
+      <button type="button" className={`${btn.secondary} self-start`} onClick={() => onChange([...rows, { k: "", v: "" }])}>
+        + Add spec row
+      </button>
+    </div>
   );
 }
 

@@ -170,6 +170,9 @@ Spec fields by type:
 - Battery: Type, Capacity (Ah), CCA, Location, Positive cable
 - Main fuse: Fuse type, Rating, Distance to + post, Cable size, Cover
 - Distribution: Inputs, Outputs, Fuse ratings, Cable sizes, Location
+- Capacitor / power bank: Type, Capacity, Voltage, Fuse, Mounting location
+- Other (music storage, streamer, relay, LED, …): no fixed fields; the editor adds its own rows (label + value, reorder, remove)
+- Every type can add extra rows after its standard fields (stored in `components.specs` after the standard keys; rows without a label are not shown)
 
 ### Bonus Point `/bonus`
 - Hero copy: "Our bonus requests cover the whole car: glass, lights, rims, body, cabin and trunk. Each request is worth up to 3 points: 1 for the idea, plus 1 for average or 2 for good execution."

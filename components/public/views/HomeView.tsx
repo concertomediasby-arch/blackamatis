@@ -16,6 +16,7 @@ import { storageUrl } from "@/lib/supabase/env";
 import { instagramHref } from "@/lib/format";
 import { EditPencil } from "@/components/public/EditMode";
 import { PartnerLogo } from "@/components/public/PartnerLogo";
+import { visiblePartners } from "@/lib/partners";
 
 /** Two ways in: visitors (lemon, light face) and judges (dark face). */
 const WAYS = [
@@ -260,7 +261,7 @@ export function HomeView() {
             />
             <span className="eyebrow text-muted-2">Supported by</span>
             <ul className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3 p-0">
-              {c.partners.map((p) => {
+              {visiblePartners(c.partners).map((p) => {
                 const box = <PartnerLogo partner={p} />;
                 return (
                   <li key={p.id}>

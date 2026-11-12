@@ -18,34 +18,35 @@ import type { Partner } from "@/lib/types";
 export function PartnersEditor() {
   const partners = useList("partners");
   const sorted = [...partners.items].sort((a, b) => a.sort - b.sort);
+  const withLogo = sorted.filter((p) => p.logo_path).length;
+  const add = () =>
+    partners.setItems((xs) => [
+      ...xs,
+      {
+        id: newId(),
+        name: "",
+        logo_path: null,
+        url: null,
+        sort: Math.max(0, ...xs.map((x) => x.sort)) + 1,
+      },
+    ]);
   return (
     <Card
-      title="Partners"
+      title="Supported by · partners"
       id="partners"
       actions={
-        <button
-          type="button"
-          className={btn.secondary}
-          onClick={() =>
-            partners.setItems((xs) => [
-              ...xs,
-              {
-                id: newId(),
-                name: "",
-                logo_path: null,
-                url: null,
-                sort: xs.length + 1,
-              },
-            ])
-          }
-        >
+        <button type="button" className={btn.secondary} onClick={add}>
           + Add partner
         </button>
       }
     >
       <p className="m-0 text-sm text-[#4a4852]">
-        Logos under “Supported by” on the home page. Use a transparent PNG; the
-        link is optional.
+        Logos under “Supported by” on the home page, as many as you need. Use a
+        transparent PNG; the link is optional. A partner without a logo is
+        hidden on the site until you upload one.{" "}
+        <strong>
+          {withLogo} logo{withLogo === 1 ? "" : "s"} on the site.
+        </strong>
       </p>
       <ol className="m-0 grid list-none grid-cols-1 gap-4 p-0 lg:grid-cols-2">
         {sorted.map((p, i) => {
@@ -56,7 +57,14 @@ export function PartnersEditor() {
               className="flex flex-col gap-3 rounded-xl border border-editor-border p-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-bold">Partner {i + 1}</span>
+                <span className="text-sm font-bold">
+                  {p.name || `Partner ${i + 1}`}
+                  {!p.logo_path && (
+                    <span className="ml-2 rounded-full bg-[#F4F2EC] px-2 py-0.5 font-mono text-[11px] font-normal text-[#4a4852]">
+                      Hidden until a logo is uploaded
+                    </span>
+                  )}
+                </span>
                 <RowActions
                   index={i}
                   count={sorted.length}
@@ -104,6 +112,18 @@ export function PartnersEditor() {
             </li>
           );
         })}
+        <li>
+          <button
+            type="button"
+            onClick={add}
+            className="flex h-full min-h-40 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-editor-border bg-white/60 p-4 text-sm font-semibold text-[#4a4852] hover:border-prussian hover:text-prussian"
+          >
+            <span aria-hidden="true" className="text-3xl leading-none">
+              +
+            </span>
+            Add partner
+          </button>
+        </li>
       </ol>
     </Card>
   );

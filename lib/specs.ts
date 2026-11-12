@@ -2,9 +2,31 @@ import type { ComponentType, SpecRow } from "./types";
 
 /** Spec fields per component type (CLAUDE.md › Spec popover). */
 export const SPEC_FIELDS: Record<ComponentType, string[]> = {
-  head_unit: ["Type", "Outputs", "Digital output", "Screen / control", "Power fuse", "Mounting location"],
-  dsp: ["Inputs", "Outputs", "Sample rate", "Control", "Power fuse", "Mounting location"],
-  amplifier: ["Channels", "RMS @ 4Ω", "RMS @ 2Ω", "Class", "Power cable", "Fuse", "Mounting location"],
+  head_unit: [
+    "Type",
+    "Outputs",
+    "Digital output",
+    "Screen / control",
+    "Power fuse",
+    "Mounting location",
+  ],
+  dsp: [
+    "Inputs",
+    "Outputs",
+    "Sample rate",
+    "Control",
+    "Power fuse",
+    "Mounting location",
+  ],
+  amplifier: [
+    "Channels",
+    "RMS @ 4Ω",
+    "RMS @ 2Ω",
+    "Class",
+    "Power cable",
+    "Fuse",
+    "Mounting location",
+  ],
   speaker: [
     "Size",
     "Impedance",
@@ -15,10 +37,24 @@ export const SPEC_FIELDS: Record<ComponentType, string[]> = {
     "Driven by",
   ],
   battery: ["Type", "Capacity (Ah)", "CCA", "Location", "Positive cable"],
-  main_fuse: ["Fuse type", "Rating", "Distance to + post", "Cable size", "Cover"],
-  distribution: ["Inputs", "Outputs", "Fuse ratings", "Cable sizes", "Location"],
+  main_fuse: [
+    "Fuse type",
+    "Rating",
+    "Distance to + post",
+    "Cable size",
+    "Cover",
+  ],
+  distribution: [
+    "Inputs",
+    "Outputs",
+    "Fuse ratings",
+    "Cable sizes",
+    "Location",
+  ],
   capacitor: ["Type", "Capacity", "Voltage", "Fuse", "Mounting location"],
-  other: ["Type", "Rating", "Fuse", "Mounting location"],
+  // Free form: devices like a music SSD, relay or LED strip share no fields,
+  // so the editor adds its own rows (see customSpecs).
+  other: [],
 };
 
 export const TYPE_LABELS: Record<ComponentType, string> = {
@@ -50,10 +86,30 @@ export function placeholderFor(field: string): string {
   return UNIT_PLACEHOLDERS[field] ?? "[—]";
 }
 
-/** Merge stored specs with the template for a type so every field is present, in order. */
-export function specRows(type: ComponentType, stored: SpecRow[] = []): SpecRow[] {
-  return SPEC_FIELDS[type].map((k) => {
+/** Stored rows that are not one of the type's standard fields, in their saved order. */
+export function customSpecs(
+  type: ComponentType,
+  stored: SpecRow[] = [],
+): SpecRow[] {
+  const fixed = SPEC_FIELDS[type];
+  return stored.filter((s) => !fixed.includes(s.k));
+}
+
+/**
+ * Rows for the spec popover: the type's standard fields in order (placeholder
+ * when empty), then the editor's own rows. Own rows without a label are skipped.
+ */
+export function specRows(
+  type: ComponentType,
+  stored: SpecRow[] = [],
+): SpecRow[] {
+  const fixed = SPEC_FIELDS[type].map((k) => {
     const v = stored.find((s) => s.k === k)?.v?.trim();
     return { k, v: v ? v : placeholderFor(k) };
   });
+  const own = customSpecs(type, stored)
+    .map((s) => ({ k: s.k.trim(), v: s.v?.trim() ?? "" }))
+    .filter((s) => s.k)
+    .map((s) => ({ k: s.k, v: s.v || placeholderFor(s.k) }));
+  return [...fixed, ...own];
 }
