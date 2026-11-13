@@ -46,3 +46,15 @@ export function youtubeId(url: string | null | undefined): string | null {
   }
   return null;
 }
+
+/** Bonus Point: at most 3 photos and 1 video in Process, and the same in Result. */
+export const BONUS_MEDIA_LIMITS = { photo: 3, video: 1 } as const;
+export type MediaLimits = { photo: number; video: number };
+
+/** How many photos and videos a list holds. */
+export function mediaCounts(items: BonusMedia[]): { photo: number; video: number } {
+  return {
+    photo: items.filter((m) => m.kind === "photo").length,
+    video: items.filter((m) => m.kind === "video").length,
+  };
+}

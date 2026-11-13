@@ -1,7 +1,7 @@
 "use client";
 
 import { MAX_VIDEO_MB } from "@/lib/editor/upload";
-import { youtubeId } from "@/lib/bonus-media";
+import { mediaCounts, youtubeId, type MediaLimits } from "@/lib/bonus-media";
 import type { BonusMedia } from "@/lib/types";
 import { FramedPhoto } from "@/components/public/PhotoSlider";
 import { TextArea, TextField, btn } from "../Field";
@@ -21,6 +21,7 @@ export function MediaListEditor({
   onChange,
   photosOnly = false,
   positionable = false,
+  limits,
 }: {
   label: string;
   intro: string;
@@ -31,6 +32,8 @@ export function MediaListEditor({
   photosOnly?: boolean;
   /** Each photo gets Position & size in its slider frame (History). */
   positionable?: boolean;
+  /** Most photos / videos allowed (Bonus Point: 3 photos and 1 video per tab). */
+  limits?: MediaLimits;
   value: BonusMedia[];
   onChange: (next: BonusMedia[]) => void;
 }) {
@@ -42,6 +45,11 @@ export function MediaListEditor({
     [next[i], next[i + d]] = [next[i + d], next[i]];
     onChange(next);
   };
+  const count = mediaCounts(items);
+  const full = (kind: BonusMedia["kind"]) => !!limits && count[kind] >= limits[kind];
+  const over = limits
+    ? (["photo", "video"] as const).filter((k) => count[k] > limits[k])
+    : [];
   const add = (kind: BonusMedia["kind"]) =>
     onChange([
       ...items,
@@ -52,6 +60,20 @@ export function MediaListEditor({
     <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-editor-border p-4">
       <legend className="px-1 text-sm font-bold">{label}</legend>
       <p className="m-0 text-[13px] text-[#4a4852]">{intro}</p>
+      {limits && (
+        <p className="m-0 font-mono text-[12px] tracking-[0.06em] text-[#4a4852]">
+          PHOTOS {count.photo} / {limits.photo}
+          {!photosOnly && ` · VIDEO ${count.video} / ${limits.video}`}
+        </p>
+      )}
+      {over.length > 0 && limits && (
+        <p role="alert" className="m-0 rounded-lg bg-[#FFF4D6] px-3 py-2 text-[13px] text-[#6B4E00]">
+          {over
+            .map((k) => `${count[k]} ${k === "photo" ? "photos" : "videos"}, the limit is ${limits[k]}: remove ${count[k] - limits[k]}`)
+            .join(" · ")}
+          .
+        </p>
+      )}
       {items.length > 0 && (
         <ol className="m-0 flex list-none flex-col gap-3 p-0">
           {items.map((m, i) => {
@@ -200,14 +222,16 @@ export function MediaListEditor({
         </ol>
       )}
       <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          className={btn.secondary}
-          onClick={() => add("photo")}
-        >
-          + Add photo
-        </button>
-        {!photosOnly && (
+        {!full("photo") && (
+          <button
+            type="button"
+            className={btn.secondary}
+            onClick={() => add("photo")}
+          >
+            + Add photo
+          </button>
+        )}
+        {!photosOnly && !full("video") && (
           <button
             type="button"
             className={btn.secondary}
