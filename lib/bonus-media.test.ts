@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeMedia, youtubeId } from "./bonus-media";
+import { BONUS_MEDIA_LIMITS, mediaCounts, normalizeMedia, youtubeId } from "./bonus-media";
 
 describe("bonus media", () => {
   it("keeps valid items and fills safe defaults", () => {
@@ -25,5 +25,14 @@ describe("bonus media", () => {
     expect(youtubeId("https://youtube.com/shorts/abcdefghijk")).toBe("abcdefghijk");
     expect(youtubeId("https://www.instagram.com/reel/xyz/")).toBeNull();
     expect(youtubeId("not a url")).toBeNull();
+  });
+});
+
+describe("bonus media limits", () => {
+  it("counts photos and videos", () => {
+    const m = (kind: "photo" | "video") => ({ id: kind + Math.random(), kind, path: null, url: null, caption: "" });
+    expect(mediaCounts([m("photo"), m("video"), m("photo")])).toEqual({ photo: 2, video: 1 });
+    expect(mediaCounts([])).toEqual({ photo: 0, video: 0 });
+    expect(BONUS_MEDIA_LIMITS).toEqual({ photo: 3, video: 1 });
   });
 });

@@ -9,6 +9,7 @@ import { BonusList } from "@/components/public/BonusList";
 import { useEditor } from "@/components/editor/EditorProvider";
 import { UploadZone } from "@/components/editor/UploadZone";
 import { MediaListEditor } from "@/components/editor/sections/MediaListEditor";
+import { BONUS_MEDIA_LIMITS } from "@/lib/bonus-media";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { bonusSchema, type BonusForm } from "@/lib/editor/schemas";
 import { BONUS_MODES, DEFAULT_BONUS_MODE, EXECUTION_LABELS, estimateBonus, requestPoints, type BonusMode, type Execution } from "@/lib/emma/bonus";
@@ -300,6 +301,7 @@ function BonusDrawer({ request, isNew, onSave, onClose }: { request: BonusReques
               numbered
               value={(field.value ?? []) as BonusMedia[]}
               onChange={field.onChange}
+              limits={BONUS_MEDIA_LIMITS}
             />
           )}
         />
@@ -314,6 +316,7 @@ function BonusDrawer({ request, isNew, onSave, onClose }: { request: BonusReques
               numbered={false}
               value={(field.value ?? []) as BonusMedia[]}
               onChange={field.onChange}
+              limits={BONUS_MEDIA_LIMITS}
             />
           )}
         />
