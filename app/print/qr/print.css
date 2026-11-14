@@ -1,3 +1,4 @@
+/* Sized so every line stays readable when the A4 sheet is printed at A5 (71 %): smallest text 15pt, about 10.6pt on A5. */
 @page {
   size: A4;
   margin: 0;
@@ -50,21 +51,23 @@
 .a4-word {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 22pt;
+  font-size: 28pt;
   letter-spacing: 0.08em;
 }
 .a4-pill {
   font-family: var(--font-mono);
-  font-size: 10pt;
-  letter-spacing: 0.12em;
-  border: 1.5px solid #000;
+  font-size: 16pt;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  border: 2px solid #000;
   border-radius: 999px;
-  padding: 2mm 4mm;
+  padding: 2.5mm 5mm;
 }
 .a4-eyebrow {
   font-family: var(--font-mono);
-  font-size: 10pt;
-  letter-spacing: 0.16em;
+  font-size: 16pt;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   color: #00006a;
 }
 .a4-title {
@@ -98,8 +101,9 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 4mm;
-  font-size: 14pt;
+  gap: 5mm;
+  font-size: 20pt;
+  line-height: 1.25;
   font-weight: 600;
 }
 .a4-list li::before {
@@ -108,20 +112,21 @@
 }
 .a4-ask {
   margin: auto 0 0;
-  font-size: 16pt;
-  line-height: 1.4;
+  font-size: 22pt;
+  line-height: 1.35;
 }
 .a4-foot {
   background: #000231;
   color: #f2f0e6;
-  padding: 7mm 16mm;
+  padding: 8mm 16mm;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 4mm;
+  gap: 3mm 6mm;
   font-family: var(--font-mono);
-  font-size: 10pt;
-  letter-spacing: 0.1em;
+  font-size: 15pt;
+  font-weight: 500;
+  letter-spacing: 0.04em;
 }
 @media print {
   .print-shell {
