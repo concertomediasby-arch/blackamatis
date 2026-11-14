@@ -176,7 +176,7 @@ Spec fields by type:
 - Capacitor / power bank: Type, Capacity, Voltage, Fuse, Mounting location
 - Other (music storage, streamer, relay, LED, …): no fixed fields; the editor adds its own rows (label + value, reorder, remove)
 - Every type can add extra rows after its standard fields (stored in `components.specs` after the standard keys; rows without a label are not shown)
-- In the **System diagram** (signal flow, generated or the team's image) the popover leaves out the *Power fuse*, *Fuse* and *Mounting location* rows, also the editor's own rows with those labels (team decision; `SYSTEM_DIAGRAM_HIDDEN_SPECS` in `lib/specs.ts`). The cable diagram and the editor still show them.
+- In the **System diagram** (signal flow, generated or the team's image) the popover leaves out the *Power fuse*, *Fuse*, *Power cable* and *Mounting location* rows, also the editor's own rows with those labels (team decision; `SYSTEM_DIAGRAM_HIDDEN_SPECS` in `lib/specs.ts`). The cable diagram and the editor still show them.
 
 ### Bonus Point `/bonus`
 - Hero copy: "Our bonus requests cover the whole car: glass, lights, rims, body, cabin and trunk. Each request is worth up to 3 points: 1 for the idea, plus 1 for average or 2 for good execution."

@@ -33,9 +33,7 @@ describe("specRows with omit (System diagram)", () => {
     expect(hu.map((s) => s.k)).toEqual(["Type", "Outputs", "Digital output", "Screen / control"]);
 
     const amp = specRows("amplifier", [], SYSTEM_DIAGRAM_HIDDEN_SPECS).map((s) => s.k);
-    expect(amp).not.toContain("Fuse");
-    expect(amp).not.toContain("Mounting location");
-    expect(amp).toContain("Power cable");
+    expect(amp).toEqual(["Channels", "RMS @ 4Ω", "RMS @ 2Ω", "Class"]);
 
     const other = specRows(
       "other",
@@ -52,6 +50,7 @@ describe("specRows with omit (System diagram)", () => {
   it("keeps every row when nothing is omitted (cable diagram, editor)", () => {
     expect(specRows("speaker").map((s) => s.k)).toContain("Mounting location");
     expect(specRows("dsp").map((s) => s.k)).toContain("Power fuse");
+    expect(specRows("amplifier").map((s) => s.k)).toContain("Power cable");
   });
 });
 

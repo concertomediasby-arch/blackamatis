@@ -96,13 +96,14 @@ export function customSpecs(
 }
 
 /**
- * Rows left out of the spec popover in the System diagram (signal flow): fuse
- * and mounting details belong to the cable diagram (team decision). The cable
- * diagram and the editor still show them.
+ * Rows left out of the spec popover in the System diagram (signal flow): fuse,
+ * power cable and mounting details belong to the cable diagram (team decision).
+ * The cable diagram and the editor still show them.
  */
 export const SYSTEM_DIAGRAM_HIDDEN_SPECS: readonly string[] = [
   "Power fuse",
   "Fuse",
+  "Power cable",
   "Mounting location",
 ];
 
