@@ -96,20 +96,35 @@ export function customSpecs(
 }
 
 /**
+ * Rows left out of the spec popover in the System diagram (signal flow): fuse
+ * and mounting details belong to the cable diagram (team decision). The cable
+ * diagram and the editor still show them.
+ */
+export const SYSTEM_DIAGRAM_HIDDEN_SPECS: readonly string[] = [
+  "Power fuse",
+  "Fuse",
+  "Mounting location",
+];
+
+/**
  * Rows for the spec popover: the type's standard fields in order (placeholder
- * when empty), then the editor's own rows. Own rows without a label are skipped.
+ * when empty), then the editor's own rows. Own rows without a label are skipped,
+ * and so are rows whose label is in `omit` (compared case-insensitively).
  */
 export function specRows(
   type: ComponentType,
   stored: SpecRow[] = [],
+  omit: readonly string[] = [],
 ): SpecRow[] {
-  const fixed = SPEC_FIELDS[type].map((k) => {
+  const hidden = new Set(omit.map((k) => k.trim().toLowerCase()));
+  const keep = (k: string) => !hidden.has(k.trim().toLowerCase());
+  const fixed = SPEC_FIELDS[type].filter(keep).map((k) => {
     const v = stored.find((s) => s.k === k)?.v?.trim();
     return { k, v: v ? v : placeholderFor(k) };
   });
   const own = customSpecs(type, stored)
     .map((s) => ({ k: s.k.trim(), v: s.v?.trim() ?? "" }))
-    .filter((s) => s.k)
+    .filter((s) => s.k && keep(s.k))
     .map((s) => ({ k: s.k, v: s.v || placeholderFor(s.k) }));
   return [...fixed, ...own];
 }

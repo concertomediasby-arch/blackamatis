@@ -24,9 +24,11 @@ type Props = {
   edgeLabels?: Record<string, string>;
   /** Dashed line from this node down to a "Chassis Ground" box. */
   groundFrom?: string;
+  /** Spec rows the popover leaves out (the System diagram hides fuse and mounting). */
+  specOmit?: readonly string[];
 };
 
-export function Diagram({ label, nodes, edges, columnLabels, edgeLabels = {}, groundFrom }: Props) {
+export function Diagram({ label, nodes, edges, columnLabels, edgeLabels = {}, groundFrom, specOmit }: Props) {
   const uid = useId();
   const layout = layoutTree(
     nodes.map((n) => n.key),
@@ -174,6 +176,7 @@ export function Diagram({ label, nodes, edges, columnLabels, edgeLabels = {}, gr
               component={openNode.component}
               style={{ left: pos.left, top: pos.top }}
               onClose={close}
+              omit={specOmit}
             />
           )}
         </div>

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { popoverPosition } from "@/lib/diagram";
 import { isPlaceholder } from "@/lib/format";
 import { normalizeHotspots, type HotspotField } from "@/lib/photo";
+import { SYSTEM_DIAGRAM_HIDDEN_SPECS } from "@/lib/specs";
 import type { AudioComponent, Photo, WiringLink } from "@/lib/types";
 import { CIRCUIT_H, CIRCUIT_W, CircuitCard } from "./CircuitCard";
 import { POPOVER_H, POPOVER_W, SpecPopover } from "./SpecPopover";
@@ -99,6 +100,7 @@ export function DiagramHotspots({
         inline={inline}
         onClose={close}
         onBack={circuit ? () => setShowSpecs(false) : undefined}
+        omit={field === "hotspots" ? SYSTEM_DIAGRAM_HIDDEN_SPECS : undefined}
       />
     ));
   const brandModel = (c: AudioComponent) => [c.brand, c.model].filter((x) => !isPlaceholder(x)).join(" ");

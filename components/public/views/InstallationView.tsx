@@ -13,6 +13,7 @@ import { storageUrl } from "@/lib/supabase/env";
 import { PhotoLog } from "@/components/public/PhotoLog";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { isPlaceholder } from "@/lib/format";
+import { SYSTEM_DIAGRAM_HIDDEN_SPECS } from "@/lib/specs";
 import type { AudioComponent, WiringLink } from "@/lib/types";
 import { EditPencil } from "@/components/public/EditMode";
 
@@ -139,6 +140,7 @@ export function InstallationView() {
                 label="Signal flow"
                 nodes={sysNodes}
                 edges={sysEdges}
+                specOmit={SYSTEM_DIAGRAM_HIDDEN_SPECS}
                 columnLabels={[
                   "SOURCE",
                   "PROCESSING",

@@ -19,12 +19,14 @@ type Props = {
   onClose: () => void;
   /** Shown as "← Circuit" when the spec sheet was opened from a circuit card. */
   onBack?: () => void;
+  /** Spec rows to leave out (e.g. fuse and mounting in the System diagram). */
+  omit?: readonly string[];
 };
 
 /** Small glass spec panel shown next to the product card inside a diagram (not a modal). */
 export const SpecPopover = forwardRef<HTMLDivElement, Props>(
   function SpecPopover(
-    { id, component: c, style, onClose, onBack, inline = false },
+    { id, component: c, style, onClose, onBack, inline = false, omit },
     ref,
   ) {
     const brandModel =
@@ -98,7 +100,7 @@ export const SpecPopover = forwardRef<HTMLDivElement, Props>(
           </button>
         </div>
         <dl className="m-0 flex flex-col">
-          {specRows(c.type, c.specs).map((s, i) => (
+          {specRows(c.type, c.specs, omit).map((s, i) => (
             <div
               key={`${i}-${s.k}`}
               className="grid grid-cols-[1.1fr_1fr] gap-3 border-b border-white/10 py-2"
