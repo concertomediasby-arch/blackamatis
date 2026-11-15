@@ -37,6 +37,9 @@ export function SiteFooter() {
           </Link>
         )}
       </span>
+      <span className="w-full border-t border-white/10 pt-2 text-[11px]">
+        © 2026 CONCERTO AUDIO INDONESIA
+      </span>
     </footer>
   );
 }
