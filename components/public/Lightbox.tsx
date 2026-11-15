@@ -137,7 +137,7 @@ export function Lightbox({
         >
           <div
             key={cur.id + index}
-            className={`flex h-full w-full items-center justify-center ${dir > 0 ? "px-in-next" : dir < 0 ? "px-in-prev" : ""}`}
+            className={`flex h-full w-full items-center justify-center ${dir !== 0 ? "fade-in-slide" : ""}`}
           >
             {cur.kind === "photo" ? (
               <LightboxPhoto path={cur.path} alt={title(cur, index)} />
