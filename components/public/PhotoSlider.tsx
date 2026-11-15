@@ -1,20 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { heroTransform, normalizeLayout } from "@/lib/photo";
 import { VideoPlayer } from "./MediaPlayer";
-import { useWheelSwipe } from "@/lib/use-swipe";
+import { useSwipe, useWheelSwipe } from "@/lib/use-swipe";
 import type { BonusMedia } from "@/lib/types";
 import { ZoomablePhoto } from "./Lightbox";
 
 type Slide = { id: string; caption?: string };
 
 /**
- * Swipeable carousel: native horizontal scroll with snap (touch swipe,
- * trackpad), mouse drag, previous/next buttons, dots (no counter) and
- * arrow keys. `framed` puts the track in a rounded border (photos); `bare`
- * leaves it open (cut-out car over the hero).
+ * Carousel whose slides crossfade in place: swipe (touch, pen, mouse drag,
+ * two-finger touchpad), previous/next buttons, dots (no counter) and arrow
+ * keys. `framed` puts the slides in a rounded border (photos); `bare` leaves
+ * them open (cut-out car over the hero).
  */
 export function Carousel<T extends Slide>({
   slides,
@@ -37,86 +37,18 @@ export function Carousel<T extends Slide>({
   /** Round the framed track's corners (off inside a card). */
   rounded?: boolean;
 }) {
-  const trackRef = useRef<HTMLUListElement>(null);
   const [index, setIndex] = useState(0);
   const n = slides.length;
-  // Cut-outs over the hero: slides sit on top of each other and slide/fade, so
-  // nothing is clipped (the car may be scaled past its box).
-  const stacked = variant === "bare";
-  const swipe = useRef<{ x: number; y: number } | null>(null);
-
-  // Follow the slide in view while the visitor swipes, and move each photo a
-  // little slower than its slide (parallax: --px is the slide's distance from
-  // the centre, -1…1).
-  useEffect(() => {
-    const el = trackRef.current;
-    if (!el || stacked) return;
-    let frame = 0;
-    const parallax = () => {
-      frame = 0;
-      const w = Math.max(1, el.clientWidth);
-      const pos = el.scrollLeft / w;
-      Array.from(el.children).forEach((li, i) => {
-        const d = Math.max(-1, Math.min(1, i - pos));
-        (li as HTMLElement).style.setProperty("--px", d.toFixed(4));
-      });
-    };
-    const onScroll = () => {
-      setIndex(
-        Math.max(
-          0,
-          Math.min(
-            n - 1,
-            Math.round(el.scrollLeft / Math.max(1, el.clientWidth)),
-          ),
-        ),
-      );
-      if (!frame) frame = requestAnimationFrame(parallax);
-    };
-    parallax();
-    el.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      el.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      if (frame) cancelAnimationFrame(frame);
-    };
-  }, [n, stacked]);
 
   const go = useCallback(
-    (i: number) => {
-      const to = Math.max(0, Math.min(n - 1, i));
-      const el = trackRef.current;
-      if (stacked || !el) {
-        setIndex(to);
-        return;
-      }
-      const reduce =
-        typeof window !== "undefined" &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      el.scrollTo({
-        left: to * el.clientWidth,
-        behavior: reduce ? "auto" : "smooth",
-      });
-      setIndex(to);
-    },
-    [n, stacked],
+    (i: number) => setIndex(Math.max(0, Math.min(n - 1, i))),
+    [n],
   );
 
-  // Two-finger touchpad swipe on the stacked (hero) slides; the scroll track handles it natively.
-  const wheel = useWheelSwipe(() => go(index + 1), () => go(index - 1), stacked && n > 1);
-
-  // Mouse drag for desktops without a trackpad.
-  const drag = useRef<{ x: number; left: number } | null>(null);
-  // A mouse drag must not also count as a click on the photo (which opens it large).
-  const dragged = useRef(false);
-  const endDrag = () => {
-    if (!drag.current) return;
-    drag.current = null;
-    const el = trackRef.current!;
-    el.style.scrollSnapType = "";
-    go(Math.round(el.scrollLeft / el.clientWidth));
-  };
+  // Swipe (touch, pen, mouse drag) and two-finger touchpad swipe; a swipe never
+  // also counts as a click on the photo (which opens it large).
+  const swipe = useSwipe(() => go(index + 1), () => go(index - 1), n > 1);
+  const wheel = useWheelSwipe(() => go(index + 1), () => go(index - 1), n > 1);
 
   const arrow =
     variant === "framed"
@@ -140,97 +72,40 @@ export function Carousel<T extends Slide>({
       }}
     >
       <div className="relative">
-        {stacked ? (
-          <ul
-            tabIndex={n > 1 ? 0 : -1}
-            aria-label={`${label}, ${n} photo${n === 1 ? "" : "s"}${n > 1 ? ". Use the arrow keys or swipe to move." : ""}`}
-            ref={wheel}
-            className="m-0 grid list-none p-0 [touch-action:pan-y]"
-            style={{ cursor: n > 1 ? "grab" : undefined }}
-            onPointerDown={(e) => {
-              if (n > 1) swipe.current = { x: e.clientX, y: e.clientY };
-            }}
-            onPointerUp={(e) => {
-              const st = swipe.current;
-              swipe.current = null;
-              if (!st) return;
-              const dx = e.clientX - st.x;
-              if (
-                Math.abs(dx) > 40 &&
-                Math.abs(dx) > Math.abs(e.clientY - st.y)
-              )
-                go(index + (dx < 0 ? 1 : -1));
-            }}
-            onPointerCancel={() => (swipe.current = null)}
-          >
-            {slides.map((s, i) => {
-              const off = i - index;
-              return (
-                <li
-                  key={s.id}
-                  aria-roledescription="slide"
-                  aria-label={`${i + 1} of ${n}`}
-                  aria-hidden={off !== 0}
-                  className="[grid-area:1/1] motion-safe:transition-[opacity,transform] motion-safe:duration-500 motion-safe:ease-out"
-                  style={{
-                    opacity: off === 0 ? 1 : 0,
-                    transform: `translateX(${off === 0 ? 0 : off < 0 ? -8 : 8}%)`,
-                    pointerEvents: off === 0 ? undefined : "none",
-                  }}
-                >
-                  {renderSlide(s, i)}
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <ul
-            ref={trackRef}
-            tabIndex={n > 1 ? 0 : -1}
-            aria-label={`${label}, ${n} photo${n === 1 ? "" : "s"}${n > 1 ? ". Use the arrow keys to move." : ""}`}
-            className={`m-0 flex list-none snap-x snap-mandatory overflow-x-auto overscroll-x-contain p-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
-              variant === "framed"
-                ? `${rounded ? "rounded-[36px]" : ""} ${bordered ? "border border-white/10" : ""}`
-                : ""
-            }`}
-            style={{ cursor: n > 1 ? "grab" : undefined }}
-            onPointerDown={(e) => {
-              if (e.pointerType !== "mouse" || n < 2) return;
-              dragged.current = false;
-              drag.current = {
-                x: e.clientX,
-                left: trackRef.current!.scrollLeft,
-              };
-              trackRef.current!.style.scrollSnapType = "none";
-            }}
-            onPointerMove={(e) => {
-              const d = drag.current;
-              if (!d) return;
-              if (Math.abs(e.clientX - d.x) > 6) dragged.current = true;
-              trackRef.current!.scrollLeft = d.left - (e.clientX - d.x);
-            }}
-            onPointerUp={endDrag}
-            onPointerLeave={endDrag}
-            onClickCapture={(e) => {
-              if (dragged.current) {
-                dragged.current = false;
-                e.preventDefault();
-                e.stopPropagation();
-              }
-            }}
-          >
-            {slides.map((s, i) => (
+        {/* Slides sit on top of each other and crossfade: the photo in view fades
+            out while the next one fades in, in the same place (no sideways move). */}
+        <ul
+          ref={wheel}
+          tabIndex={n > 1 ? 0 : -1}
+          aria-label={`${label}, ${n} photo${n === 1 ? "" : "s"}${n > 1 ? ". Use the arrow keys or swipe to move." : ""}`}
+          {...swipe}
+          className={`m-0 grid list-none p-0 ${n > 1 ? "cursor-grab select-none active:cursor-grabbing" : ""} ${
+            variant === "framed"
+              ? `overflow-hidden ${rounded ? "rounded-[36px]" : ""} ${bordered ? "border border-white/10" : ""}`
+              : ""
+          }`}
+        >
+          {slides.map((s, i) => {
+            const on = i === index;
+            return (
               <li
                 key={s.id}
-                className="w-full flex-none snap-center snap-always overflow-hidden"
                 aria-roledescription="slide"
                 aria-label={`${i + 1} of ${n}`}
+                aria-hidden={!on}
+                inert={!on}
+                className="slide-fade [grid-area:1/1]"
+                style={{
+                  opacity: on ? 1 : 0,
+                  zIndex: on ? 1 : 0,
+                  pointerEvents: on ? undefined : "none",
+                }}
               >
-                {n > 1 ? <div className="px-layer">{renderSlide(s, i)}</div> : renderSlide(s, i)}
+                {renderSlide(s, i)}
               </li>
-            ))}
-          </ul>
-        )}
+            );
+          })}
+        </ul>
 
         {n > 1 &&
           (["prev", "next"] as const).map((d) => (
@@ -240,7 +115,7 @@ export function Carousel<T extends Slide>({
               aria-label={d === "prev" ? "Previous photo" : "Next photo"}
               disabled={d === "prev" ? index === 0 : index === n - 1}
               onClick={() => go(index + (d === "prev" ? -1 : 1))}
-              className={`absolute top-1/2 flex h-11 w-11 -translate-y-1/2 sm:h-12 sm:w-12 cursor-pointer items-center justify-center rounded-full border text-ink backdrop-blur-md transition-opacity disabled:pointer-events-none disabled:opacity-0 ${arrow} ${
+              className={`absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 sm:h-12 sm:w-12 cursor-pointer items-center justify-center rounded-full border text-ink backdrop-blur-md transition-opacity disabled:pointer-events-none disabled:opacity-0 ${arrow} ${
                 variant === "bare"
                   ? d === "prev"
                     ? "-left-1 sm:left-0"

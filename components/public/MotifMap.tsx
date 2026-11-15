@@ -70,7 +70,7 @@ export function MotifMap({
       <div className={`relative ${count > 1 ? "cursor-grab select-none active:cursor-grabbing" : ""}`} {...swipe} ref={wheel}>
         <div
           key={shown}
-          className={`relative ${dir > 0 ? "px-in-next" : dir < 0 ? "px-in-prev" : ""}`}
+          className={`relative ${dir !== 0 ? "fade-in-slide" : ""}`}
         >
         <Placeholder
           path={photos[shown] ?? null}
