@@ -85,6 +85,13 @@ export function BonusView() {
                 Submitted in a dedicated document, handed in with the
                 presentation. Sound quality improvements do not count as bonus.
               </p>
+              <a
+                href="/docs/emma-2026-bonus-scoresheet.pdf"
+                download
+                className="pill mt-2 min-h-12 self-start bg-black px-7 text-lemon hover:bg-prussian"
+              >
+                Download scoresheet (PDF)
+              </a>
             </div>
             <BonusList initial={reqs} />
           </div>
