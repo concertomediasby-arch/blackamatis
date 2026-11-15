@@ -11,9 +11,8 @@ const pad = (n: number) => String(n).padStart(2, "0");
 /**
  * Photos of the car with numbered points (one or more photos, e.g. both
  * sides); a point (or its row in the list) opens the motif's meaning and shows
- * the photo it sits on. Dots and arrows switch photos. Each photo has its own
- * motifs: the numbers and the list follow the photo in view, starting at 01.
- * The list doubles as the text version for screen readers and phones.
+ * the photo it sits on. Dots and arrows switch photos. Numbers run across all
+ * photos. The list doubles as the text version for screen readers and phones.
  */
 export function MotifMap({
   photos,
@@ -40,17 +39,6 @@ export function MotifMap({
     setOpen(m.id);
     setShown(photoOf(m));
   };
-  // The motifs on the photo in view, numbered from 1 per photo.
-  const onPhoto = motifs.filter((m) => photoOf(m) === shown);
-  const num = (m: Motif) => motifs.filter((x) => photoOf(x) === photoOf(m)).indexOf(m) + 1;
-  // Switching photo (swipe, dots, arrows) opens the first motif on that photo.
-  const quiet = useRef(false);
-  useEffect(() => {
-    if (active && photoOf(active) === shown) return;
-    quiet.current = true;
-    setOpen(onPhoto[0]?.id ?? null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shown]);
   // The photos for the large view (the numbers stay on this map).
   const zoom = useLightbox();
   const group = photos.map((path, i) => ({ id: `motif-photo-${i}`, kind: "photo" as const, path, url: null, caption: "" }));
@@ -73,11 +61,6 @@ export function MotifMap({
       first.current = false;
       return;
     }
-    // A photo switch changes the open motif without moving the focus.
-    if (quiet.current) {
-      quiet.current = false;
-      return;
-    }
     detailRef.current?.focus({ preventScroll: true });
   }, [open]);
 
@@ -96,7 +79,8 @@ export function MotifMap({
           className="aspect-[16/10] w-full rounded-[28px] border border-white/10"
           sizes="(max-width: 1024px) 100vw, 60vw"
         />
-        {onPhoto.map((m, i) => {
+        {motifs.map((m, i) => {
+          if (photoOf(m) !== shown) return null;
           const on = m.id === open;
           return (
             <button
@@ -180,7 +164,7 @@ export function MotifMap({
             className="glass-dark flex flex-col gap-3 rounded-[28px] p-6 outline-none sm:p-8"
           >
             <span className="font-mono text-[11px] tracking-[0.14em] text-amber">
-              MOTIF {pad(num(active))}
+              MOTIF {pad(motifs.indexOf(active) + 1)}
             </span>
             <h3 className="display m-0 text-[34px] font-extrabold leading-none">
               {active.title || "[Motif name]"}
@@ -191,9 +175,9 @@ export function MotifMap({
             </p>
           </div>
         )}
-        {onPhoto.length > 0 ? (
+        {motifs.length > 0 ? (
           <ol className="m-0 flex list-none flex-col p-0">
-            {onPhoto.map((m, i) => (
+            {motifs.map((m, i) => (
               <li key={m.id}>
                 <button
                   type="button"
@@ -218,7 +202,7 @@ export function MotifMap({
           </ol>
         ) : (
           <p className="m-0 font-mono text-[12px] tracking-[0.08em] text-muted-2">
-            {motifs.length > 0 ? "[NO MOTIFS MARKED ON THIS PHOTO YET]" : "[NO MOTIFS MARKED YET]"}
+            [NO MOTIFS MARKED YET]
           </p>
         )}
       </div>

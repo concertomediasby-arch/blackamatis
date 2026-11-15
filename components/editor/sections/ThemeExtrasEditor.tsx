@@ -160,21 +160,9 @@ export function MotifsEditor() {
   };
   const patch = (id: string, p: Partial<Motif>) =>
     save(motifs.map((m) => (m.id === id ? { ...m, ...p } : m)));
-  // Each photo has its own motifs, numbered from 1; the list shows the photo picked above.
-  const photoOf = (m: Motif) => Math.min(m.photo ?? 0, Math.max(0, photos.length - 1));
-  const onPhoto = motifs.filter((m) => photoOf(m) === cur);
-  const pickPhoto = (i: number) => {
-    setShown(i);
-    if (!motifs.some((m) => m.id === sel && photoOf(m) === i))
-      setSel(motifs.find((m) => photoOf(m) === i)?.id ?? null);
-  };
-  // Move a motif up / down among the motifs on the same photo.
   const move = (i: number, d: -1 | 1) => {
-    const a = motifs.indexOf(onPhoto[i]);
-    const b = motifs.indexOf(onPhoto[i + d]);
-    if (a < 0 || b < 0) return;
     const next = [...motifs];
-    [next[a], next[b]] = [next[b], next[a]];
+    [next[i], next[i + d]] = [next[i + d], next[i]];
     save(next);
   };
 
@@ -224,7 +212,7 @@ export function MotifsEditor() {
               key={i}
               type="button"
               aria-pressed={i === cur}
-              onClick={() => pickPhoto(i)}
+              onClick={() => setShown(i)}
               className={`${btn.secondary} min-h-9 ${i === cur ? "!bg-prussian !text-lemon" : ""}`}
             >
               Photo {i + 1}
@@ -255,7 +243,7 @@ export function MotifsEditor() {
                 draggable={false}
                 className="block h-auto w-full rounded-lg"
               />
-              {onPhoto.map((m, i) => (
+              {motifs.map((m, i) => (m.photo ?? 0) !== cur ? null : (
                 <span
                   key={m.id}
                   className={`pointer-events-none absolute flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 font-mono text-[12px] font-bold ${
@@ -277,7 +265,7 @@ export function MotifsEditor() {
         </div>
         <div className="flex flex-col gap-3">
           <ol className="m-0 flex list-none flex-col gap-3 p-0">
-            {onPhoto.map((m, i) => (
+            {motifs.map((m, i) => (
               <li
                 key={m.id}
                 className={`flex flex-col gap-3 rounded-xl border p-3 ${m.id === sel ? "border-prussian bg-[#FFFBE0]" : "border-editor-border"}`}
@@ -295,6 +283,7 @@ export function MotifsEditor() {
                     {m.id === sel
                       ? `Placing ${i + 1} — click the photo`
                       : `Place ${i + 1} on the photo`}
+                    {photos.length > 1 && ` · photo ${Math.min(m.photo ?? 0, photos.length - 1) + 1}`}
                   </button>
                   <div className="flex gap-1">
                     <button
@@ -309,7 +298,7 @@ export function MotifsEditor() {
                     <button
                       type="button"
                       className={btn.ghost}
-                      disabled={i === onPhoto.length - 1}
+                      disabled={i === motifs.length - 1}
                       onClick={() => move(i, 1)}
                       aria-label={`Move motif ${i + 1} down`}
                     >
@@ -343,11 +332,6 @@ export function MotifsEditor() {
               </li>
             ))}
           </ol>
-          {onPhoto.length === 0 && (
-            <p className="m-0 text-sm text-[#55535c]">
-              No motifs on {photos.length > 1 ? `photo ${cur + 1}` : "this photo"} yet.
-            </p>
-          )}
           <button
             type="button"
             className={`${btn.secondary} self-start`}
@@ -364,7 +348,7 @@ export function MotifsEditor() {
               setSel(m.id);
             }}
           >
-            {photos.length > 1 ? `+ Add motif to photo ${cur + 1}` : "+ Add motif"}
+            + Add motif
           </button>
         </div>
       </div>
