@@ -168,7 +168,7 @@ export type Photo = {
 
 export const CRAFT_CATEGORIES = [
   { key: "wiring", label: "Wiring" },
-  { key: "hu", label: "Head Unit" },
+  { key: "hu", label: "Source" },
   { key: "amps", label: "Amplifiers" },
   { key: "spk", label: "Speakers" },
   { key: "other", label: "Other Components" },
