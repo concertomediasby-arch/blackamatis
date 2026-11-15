@@ -229,9 +229,12 @@ function BonusDrawer({ request, isNew, onSave, onClose }: { request: BonusReques
       ref={ref}
       onClose={onClose}
       aria-labelledby="bonus-drawer-title"
-      className="editor m-0 ml-auto h-full max-h-none w-full max-w-[560px] bg-white p-0 text-[#14141a] backdrop:bg-black/40"
+      className="editor m-0 ml-auto h-full max-h-none w-full max-w-[560px] overflow-hidden bg-white p-0 text-[#14141a] backdrop:bg-black/40"
     >
-      <form noValidate onSubmit={handleSubmit((v) => onSave(v as BonusRequest))} className="flex h-full flex-col gap-5 overflow-y-auto p-6">
+      {/* The form is the only scroller and is positioned, so the hidden file inputs
+          (sr-only, absolute) stay inside it; otherwise focusing one scrolls the whole
+          dialog and leaves a blank strip at the bottom. */}
+      <form noValidate onSubmit={handleSubmit((v) => onSave(v as BonusRequest))} className="relative flex h-full flex-col gap-5 overflow-y-auto p-6">
         <div className="flex items-center justify-between">
           <h2 id="bonus-drawer-title" className="m-0 text-xl font-bold">
             {isNew ? "New request" : "Edit request"} · <span className="font-mono">{bonusCode(group, request.no)}</span>
