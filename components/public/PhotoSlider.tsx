@@ -117,9 +117,10 @@ export function Carousel<T extends Slide>({
               onClick={() => go(index + (d === "prev" ? -1 : 1))}
               className={`absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 sm:h-12 sm:w-12 cursor-pointer items-center justify-center rounded-full border text-ink backdrop-blur-md transition-opacity disabled:pointer-events-none disabled:opacity-0 ${arrow} ${
                 variant === "bare"
-                  ? d === "prev"
-                    ? "-left-1 sm:left-0"
-                    : "-right-1 sm:right-0"
+                  ? // Phones: under the car, beside the dots, so the arrows never cover it.
+                    d === "prev"
+                    ? "max-sm:top-auto max-sm:-bottom-[60px] max-sm:translate-y-0 left-0"
+                    : "max-sm:top-auto max-sm:-bottom-[60px] max-sm:translate-y-0 max-sm:left-[52px] sm:right-0"
                   : d === "prev"
                     ? "left-2 sm:left-6"
                     : "right-2 sm:right-6"
