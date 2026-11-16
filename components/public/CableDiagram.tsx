@@ -9,7 +9,6 @@ import {
   pathMarks,
   type PathMark,
 } from "@/lib/circuit-path";
-import { circuitSheet } from "@/lib/circuit-sheet";
 import { normalizeCircuit } from "@/lib/circuits";
 import type { AudioComponent, Circuit } from "@/lib/types";
 import { CircuitSheet } from "./CircuitSheet";
@@ -19,13 +18,6 @@ import { SpecPopover } from "./SpecPopover";
 const SIDE_MIN_WIDTH = 980;
 /** Below this width the diagram is too small for name tags: only the outlines show (names are in the circuit card). */
 const TAG_MIN_WIDTH = 640;
-
-const DOT = {
-  ok: "bg-lemon",
-  over: "bg-white/40",
-  incomplete: "bg-white/40",
-  empty: "bg-white/20",
-} as const;
 
 /**
  * The team's cable diagram with a circuit panel: beside the diagram on wide
@@ -59,8 +51,6 @@ export function CableDiagram({
   // A click on a part of the + run (e.g. a fuse) lights the + run only; a − part the − run only.
   const [focusRun, setFocusRun] = useState<"power" | "ground" | null>(null);
   const marks = active ? onlyRun(pathMarks(active, circuits), focusRun) : [];
-  const title = (k: string | null | undefined) =>
-    components.find((x) => x.key === k)?.title;
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -136,7 +126,6 @@ export function CableDiagram({
           </span>
           <ul className="m-0 grid list-none grid-cols-1 gap-1 p-0">
             {[...g.list].sort(codeSort).map((c) => {
-              const st = circuitSheet(c, circuits, title).status;
               return (
                 <li key={c.id}>
                   <button
@@ -144,10 +133,6 @@ export function CableDiagram({
                     onClick={() => pick(c.id)}
                     className="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-xl px-3 text-left text-[13px] hover:bg-white/[0.06]"
                   >
-                    <span
-                      aria-hidden="true"
-                      className={`h-2 w-2 flex-none rounded-full ${DOT[st]}`}
-                    />
                     {c.fuse_code && (
                       <span className="w-14 flex-none font-mono text-[12px] text-amber">
                         {c.fuse_code}
@@ -161,26 +146,6 @@ export function CableDiagram({
           </ul>
         </div>
       ))}
-      <p className="m-0 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[10px] tracking-[0.06em] text-muted-2">
-        <span>
-          <span
-            className={`mr-1.5 inline-block h-2 w-2 rounded-full ${DOT.ok}`}
-          />
-          FUSES OK
-        </span>
-        <span>
-          <span
-            className={`mr-1.5 inline-block h-2 w-2 rounded-full ${DOT.over}`}
-          />
-          CHECK
-        </span>
-        <span>
-          <span
-            className={`mr-1.5 inline-block h-2 w-2 rounded-full ${DOT.incomplete}`}
-          />
-          NOT FILLED IN
-        </span>
-      </p>
     </div>
   );
 
