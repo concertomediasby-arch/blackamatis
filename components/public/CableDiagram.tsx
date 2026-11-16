@@ -21,8 +21,8 @@ const TAG_MIN_WIDTH = 640;
 
 /**
  * The team's cable diagram with a circuit panel: beside the diagram on wide
- * screens, as a bottom sheet on phones. Before anything is picked the panel
- * lists every circuit by fuse code, so judges can go through all fuses quickly.
+ * screens, as a bottom sheet on phones. Nothing shows until a device is
+ * clicked (like the system diagram); the diagram fills the row until then.
  */
 export function CableDiagram({
   imageUrl,
@@ -83,72 +83,6 @@ export function CableDiagram({
     return () => document.removeEventListener("keydown", onKey);
   }, [open, specs, peek, close]);
 
-  const groups = [
-    {
-      title: "Fuse block A",
-      list: circuits.filter(
-        (c) => c.kind === "channel" && /^A/i.test(c.fuse_code ?? ""),
-      ),
-    },
-    {
-      title: "Fuse block B",
-      list: circuits.filter(
-        (c) => c.kind === "channel" && /^B/i.test(c.fuse_code ?? ""),
-      ),
-    },
-    { title: "Main runs", list: circuits.filter((c) => c.kind === "trunk") },
-    {
-      title: "Other",
-      list: circuits.filter(
-        (c) => c.kind === "channel" && !/^[AB]/i.test(c.fuse_code ?? ""),
-      ),
-    },
-  ].filter((g) => g.list.length);
-  const codeSort = (a: Circuit, b: Circuit) =>
-    (a.fuse_code ?? "").localeCompare(b.fuse_code ?? "", undefined, {
-      numeric: true,
-    });
-
-  const index = (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <span className="font-mono text-[10px] tracking-[0.14em] text-amber">
-          ALL CIRCUITS
-        </span>
-        <span className="text-[13px] text-muted">
-          Click a device on the diagram, or pick a circuit by its fuse.
-        </span>
-      </div>
-      {groups.map((g) => (
-        <div key={g.title} className="flex flex-col gap-1.5">
-          <span className="font-mono text-[10px] tracking-[0.14em] text-muted-2">
-            {g.title.toUpperCase()}
-          </span>
-          <ul className="m-0 grid list-none grid-cols-1 gap-1 p-0">
-            {[...g.list].sort(codeSort).map((c) => {
-              return (
-                <li key={c.id}>
-                  <button
-                    type="button"
-                    onClick={() => pick(c.id)}
-                    className="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-xl px-3 text-left text-[13px] hover:bg-white/[0.06]"
-                  >
-                    {c.fuse_code && (
-                      <span className="w-14 flex-none font-mono text-[12px] text-amber">
-                        {c.fuse_code}
-                      </span>
-                    )}
-                    <span className="flex-1">{c.name}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ))}
-    </div>
-  );
-
   const nav = (back: string, onBack: () => void) => (
     <div className="flex items-center justify-between gap-2">
       <button
@@ -201,7 +135,7 @@ export function CableDiagram({
         components={components}
         titleId={`${uid}-title`}
         onShowSpecs={product ? () => setSpecs(true) : undefined}
-        nav={nav("← All circuits", close)}
+        nav={nav("← Back to diagram", close)}
       />
     ));
 
@@ -212,7 +146,7 @@ export function CableDiagram({
     <div
       ref={wrapRef}
       className={
-        side
+        side && active
           ? "grid grid-cols-[minmax(0,1fr)_380px] items-start gap-5"
           : "flex flex-col gap-4"
       }
@@ -286,16 +220,16 @@ export function CableDiagram({
         )}
       </div>
 
-      {side ? (
+      {side && active ? (
         <aside
           id={`${uid}-panel`}
           ref={panelRef}
           tabIndex={-1}
-          aria-label={active ? `Circuit ${active.name}` : "All circuits"}
+          aria-label={`Circuit ${active.name}`}
           className={`${panelCls} sticky top-24 max-h-[calc(100vh-7rem)]`}
           style={{ background: "rgba(1,20,53,0.92)" }}
         >
-          {detail || <div className="pt-5">{index}</div>}
+          {detail}
         </aside>
       ) : active && peek ? (
         <div
@@ -370,17 +304,7 @@ export function CableDiagram({
             {detail}
           </div>
         </div>
-      ) : (
-        <details
-          className="rounded-3xl border border-white/10 p-4 text-ink"
-          style={{ background: "rgba(1,20,53,0.6)" }}
-        >
-          <summary className="min-h-11 cursor-pointer content-center text-[13px] font-semibold text-amber">
-            All circuits by fuse
-          </summary>
-          <div className="pt-3">{index}</div>
-        </details>
-      )}
+      ) : null}
     </div>
   );
 }
